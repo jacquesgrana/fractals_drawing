@@ -1,0 +1,22 @@
+/* assets/styles/components/_buttons.scss */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+
+    &.btn-primary {
+        background-color: $primary-color;
+        color: white;
+
+        /*
+        &:hover {
+            //background-color: darken($primary-color, 10%);
+        }
+        */
+    }
+}

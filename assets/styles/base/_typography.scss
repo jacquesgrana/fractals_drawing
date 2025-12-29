@@ -1,0 +1,16 @@
+/* assets/styles/base/_typography.scss */
+body {
+    font-family: $font-stack; // On utilise la variable définie !
+    background-color: $light-bg;
+    color: $dark-text;
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    color: $secondary-color;
+    margin-bottom: $padding-base;
+}
+
+p {
+    margin-bottom: $padding-base;
+}

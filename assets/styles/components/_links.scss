@@ -1,0 +1,8 @@
+.react-link {
+    text-decoration: none;
+    color: $primary-color-light;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}

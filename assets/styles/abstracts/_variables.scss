@@ -1,0 +1,42 @@
+// Couleurs
+$primary-color: hsl(190, 87%, 20%);
+$primary-color-dark: hsl(190, 69%, 15%);
+$primary-color-light: hsl(190, 70%, 53%);
+
+$secondary-color: hsl(210, 29%, 24%);
+$secondary-color-dark: hsl(210, 29%, 29%);
+$secondary-color-light: hsl(210, 2%, 42%);
+
+$accent-color: hsl(6, 78%, 57%);
+$accent-color-dark: hsl(6, 63%, 46%);
+$accent-color-light: hsl(6, 78%, 57%);
+
+$warning-color: hsl(33, 78%, 57%);
+$warning-color-dark: hsl(33, 70%, 26%);
+$warning-color-light: hsl(33, 54%, 66%);
+
+$danger-color: hsl(0, 78%, 57%);
+$danger-color-dark: hsl(0, 70%, 26%);
+$danger-color-light: hsl(0, 54%, 66%);
+
+$success-color: hsl(120, 78%, 57%);
+$success-color-dark: hsl(120, 70%, 26%);
+$success-color-light: hsl(120, 54%, 66%);
+
+$info-color: hsl(180, 78%, 57%);
+$info-color-dark: hsl(180, 70%, 26%);
+$info-color-light: hsl(180, 54%, 66%);
+
+$light-bg: hsl(265, 31%, 38%);
+$medium-bg: hsl(265, 32%, 45%);
+$dark-bg: hsl(265, 42%, 25%);
+
+$dark-text: hsl(0, 0%, 15%);
+
+// Polices
+$font-stack: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+// Espacements
+$padding-base: 20px;
+$margin-base: 20px;
+$space-base: 10px;
