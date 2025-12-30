@@ -1,10 +1,23 @@
 #react-header {
-        background-color: $primary-color;
-        color: white;
-        padding: $padding-base;
-        text-align: center;
-        width: 100vw;
+    background-color: $primary-color;
+    color: white;
+    padding: $padding-base;
+    text-align: center;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: $space-base;
+
+    h1 {
+        margin-top: $space-base;
+        color: $light-text;
+    }
+
+    #react-header-nav {
         display: flex;
-        justify-content: center;
         gap: $space-base;
     }
+}
+

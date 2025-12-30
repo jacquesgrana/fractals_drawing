@@ -40,14 +40,26 @@ const Header = () : React.ReactElement => {
         };
     }, [securityService, updateAuthState]);
 
+    const handleLogout = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        
+        await securityService.logout();
+        
+        // Redirection après déconnexion
+        //navigate('/login'); 
+    };
+
     return(
-        <nav id="react-header">
-            {/* Attention: Utilise <Link> et non <a href> pour ne pas recharger la page */}
-            <Link className="react-link" to="/">Accueil</Link>
-            <Link className="react-link" to="/draw">Dessin</Link>
-            <Link className="react-link" to="/login">Login</Link>
+        <div id="react-header">
+            <h1>Fractals Drawing</h1>
+            
+            <nav id="react-header-nav">
+                <Link className="react-link" to="/">Accueil</Link>
+                <Link className="react-link" to="/draw">Dessin</Link>
+                {!isAuthenticated ? (<Link className="react-link" to="/login">Login</Link>)  : (<a href="#" className="react-link" onClick={handleLogout}>Logout</a>) } 
+            </nav>
             {isAuthenticated ? <div>Connecté en tant que {user?.email}</div> : <div>Non connecté</div>}
-        </nav>
+        </div>
     );
 };
 export default Header;
