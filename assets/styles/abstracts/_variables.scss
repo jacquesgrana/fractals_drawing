@@ -1,7 +1,7 @@
 // Couleurs
-$primary-color: hsl(190, 87%, 20%);
-$primary-color-dark: hsl(190, 69%, 15%);
-$primary-color-light: hsl(190, 70%, 53%);
+$primary-color: hsl(206, 81%, 17%);
+$primary-color-dark: hsl(206, 64%, 11%);
+$primary-color-light: hsl(206, 70%, 53%);
 
 $secondary-color: hsl(210, 29%, 24%);
 $secondary-color-dark: hsl(210, 29%, 29%);
@@ -38,5 +38,15 @@ $font-stack: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
 // Espacements
 $padding-base: 20px;
+$padding-big: 40px;
+$padding-small: 10px;
+
 $margin-base: 20px;
+$margin-big: 40px;
+$margin-small: 10px;
+
 $space-base: 10px;
+$space-big: 20px;
+$space-small: 5px;
+
+$radius-base: 4px;

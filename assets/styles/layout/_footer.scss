@@ -4,4 +4,12 @@
         padding: $padding-base;
         text-align: center;
         width: 100vw;
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        p {
+            margin-top: $space-base;
+        }
     }
