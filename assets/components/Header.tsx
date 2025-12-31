@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Nullable, UserInfo } from '../types/indexType';
 import SecurityService from '../services/SecurityService';
+import ToastFacade from '../facade/ToastFacade';
 
 const Header = () : React.ReactElement => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -44,7 +45,7 @@ const Header = () : React.ReactElement => {
         e.preventDefault();
         
         await securityService.logout();
-        
+        ToastFacade.success('Déconnexion réussie !');
         // Redirection après déconnexion
         //navigate('/login'); 
     };
@@ -58,7 +59,7 @@ const Header = () : React.ReactElement => {
                 <Link className="react-link" to="/draw">Dessin</Link>
                 {!isAuthenticated ? (<Link className="react-link" to="/login">Login</Link>)  : (<a href="#" className="react-link" onClick={handleLogout}>Logout</a>) } 
             </nav>
-            {isAuthenticated ? <div>Connecté en tant que {user?.email}</div> : <div>Non connecté</div>}
+            {isAuthenticated ? <div>Connecté en tant que <span className="color-warning">{user?.email}</span></div> : <div>Non connecté</div>}
         </div>
     );
 };

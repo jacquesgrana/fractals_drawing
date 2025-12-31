@@ -9,6 +9,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Login from './pages/Login';
 import SecurityService from './services/SecurityService';
+import { Toaster } from 'react-hot-toast';
 
 const ReactBody = ({ name }: { name: string }) => {
 
@@ -30,9 +31,9 @@ const ReactBody = ({ name }: { name: string }) => {
                         // C'est ici que tu mets à jour ton observable !
                         // Exemple : authService.setUser(userData);
                         // Exemple : authService.setIsAuthenticated(true);
-                        console.log('Utilisateur restauré : ', securityService.getUser()?.email);
+                        //console.log('Utilisateur restauré : ', securityService.getUser()?.email);
                     } else {
-                        console.log('Pas de session active');
+                        //console.log('Pas de session active');
                         // Optionnel : Forcer la déco dans le service si besoin
                     }
                 }
@@ -50,6 +51,7 @@ const ReactBody = ({ name }: { name: string }) => {
     
     return (
             <BrowserRouter>
+                <Toaster position="top-right" />
                 {/* --- HEADER (Fixe) --- */}
                 <Header />
 

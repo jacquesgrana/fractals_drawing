@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Form, Alert } from 'react-bootstrap';
 import SecurityService from "../services/SecurityService";
 import { useNavigate } from 'react-router-dom';
-
+import ToastFacade from '../facade/ToastFacade';
 
 /**
  * Composant React pour la page de login.
@@ -31,20 +31,6 @@ const Login = (): React.ReactElement => {
         setError(null);     // On efface les erreurs précédentes
 
 
-        // TODO : faire service SecurityService et déplacer le try/catch dans une méthode de ce service
-        
-            /*
-            const response = await fetch('/api/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                })
-            });*/
-
             const loginData = {
                 email: email,
                 password: password
@@ -54,16 +40,18 @@ const Login = (): React.ReactElement => {
             if(response) {
                 if (response.ok) {
                     // Connexion réussie (Code 200)
-                    console.log('Login success !');
+                    //console.log('Login success !');
                     // ICI: Rediriger l'utilisateur, par exemple :
-                    window.location.href = '/'; 
-                    //navigate('/');
+                    //window.location.href = '/'; 
+                    navigate('/');
                     // TODO afficher toast
+                    ToastFacade.success('Connexion réussie !');
 
                 } else {
                     // Erreur (Code 401 par exemple)
                     setError('Email ou mot de passe incorrect.');
                     // TODO afficher toast
+                    ToastFacade.error('Email ou mot de passe incorrect.');
 
                 }
             }
@@ -82,12 +70,12 @@ const Login = (): React.ReactElement => {
             <Form onSubmit={handleSubmit} className="react-form">
                 
                 {/* Champ Email contrôlé */}
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-2 w-100">
                     <input 
                         type="email" 
                         name="email" 
                         placeholder="Email" 
-                        className="react-input form-control" // Ajout de form-control pour le style bootstrap si besoin
+                        className="react-input form-control"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -95,7 +83,7 @@ const Login = (): React.ReactElement => {
                 </Form.Group>
 
                 {/* Champ Password contrôlé */}
-                <Form.Group className="mb-3 d-flex">
+                <Form.Group className="mb-2 d-flex gap-2 w-100">
                     <input 
                         type={isPasswordVisible ? 'text' : 'password'} 
                         name="password" 
@@ -106,10 +94,10 @@ const Login = (): React.ReactElement => {
                         required
                     />
                     <Button 
-                        type="button" // Important pour ne pas soumettre
+                        type="button"
                         onClick={togglePassword} 
-                        variant="outline-secondary" 
-                        className="ms-2"
+                        variant="primary" 
+                        className=""
                     >
                         {isPasswordVisible ? '🙈' : '👁'}
                     </Button>

@@ -1,8 +1,12 @@
 .react-link {
+    transition: color 0.3s ease;
+    cursor: pointer;
     text-decoration: none;
     color: $primary-color-light;
 
     &:hover {
+        transition: color 0.3s ease;
         text-decoration: underline;
+        color: $warning-color-light;
     }
 }

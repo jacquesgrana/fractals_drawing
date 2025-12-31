@@ -47,7 +47,8 @@ class SecurityService {
 
             if(response.ok) {
                 this.setIsAuthenticated(true);
-                this.setUser(await response.json());
+                const data = await response.json();
+                this.setUser(data.user);
                 this.notifySubscribers();
                 // TODO observers notifiés
                 //console.log('user : ', this.getUser());
