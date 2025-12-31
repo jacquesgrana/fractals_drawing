@@ -9,4 +9,9 @@
         text-decoration: underline;
         color: $warning-color-light;
     }
+
+    &.active {
+        text-decoration: underline;
+        color: $warning-color-light;
+    }
 }

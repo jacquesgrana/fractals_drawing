@@ -3,7 +3,7 @@ import React from 'react';
 const Footer = () : React.ReactElement => {
     return (
     <footer id="react-footer">
-        <p>Mon super footer</p>
+        <p>Fractals Drawing © 2026</p>
     </footer>
 );
 };

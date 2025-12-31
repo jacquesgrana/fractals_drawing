@@ -6,10 +6,41 @@
 
     .react-input {
         padding: $padding-small;
-        border: 1px solid $primary-color-light;
+        border: 1px solid $primary-color;
         border-radius: $radius-base;
         font-size: 1rem;
-        border: none;
+        color:$dark-text;
+        
+        // 1. Ta couleur de base (pour quand l'autocomplétion n'est pas active)
+        background-color: $light-bg; 
+        
+        // Si Bootstrap écrase ta couleur, augmente la spécificité sans utiliser !important si possible
+        // En Sass, l'esperluette '&' colle la classe form-control au parent
+        &.form-control {
+            background-color: $light-bg;
+            font-size: 1rem;
+            &:focus {
+                // Gérer aussi le focus de bootstrap qui remet souvent du blanc
+                background-color: $light-bg;
+                border-color: $primary-color; // ou une couleur plus foncée
+                box-shadow: 0 0 0 0.25rem rgba($primary-color, 0.25);
+            }
+        }
+
+        // 2. LE CORRECTIF POUR L'AUTOCOMPLÉTION (Autofill)
+        // On cible l'état où le navigateur a pré-rempli le champ
+        &:-webkit-autofill,
+        &:-webkit-autofill:hover, 
+        &:-webkit-autofill:focus, 
+        &:-webkit-autofill:active {
+            // Le hack : une ombre interne géante de la couleur que tu veux
+            -webkit-box-shadow: 0 0 0 30px $light-bg inset !important;
+            
+            // Si ta couleur de texte change aussi à cause du navigateur :
+            -webkit-text-fill-color: $dark-text !important; // ou ta variable de couleur de texte
+            font-size: 1rem;
+            // Transition pour retarder l'application du fond navigateur au cas où
+            transition: background-color 5000s ease-in-out 0s;
+        }
     }
 }
-

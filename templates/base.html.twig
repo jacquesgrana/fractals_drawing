@@ -2,7 +2,26 @@
 <html>
     <head>
         <meta charset="UTF-8">
+
         <title>{% block title %}App{% endblock %}</title>
+
+        {# --- DÉBUT INTEGRATION FAVICON & MANIFEST --- #}
+        
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+
+        {# 2. Favicon classique (.ico) #}
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon/favicon.ico') }}">
+
+        {# 3. Icônes pour navigateurs modernes (Optionnel ici car déjà dans le manifest, mais recommandé pour compatibilité) #}
+        <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('favicon/logo192.png') }}">
+        <link rel="icon" type="image/png" sizes="512x512" href="{{ asset('favicon/logo512.png') }}">
+
+        {# 4. Pour iOS (iPhone/iPad) qui n'utilise pas toujours le manifest #}
+        <link rel="apple-touch-icon" href="{{ asset('favicon/logo192.png') }}">
+
+        {# 5. Couleur du thème (Mobile adress bar) - Doit matcher ton manifest #}
+        <meta name="theme-color" content="#000000">
+        
         {% block stylesheets %}
             {{ encore_entry_link_tags('app') }}
         {% endblock %}
