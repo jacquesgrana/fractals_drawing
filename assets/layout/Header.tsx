@@ -59,7 +59,7 @@ const Header = () : React.ReactElement => {
                 <Link className="react-link" to="/draw">Dessin</Link>
                 {!isAuthenticated ? (<Link className="react-link" to="/login">Login</Link>)  : (<a href="#" className="react-link" onClick={handleLogout}>Logout</a>) } 
             </nav>
-            {isAuthenticated ? <div>Connecté en tant que <span className="color-warning">{user?.email}</span></div> : <div>Non connecté</div>}
+            {isAuthenticated ? <div className="react-header-small-text">Connecté en tant que <span className="color-warning">{user?.email}</span></div> : <div className="react-header-small-text">Non connecté</div>}
         </div>
     );
 };

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Button, Form, Alert } from 'react-bootstrap';
-import SecurityService from "../services/SecurityService";
+import SecurityService from "../../services/SecurityService";
 import { useNavigate } from 'react-router-dom';
-import ToastFacade from '../facade/ToastFacade';
+import ToastFacade from '../../facade/ToastFacade';
 
 /**
  * Composant React pour la page de login.
@@ -70,7 +70,7 @@ const Login = (): React.ReactElement => {
             <Form onSubmit={handleSubmit} className="react-form">
                 
                 {/* Champ Email contrôlé */}
-                <Form.Group className="mb-2 w-100">
+                <Form.Group className="w-100">
                     <input 
                         type="email" 
                         name="email" 
@@ -83,7 +83,7 @@ const Login = (): React.ReactElement => {
                 </Form.Group>
 
                 {/* Champ Password contrôlé */}
-                <Form.Group className="mb-2 d-flex gap-2 w-100">
+                <Form.Group className="d-flex gap-2 w-100">
                     <input 
                         type={isPasswordVisible ? 'text' : 'password'} 
                         name="password" 

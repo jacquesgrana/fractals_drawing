@@ -17,7 +17,12 @@
 
     #react-header-nav {
         display: flex;
+        flex-wrap: wrap;
         gap: $space-base;
+    }
+
+    .react-header-small-text {
+        font-size: $text-size-small;
     }
 }
 

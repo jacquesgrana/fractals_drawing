@@ -3,11 +3,11 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import './styles/app.scss'; // Ton SCSS
 
-import Home from './pages/Home';
-import Draw from './pages/Draw';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import Login from './pages/Login';
+import Home from './pages/home/Home';
+import Draw from './pages/draw/Draw';
+import Login from './pages/login/Login';
+import Header from './layout/Header';
+import Footer from './layout/Footer';
 import SecurityService from './services/SecurityService';
 import { Toaster } from 'react-hot-toast';
 
