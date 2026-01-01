@@ -6,3 +6,9 @@ export type CustomDate = {
     timezone: string;
     timezone_type: number;
 };
+
+export type ApiResponse = {
+    message: string;
+    status: number;
+    data: any;
+};

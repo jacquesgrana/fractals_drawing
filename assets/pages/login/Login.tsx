@@ -3,6 +3,9 @@ import { Button, Form, Alert } from 'react-bootstrap';
 import SecurityService from "../../services/SecurityService";
 import { useNavigate } from 'react-router-dom';
 import ToastFacade from '../../facade/ToastFacade';
+import { Nullable } from '../../types/commonTypes';
+
+// TODO ajouter captcha
 
 /**
  * Composant React pour la page de login.
@@ -31,42 +34,46 @@ const Login = (): React.ReactElement => {
         setError(null);     // On efface les erreurs précédentes
 
 
-            const loginData = {
-                email: email,
-                password: password
-            }
-            const response: Response | null = await securityService.login(loginData);
+        const loginData = {
+            email: email,
+            password: password
+        }
+        const response: Nullable<Response> = await securityService.login(loginData);
 
-            if(response) {
-                if (response.ok) {
-                    // Connexion réussie (Code 200)
-                    //console.log('Login success !');
-                    // ICI: Rediriger l'utilisateur, par exemple :
-                    //window.location.href = '/'; 
-                    navigate('/');
+        if(response) {
+            if (response.ok) {
+                // Connexion réussie (Code 200)
+                //console.log('Login success !');
+                // ICI: Rediriger l'utilisateur, par exemple :
+                //window.location.href = '/'; 
+                navigate('/');
+                // TODO afficher toast
+                ToastFacade.success('Connexion réussie !');
+
+            } else {
+                // Erreur (Code 401 par exemple)
+                if (response.status === 401) {
+                    const datas = await response.json();
+                    //console.log('Login failed !');
                     // TODO afficher toast
-                    ToastFacade.success('Connexion réussie !');
-
-                } else {
-                    // Erreur (Code 401 par exemple)
-                    setError('Email ou mot de passe incorrect.');
+                    //setError('Erreur : ' + data.error);
+                // TODO afficher toast
+                    navigate('/error401');
+                    ToastFacade.error('Erreur : ' + datas.error);
+                }
+                else {
                     // TODO afficher toast
-                    ToastFacade.error('Email ou mot de passe incorrect.');
-
+                    ToastFacade.error('Une erreur s\'est produite lors de la connexion.');
                 }
             }
-            
+        }
     };
 
     return (
         <div className="react-card login-page">
             <h2>Page de login</h2>
             <p>Saisissez vos identifiants pour vous connecter</p>
-            
-            {/* Affichage de l'alerte en cas d'erreur */}
-            {error && <Alert variant="danger">{error}</Alert>}
 
-            {/* Note le onSubmit ici au lieu de action="..." */}
             <Form onSubmit={handleSubmit} className="react-form">
                 
                 {/* Champ Email contrôlé */}
@@ -107,6 +114,9 @@ const Login = (): React.ReactElement => {
                     Se connecter
                 </Button>
             </Form>
+
+            {/* Affichage de l'alerte en cas d'erreur */}
+            {error && <Alert variant="danger">{error}</Alert>}
         </div>
     );
 };

@@ -57,9 +57,14 @@ const Header = () : React.ReactElement => {
             <nav id="react-header-nav">
                 <Link className="react-link" to="/">Accueil</Link>
                 <Link className="react-link" to="/draw">Dessin</Link>
-                {!isAuthenticated ? (<Link className="react-link" to="/login">Login</Link>)  : (<a href="#" className="react-link" onClick={handleLogout}>Logout</a>) } 
+                {!isAuthenticated ? ( 
+                    <>
+                    <Link className="react-link" to="/login">Connexion</Link>
+                    <Link className="react-link" to="/register">Inscription</Link>
+                    </>
+                    )  : (<a href="#" className="react-link" onClick={handleLogout}>Déconnexion</a>) } 
             </nav>
-            {isAuthenticated ? <div className="react-header-small-text">Connecté en tant que <span className="color-warning">{user?.email}</span></div> : <div className="react-header-small-text">Non connecté</div>}
+            {isAuthenticated ? <div className="react-header-small-text">Connecté en tant que <span className="color-warning">{user?.pseudo}</span></div> : <div className="react-header-small-text">Non connecté</div>}
         </div>
     );
 };

@@ -1,5 +1,6 @@
 import { UserLogin, UserInfo, Nullable } from "../types/indexType";
 import UrlConfig from "../config/UrlConfig";
+import ToastFacade from "../facade/ToastFacade";
 
 
 class SecurityService {
@@ -47,8 +48,8 @@ class SecurityService {
 
             if(response.ok) {
                 this.setIsAuthenticated(true);
-                const data = await response.json();
-                this.setUser(data.user);
+                const datas = await response.json();
+                this.setUser(datas.data.user);
                 this.notifySubscribers();
                 // TODO observers notifiés
                 //console.log('user : ', this.getUser());
@@ -98,10 +99,11 @@ class SecurityService {
             const response = await fetch(UrlConfig.ME_URL, {
                 method: 'GET'
             });
+            const datas = await response.json();
             if (response.status === 200) {
                 this.setIsAuthenticated(true);
-                const data = await response.json();
-                this.setUser(data.user);
+                //const data = await response.json();
+                this.setUser(datas.data.user);
                 this.notifySubscribers();
             }
             else {

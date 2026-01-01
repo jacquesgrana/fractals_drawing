@@ -3,6 +3,22 @@
 export type UserInfo = {
   email: string;
   roles: string[];
+  pseudo: string;
+  firstName: string;
+  lastName: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type User = {
+  id: number;
+  email: string;
+  roles: string[];
+  pseudo: string;
+  firstName: string;
+  lastName: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type UserLogin = {

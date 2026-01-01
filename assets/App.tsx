@@ -6,12 +6,15 @@ import './styles/app.scss'; // Ton SCSS
 import Home from './pages/home/Home';
 import Draw from './pages/draw/Draw';
 import Login from './pages/login/Login';
+import Error401 from './pages/errors/Error401';
+import Error404 from './pages/errors/Error404';
 import Header from './layout/Header';
 import Footer from './layout/Footer';
 import SecurityService from './services/SecurityService';
 import { Toaster } from 'react-hot-toast';
+import Register from './pages/register/Register';
 
-const ReactBody = ({ name }: { name: string }) => {
+const ReactBody = () => {
 
     const securityService = SecurityService.getInstance();
 
@@ -19,24 +22,19 @@ const ReactBody = ({ name }: { name: string }) => {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                // On appelle l'endpoint qu'on vient de créer
                 const response = await securityService.me();
 
-                
+                /*
                 if(response) {
                     if (response.status === 200) {
                         //console.log(response)
                         //const userData = await response.json();
-                        
-                        // C'est ici que tu mets à jour ton observable !
-                        // Exemple : authService.setUser(userData);
-                        // Exemple : authService.setIsAuthenticated(true);
                         //console.log('Utilisateur restauré : ', securityService.getUser()?.email);
                     } else {
                         //console.log('Pas de session active');
-                        // Optionnel : Forcer la déco dans le service si besoin
                     }
                 }
+                */
                     
                 
             } catch (error) {
@@ -52,20 +50,17 @@ const ReactBody = ({ name }: { name: string }) => {
     return (
             <BrowserRouter>
                 <Toaster position="top-right" />
-                {/* --- HEADER (Fixe) --- */}
                 <Header />
-
-                {/* --- CONTENU CHANGEANT (Routes) --- */}
                 <div id="react-router-container">
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/draw" element={<Draw />} />
                         <Route path="/login" element={<Login />} />
-                        <Route path="*" element={<Home />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/error401" element={<Error401 />} />
+                        <Route path="*" element={<Error404 />} />
                     </Routes>
                 </div>
-
-                {/* --- FOOTER (Fixe) --- */}
                 <Footer />
             </BrowserRouter>
     );
@@ -74,5 +69,5 @@ const ReactBody = ({ name }: { name: string }) => {
 const container = document.getElementById('react-root');
 if (container) {
     const root = createRoot(container);
-    root.render(<ReactBody name="Développeur" />);
+    root.render(<ReactBody />);
 }

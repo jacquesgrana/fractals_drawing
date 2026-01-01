@@ -3,6 +3,7 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -16,34 +17,64 @@ class SecurityController extends AbstractController
     public function login(#[CurrentUser] ?User $user): Response
     {
         if (null === $user) {
-            return $this->json(['message' => 'Identifiants incorrects'], Response::HTTP_UNAUTHORIZED);
+            return $this->json([
+                'status' => Response::HTTP_UNAUTHORIZED,
+                'message' => 'Identifiants Incorrects',
+                'data' => []
+            ], Response::HTTP_UNAUTHORIZED);
         }
 
         // On renvoie l'utilisateur au format JSON
         return $this->json([
-            'user' => [
-                'email' => $user->getEmail(),
-                'roles' => $user->getRoles()
-            ]
-        ]);
+            'status' => Response::HTTP_OK,
+            'message' => 'Connexion réussie',
+            'data' => [
+                'user' => [
+                    'email' => $user->getEmail(),
+                    'roles' => $user->getRoles(),
+                    'pseudo' => $user->getPseudo(),
+                    'firstName' => $user->getFirstName(),
+                    'lastName' => $user->getLastName(),
+                    'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
+                    'updatedAt' => $user->getUpdatedAt()->format('Y-m-d H:i:s')
+                ]
+            ],
+            
+        ], Response::HTTP_OK);
     }
 
     // React appellera cette route au chargement de la page pour savoir si l'utilisateur est déjà connecté
     #[Route('/me', name: 'me', methods: ['GET'])]
-    public function me(): Response
+    public function me(UserRepository $userRepository): Response
     {
         $user = $this->getUser();
 
         if (!$user) {
-            return $this->json(['user' => null], Response::HTTP_ACCEPTED);
+            return $this->json([
+                'status' => Response::HTTP_ACCEPTED,
+                'message' => 'Utilisateur non connecté',
+                'data' => []
+            ], Response::HTTP_ACCEPTED);
         }
 
+        $userReal = $userRepository->findOneBy(['email' => $user->getUserIdentifier()]);
+
         return $this->json([
-            'user' => [
-                'email' => $user->getUserIdentifier(), // ou ->getEmail()
-                'roles' => $user->getRoles()
-            ], Response::HTTP_OK
-        ]);
+            'status' => Response::HTTP_OK,
+            'message' => 'Utilisateur connecté',
+            'data' => [
+                'user' => [
+                    'email' => $user->getUserIdentifier(), // ou ->getEmail()
+                    'roles' => $user->getRoles(),
+                    'pseudo' => $userReal->getPseudo(),
+                    'firstName' => $userReal->getFirstName(),
+                    'lastName' => $userReal->getLastName(),
+                    'createdAt' => $userReal->getCreatedAt()->format('Y-m-d H:i:s'),
+                    'updatedAt' => $userReal->getUpdatedAt()->format('Y-m-d H:i:s')
+                ]
+            ]
+            
+        ], Response::HTTP_OK);
     }
 
     #[Route('/logout', name: 'logout', methods: ['GET'])]

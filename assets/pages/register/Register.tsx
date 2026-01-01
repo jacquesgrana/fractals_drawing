@@ -1,0 +1,234 @@
+import React, { useEffect, useState } from 'react';
+import { Alert, Button, Form } from 'react-bootstrap';
+import SecurityService from '../../services/SecurityService';
+
+const Register = () : React.ReactElement => {
+    //const [error, setError] = useState<string | null>(null);
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [password2, setPassword2] = useState<string>('');
+
+    const [pseudo, setPseudo] = useState<string>('');
+    const [firstName, setFirstName] = useState<string>('');
+    const [lastName, setLastName] = useState<string>('');
+
+    const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+    const [isFormValid, setIsFormValid] = useState<boolean>(false);
+
+    const PASSWORD_MIN_LENGTH = 8;
+    const EMAIL_REGEX : RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // État pour l'affichage de l'alerte rouge en haut
+    const [displayError, setDisplayError] = useState<string | null>(null);
+    
+    // État "silencieux" qui contient le message composé (ex: "Email vide / Pseudo vide")
+    const [composedError, setComposedError] = useState<string>('');
+
+    const securityService = SecurityService.getInstance();
+
+
+    useEffect(() => {
+        let errorMsg = '';
+        let isValid = true;
+
+        if (email === '') {
+            isValid &&= false;
+            errorMsg += 'Email vide / ';
+        } else if (!EMAIL_REGEX.test(email)) {
+            // Si l'email n'est pas vide mais ne respecte pas le format
+            isValid &&= false;
+            errorMsg += 'Format Email invalide / ';
+        }
+        if(password === '') {
+            isValid &&= false;
+            errorMsg += 'Mot de passe vide / ';
+        }
+        if(password.length > 0 && password.length < PASSWORD_MIN_LENGTH) {
+            isValid &&= false;
+            errorMsg += 'Mot de passe trop court (< ' + PASSWORD_MIN_LENGTH + ') / ';
+        }
+        if(password2 === '') {
+            isValid &&= false;
+            errorMsg += 'Confirmation vide / ';
+        }
+        if(password2.length > 0 && password2.length < PASSWORD_MIN_LENGTH) {
+            isValid &&= false;
+            errorMsg += 'Confirmation trop courte (< ' + PASSWORD_MIN_LENGTH + ') / ';
+        }
+        if(pseudo === '') {
+            isValid &&= false;
+            errorMsg += 'Pseudo vide / ';
+        }
+        if(firstName === '') {
+            isValid &&= false;
+            errorMsg += 'Prénom vide / ';
+        }
+        if(lastName === '') {
+            isValid &&= false;
+            errorMsg += 'Nom de famille vide / ';
+        }
+        if(password !== '' && password2 !== '' && password.localeCompare(password2) !== 0) {
+            isValid &&= false;
+            errorMsg += 'Les mots de passe ne correspondent pas / ';
+        }
+
+        if(errorMsg.endsWith(' / ')) {
+            errorMsg = errorMsg.substring(0, errorMsg.length - 3);
+        }
+
+        
+        setComposedError(errorMsg);
+        setIsFormValid(isValid);
+
+        const isFormTouched = email !== '' || password !== '' || password2 !== '' || pseudo !== '' || firstName !== '' || lastName !== '';
+
+        if (isValid) {
+            // Si le formulaire est valide, on retire l'erreur
+            setDisplayError(null);
+        } 
+        else if (isFormTouched) {
+            // Si invalide ET que l'utilisateur a commencé à écrire, on affiche l'erreur
+            setDisplayError(errorMsg);
+        } 
+        else {
+            // Si tout est vide (premier chargement de page), on laisse l'alerte vide
+            setDisplayError(null);
+        }
+
+    }, [email, password, password2, pseudo, firstName, lastName]); // Dépendances
+
+    const togglePassword = () => {
+        setIsPasswordVisible((previous) => !previous);
+    }
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault(); // Empêche le rechargement de la page
+        //setError(null);     // On efface les erreurs précédentes
+
+        const userData = {
+            email: email,
+            password: password,
+            pseudo: pseudo,
+            firstName: firstName,
+            lastName: lastName
+        }
+        if (!isFormValid) {
+            setDisplayError(composedError);
+            return;
+        }
+
+        // TODO ajouter captcha
+    }
+
+
+    return (
+        <div className="react-card register-page">
+            <h2>Page d'inscription</h2>
+            <p>Saisissez vos données personnelles</p>
+
+            {displayError && <Alert variant="danger">{displayError}</Alert>}
+
+            <Form onSubmit={handleSubmit} className="react-form">
+                <Form.Group className="w-100">
+                    <input 
+                        type="email" 
+                        name="email" 
+                        placeholder="Email" 
+                        className="react-input form-control"
+                        value={email}
+                        onChange={(e) => {
+                            setEmail(() => e.target.value);
+                            }
+                        }
+                        required
+                        autoComplete="off"
+                    />
+                </Form.Group>
+
+                <Form.Group className="w-100 d-flex flex-column gap-2">
+                    <input 
+                        type={isPasswordVisible ? 'text' : 'password'} 
+                        name="password" 
+                        placeholder="Mot de passe" 
+                        className="react-input form-control"
+                        value={password}
+                        onChange={(e) => {
+                            setPassword(() => e.target.value);
+                            }
+                        }
+                        required
+                        autoComplete="new-password" 
+                    />
+                    <div className="d-flex gap-2 w-100">
+                        <input 
+                            type={isPasswordVisible ? 'text' : 'password'} 
+                            name="password2" 
+                            placeholder="Confirmation" 
+                            className="react-input form-control"
+                            value={password2}
+                            onChange={(e) => {
+                                setPassword2(() => e.target.value);
+                                }
+                            }
+                            required
+                        />
+                        <Button 
+                            type="button"
+                            onClick={togglePassword} 
+                            variant="primary" 
+                            className=""
+                            >
+                            {isPasswordVisible ? '🙈' : '👁'}
+                        </Button>
+                    </div>
+                </Form.Group>
+
+                <Form.Group className="w-100">
+                    <input 
+                        type="text" 
+                        name="pseudo" 
+                        placeholder="Pseudo" 
+                        className="react-input form-control"
+                        value={pseudo}
+                        onChange={(e) => {
+                            setPseudo(() => e.target.value);
+                            }
+                        }
+                        required
+                    />
+                </Form.Group>
+
+                <Form.Group className="w-100">
+                    <input 
+                        type="text" 
+                        name="firstName" 
+                        placeholder="Prénom" 
+                        className="react-input form-control"
+                        value={firstName}
+                        onChange={(e) => {
+                            setFirstName(() => e.target.value);
+                            }
+                    }
+                        required
+                    />
+                </Form.Group>
+
+                <Form.Group className="w-100">
+                    <input 
+                        type="text" 
+                        name="lastName" 
+                        placeholder="Nom" 
+                        className="react-input form-control"
+                        value={lastName}
+                        onChange={(e) => {
+                            setLastName(() => e.target.value);
+                            }
+                        }
+                        required
+                    />
+                </Form.Group>
+
+                <Button type="submit" disabled={!isFormValid} className="btn btn-primary w-100">S'inscrire</Button>
+            </Form>
+        </div>
+    );
+};
+export default Register;

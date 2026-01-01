@@ -9,7 +9,7 @@ Encore
     .setPublicPath('/build')
     
     // Le point d'entrée de ton app React
-    .addEntry('app', './assets/app.tsx')
+    .addEntry('app', './assets/App.tsx')
 
     .splitEntryChunks()
     .enableSingleRuntimeChunk()
