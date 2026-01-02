@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import SecurityService from '../../services/SecurityService';
+import { useNavigate } from 'react-router-dom';
+import { Nullable, UserRegister } from '../../types/indexType';
+import ToastFacade from '../../facade/ToastFacade';
+import UserConfig from '../../config/UserConfig';
 
 const Register = () : React.ReactElement => {
     //const [error, setError] = useState<string | null>(null);
@@ -15,8 +19,7 @@ const Register = () : React.ReactElement => {
     const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
     const [isFormValid, setIsFormValid] = useState<boolean>(false);
 
-    const PASSWORD_MIN_LENGTH = 8;
-    const EMAIL_REGEX : RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     // État pour l'affichage de l'alerte rouge en haut
     const [displayError, setDisplayError] = useState<string | null>(null);
     
@@ -24,6 +27,7 @@ const Register = () : React.ReactElement => {
     const [composedError, setComposedError] = useState<string>('');
 
     const securityService = SecurityService.getInstance();
+    const navigate = useNavigate();  
 
 
     useEffect(() => {
@@ -33,7 +37,7 @@ const Register = () : React.ReactElement => {
         if (email === '') {
             isValid &&= false;
             errorMsg += 'Email vide / ';
-        } else if (!EMAIL_REGEX.test(email)) {
+        } else if (!UserConfig.EMAIL_REGEX.test(email)) {
             // Si l'email n'est pas vide mais ne respecte pas le format
             isValid &&= false;
             errorMsg += 'Format Email invalide / ';
@@ -42,21 +46,25 @@ const Register = () : React.ReactElement => {
             isValid &&= false;
             errorMsg += 'Mot de passe vide / ';
         }
-        if(password.length > 0 && password.length < PASSWORD_MIN_LENGTH) {
+        if(password.length > 0 && password.length < UserConfig.PASSWORD_MIN_LENGTH) {
             isValid &&= false;
-            errorMsg += 'Mot de passe trop court (< ' + PASSWORD_MIN_LENGTH + ') / ';
+            errorMsg += 'Mot de passe trop court (< ' + UserConfig.PASSWORD_MIN_LENGTH + ') / ';
         }
         if(password2 === '') {
             isValid &&= false;
             errorMsg += 'Confirmation vide / ';
         }
-        if(password2.length > 0 && password2.length < PASSWORD_MIN_LENGTH) {
+        if(password2.length > 0 && password2.length < UserConfig.PASSWORD_MIN_LENGTH) {
             isValid &&= false;
-            errorMsg += 'Confirmation trop courte (< ' + PASSWORD_MIN_LENGTH + ') / ';
+            errorMsg += 'Confirmation trop courte (< ' + UserConfig.PASSWORD_MIN_LENGTH + ') / ';
         }
         if(pseudo === '') {
             isValid &&= false;
             errorMsg += 'Pseudo vide / ';
+        } else if (!UserConfig.PSEUDO_REGEX.test(pseudo)) {
+            // Si l'email n'est pas vide mais ne respecte pas le format
+            isValid &&= false;
+            errorMsg += 'Format Pseudo invalide / ';
         }
         if(firstName === '') {
             isValid &&= false;
@@ -101,9 +109,8 @@ const Register = () : React.ReactElement => {
     }
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // Empêche le rechargement de la page
-        //setError(null);     // On efface les erreurs précédentes
 
-        const userData = {
+        const userData: UserRegister = {
             email: email,
             password: password,
             pseudo: pseudo,
@@ -115,9 +122,25 @@ const Register = () : React.ReactElement => {
             return;
         }
 
-        // TODO ajouter captcha
+        // TODO ajouter vérification du captcha
+
+        const response: Nullable<Response> = await securityService.register(userData);
+        if(response) {
+            const data = await response.json();
+            if (data.status === 201) {
+                //console.log('Inscription reussie !');
+                ToastFacade.success('Inscription reussie : ' + data.message + ' !');
+                navigate('/');
+            } else {
+                //console.log('Inscription echouee !');
+                ToastFacade.error('Inscription échouée : ' + data.message + ' !');
+            }
+        }
+
+        
     }
 
+        // TODO ajouter captcha
 
     return (
         <div className="react-card register-page">

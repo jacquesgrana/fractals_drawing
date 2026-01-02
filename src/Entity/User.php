@@ -220,19 +220,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     #[ORM\PrePersist]
-    public function setCreatedAtValue(): void
+    public function setInitialValues(): void
     {
-        // Se déclenche uniquement à la création d'un nouvel user
         $this->createdAt = new \DateTimeImmutable();
-        
-        // On initialise aussi updateAt à la création
         $this->updatedAt = new \DateTime(); 
+        $this->isVerified = false;
+        $this->isNotBanned = true;
     }
 
     #[ORM\PreUpdate]
-    public function setUpdatedAtValue(): void
+    public function setUpdatedValues(): void
     {
-        // Se déclenche à chaque fois que tu modifies l'user
         $this->updatedAt = new \DateTime();
     }
 }

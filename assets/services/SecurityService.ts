@@ -1,6 +1,6 @@
-import { UserLogin, UserInfo, Nullable } from "../types/indexType";
+import { UserLogin, UserInfo, Nullable, UserRegister } from "../types/indexType";
 import UrlConfig from "../config/UrlConfig";
-import ToastFacade from "../facade/ToastFacade";
+//import ToastFacade from "../facade/ToastFacade";
 
 
 class SecurityService {
@@ -33,7 +33,7 @@ class SecurityService {
             this.loadLocalStorageDatas();
         }
         */
-        //this.isAuthenticated = th
+        
     }
 
     public login = async (loginData: UserLogin): Promise<Nullable<Response>> => {
@@ -50,6 +50,7 @@ class SecurityService {
                 this.setIsAuthenticated(true);
                 const datas = await response.json();
                 this.setUser(datas.data.user);
+                this.setIsAuthenticated(true);
                 this.notifySubscribers();
                 // TODO observers notifiés
                 //console.log('user : ', this.getUser());
@@ -111,6 +112,23 @@ class SecurityService {
                 this.setUser(null);
                 this.notifySubscribers();
             }
+            return response;
+        } 
+        catch (err) {
+            console.error(err);
+            return null;
+        }
+    }
+
+    public register = async (userData: UserRegister): Promise<Nullable<Response>> => {
+        try {
+            const response = await fetch(UrlConfig.REGISTER_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
             return response;
         } 
         catch (err) {

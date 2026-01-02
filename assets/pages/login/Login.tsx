@@ -38,35 +38,43 @@ const Login = (): React.ReactElement => {
             email: email,
             password: password
         }
-        const response: Nullable<Response> = await securityService.login(loginData);
-
-        if(response) {
-            if (response.ok) {
-                // Connexion réussie (Code 200)
-                //console.log('Login success !');
-                // ICI: Rediriger l'utilisateur, par exemple :
-                //window.location.href = '/'; 
-                navigate('/');
-                // TODO afficher toast
-                ToastFacade.success('Connexion réussie !');
-
-            } else {
-                // Erreur (Code 401 par exemple)
-                if (response.status === 401) {
-                    const datas = await response.json();
-                    //console.log('Login failed !');
+        try {
+            const response: Nullable<Response> = await securityService.login(loginData);
+            //const datas = await response?.json();
+            if(response) {
+                
+                    if (response.ok) {
+                    //const datas = await response.json();
+                    // Connexion réussie (Code 200)
+                    //console.log('Login success !');
+                    // ICI: Rediriger l'utilisateur, par exemple :
+                    //window.location.href = '/'; 
+                    navigate('/');
                     // TODO afficher toast
-                    //setError('Erreur : ' + data.error);
-                // TODO afficher toast
-                    navigate('/error401');
-                    ToastFacade.error('Erreur : ' + datas.error);
-                }
-                else {
+                    ToastFacade.success('Connexion réussie  de ' + securityService.getUser()?.pseudo + '.');
+
+                } else {
+                    // Erreur (Code 401 par exemple)
+                    if (response.status === 401) {
+                        const datas = await response.json();
+                        //console.log('Login failed !');
+                        // TODO afficher toast
+                        //setError('Erreur : ' + data.error);
                     // TODO afficher toast
-                    ToastFacade.error('Une erreur s\'est produite lors de la connexion.');
+                        navigate('/error401');
+                        ToastFacade.error('Erreur : ' + datas.error + '.');
+                    }
+                    else {
+                        // TODO afficher toast
+                        ToastFacade.error('Une erreur s\'est produite lors de la connexion.');
+                    }
                 }
             }
+
+        } catch (error) {
+            console.error('Erreur API', error);
         }
+        
     };
 
     return (
