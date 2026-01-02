@@ -6,6 +6,7 @@ import './styles/app.scss'; // Ton SCSS
 import Home from './pages/home/Home';
 import Draw from './pages/draw/Draw';
 import Login from './pages/login/Login';
+import VerifyEmail from './pages/verify/VerifyEmail';
 import Error401 from './pages/errors/Error401';
 import Error404 from './pages/errors/Error404';
 import Header from './layout/Header';
@@ -57,6 +58,7 @@ const ReactBody = () => {
                         <Route path="/draw" element={<Draw />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
+                        <Route path="/verify" element={<VerifyEmail />} />
                         <Route path="/error401" element={<Error401 />} />
                         <Route path="*" element={<Error404 />} />
                     </Routes>

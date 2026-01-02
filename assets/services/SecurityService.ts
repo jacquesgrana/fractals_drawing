@@ -137,6 +137,20 @@ class SecurityService {
         }
     }
 
+    public verifyEmail = async (token: string, email: string): Promise<Response> => {
+        
+        const response = await fetch(UrlConfig.VERIFY_EMAIL_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ token, email })
+        });
+
+        return response;
+
+    }
+
     public subscribe(callback: (user: Nullable<UserInfo>) => void): () => void {
         this.subscribers.push(callback);
         return () => {

@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Repository\VerificationTokenRepository;
+use App\Service\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,7 +51,8 @@ class UserController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
         UserRepository $userRepository,
-        VerificationTokenRepository $verificationTokenRepository
+        VerificationTokenRepository $verificationTokenRepository,
+        MailerService $mailer
         ): JsonResponse
     {
         try {
@@ -115,31 +117,19 @@ class UserController extends AbstractController
         );
         $user->setPassword($hashedPassword);
 
-        // générer le token de confirmation pour cet user en définissant expireAt de 15 minutes sur le timestamp
-
-        // TODO : utiliser un fichier e config pour les 15 minutes
-
-        
-        //$tokenValue = bin2hex(random_bytes(32));
-        // verifier que le token n'existe pas deja (faire un while)
+        // TODO : utiliser un fichier de config pour les 15 minutes
         
         $tokenValue = null;
         
-        // Boucle : "Faire tant que..."
         do {
-            // 1. On génère un token aléatoire
             $tokenValue = bin2hex(random_bytes(32));
             
-            // 2. On regarde en base s'il existe déjà
             $existingToken = $verificationTokenRepository->findOneBy(['token' => $tokenValue]);
             
-        } while ($existingToken !== null); // Si trouvé ($existingToken pas null), on recommence la boucle
-
-        // À ce stade, on est CERTAIN que $tokenValue est unique
+        } while ($existingToken !== null);
 
         $token = new \App\Entity\VerificationToken();
         
-
         $token->setToken($tokenValue);
         //$token->setExpiresAt(new \DateTimeImmutable('+15 minutes'));
         //$token->setUser($user);
@@ -153,10 +143,10 @@ class UserController extends AbstractController
 
         // 7. Envoi de l'email de vérification de compte avec un lien de confirmation contenant le token de confirmation
 
-        //mailer->sendVerificationEmail($user, $tokenValue);
+        $mailer->sendVerificationEmail($user, $tokenValue);
 
         return $this->json([
-            'message' => "Inscription Réussie",
+            'message' => "Inscription Réussie : Email de vérification envoyé",
             'status' => 201,
             'data' => [
                 'user' => [
@@ -167,6 +157,78 @@ class UserController extends AbstractController
                     'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'),
                     'updatedAt' => $user->getUpdatedAt()->format('Y-m-d H:i:s')
                 ]
+            ]
+        ], 201); // 201 = Created
+    }
+
+    #[Route('/verify-email', name: 'verify_email', methods: ['POST'])]
+    public function verifyEmail(
+        EntityManagerInterface $em, 
+        Request $request,
+        VerificationTokenRepository $verificationTokenRepository
+    )
+    {
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        if(empty($data['token']) || empty($data['email'])
+        ) {
+            return $this->json([
+                'message' => 'Données manquantes',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        $token = $verificationTokenRepository->findOneBy(['token' => $data['token']]);
+
+        if(!$token) {
+            return $this->json([
+                'message' => 'Token invalide',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        $user = $token->getUser();
+
+        if($user->getEmail() !== $data['email']) {
+            return $this->json([
+                'message' => 'Token et email ne correspondent pas',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        if($token->getExpiresAt() < new \DateTimeImmutable()) {
+            $em->remove($token);
+            $em->flush();
+            return $this->json([
+                'message' => 'Token expiré',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        $user->setIsVerified(true);
+        $user->removeVerificationToken($token);
+        $em->persist($user);
+        //$em->remove($token);
+        $em->flush();
+        
+        return $this->json([
+            'message' => "Adresse email verifiée",
+            'status' => 201,
+            'data' => [
+                "email" => $user->getEmail()
             ]
         ], 201); // 201 = Created
     }
