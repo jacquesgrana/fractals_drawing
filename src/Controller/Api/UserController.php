@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Repository\VerificationTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,7 +49,8 @@ class UserController extends AbstractController
         EntityManagerInterface $em, 
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        VerificationTokenRepository $verificationTokenRepository
         ): JsonResponse
     {
         try {
@@ -117,7 +119,7 @@ class UserController extends AbstractController
 
         // TODO : utiliser un fichier e config pour les 15 minutes
 
-        /*
+        
         //$tokenValue = bin2hex(random_bytes(32));
         // verifier que le token n'existe pas deja (faire un while)
         
@@ -129,7 +131,7 @@ class UserController extends AbstractController
             $tokenValue = bin2hex(random_bytes(32));
             
             // 2. On regarde en base s'il existe déjà
-            $existingToken = $tokenRepo->findOneBy(['token' => $tokenValue]);
+            $existingToken = $verificationTokenRepository->findOneBy(['token' => $tokenValue]);
             
         } while ($existingToken !== null); // Si trouvé ($existingToken pas null), on recommence la boucle
 
@@ -140,16 +142,18 @@ class UserController extends AbstractController
 
         $token->setToken($tokenValue);
         //$token->setExpiresAt(new \DateTimeImmutable('+15 minutes'));
-        $token->setUser($user);
-        //$user->addConfirmationToken($token);
-        */
+        //$token->setUser($user);
+        $user->addVerificationToken($token);
+        
 
         // 6. Enregistrement en base de données
         $em->persist($user);
-        //$em->persist($token);
+        $em->persist($token);
         $em->flush();
 
-        // 7. Envoi de l'email de confirmation de compte avec un lien de confirmation contenant le token de confirmation
+        // 7. Envoi de l'email de vérification de compte avec un lien de confirmation contenant le token de confirmation
+
+        //mailer->sendVerificationEmail($user, $tokenValue);
 
         return $this->json([
             'message' => "Inscription Réussie",

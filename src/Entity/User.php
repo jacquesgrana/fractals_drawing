@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -52,6 +54,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private ?bool $isNotBanned = null;
+
+    /**
+     * @var Collection<int, VerificationToken>
+     */
+    #[ORM\OneToMany(targetEntity: VerificationToken::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $verificationTokens;
+
+    public function __construct()
+    {
+        $this->verificationTokens = new ArrayCollection();
+    }
 
 
     /**
@@ -232,5 +245,35 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedValues(): void
     {
         $this->updatedAt = new \DateTime();
+    }
+
+    /**
+     * @return Collection<int, VerificationToken>
+     */
+    public function getVerificationTokens(): Collection
+    {
+        return $this->verificationTokens;
+    }
+
+    public function addVerificationToken(VerificationToken $verificationToken): static
+    {
+        if (!$this->verificationTokens->contains($verificationToken)) {
+            $this->verificationTokens->add($verificationToken);
+            $verificationToken->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVerificationToken(VerificationToken $verificationToken): static
+    {
+        if ($this->verificationTokens->removeElement($verificationToken)) {
+            // set the owning side to null (unless already changed)
+            if ($verificationToken->getUser() === $this) {
+                $verificationToken->setUser(null);
+            }
+        }
+
+        return $this;
     }
 }
