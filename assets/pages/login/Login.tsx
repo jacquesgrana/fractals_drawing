@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, Form, Alert } from 'react-bootstrap';
 import SecurityService from "../../services/SecurityService";
 import { useNavigate } from 'react-router-dom';
 import ToastFacade from '../../facade/ToastFacade';
 import { Nullable } from '../../types/commonTypes';
+import UserConfig from '../../config/UserConfig';
+import { CaptchaHandle } from '../../types/indexType';
+import CustomCaptcha from '../../common/CustomCaptcha';
 
 // TODO ajouter captcha
 
@@ -21,8 +24,31 @@ const Login = (): React.ReactElement => {
     // État pour la visibilité du mot de passe
     const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
 
+    const [isFormValid, setIsFormValid] = useState<boolean>(false);
+
+    // 1. STATE : Pour savoir si le captcha est bon
+    const [isCaptchaValid, setIsCaptchaValid] = useState<boolean>(false);
+
+    const captchaRef = useRef<CaptchaHandle>(null);
+
     const securityService = SecurityService.getInstance();
     const navigate = useNavigate();  
+
+    useEffect(() => {
+        let isValid = true;
+        if(email === '' || password === '') {
+            isValid &&= false;
+        }
+        if(!UserConfig.EMAIL_REGEX.test(email)) {
+            isValid &&= false;
+        }
+        if(!isCaptchaValid) {
+            isValid &&= false;
+            //errorMsg += 'Captcha invalide / ';
+        }
+
+        setIsFormValid(isValid);
+    }, [email, password, isCaptchaValid]);
 
     const togglePassword = () => {
         setIsPasswordVisible((previous) => !previous);
@@ -32,7 +58,10 @@ const Login = (): React.ReactElement => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // Empêche le rechargement de la page
         setError(null);     // On efface les erreurs précédentes
-
+        if (!isCaptchaValid) {
+            alert("Veuillez résoudre le calcul de sécurité.");
+            return;
+        }
 
         const loginData = {
             email: email,
@@ -75,6 +104,9 @@ const Login = (): React.ReactElement => {
             console.error('Erreur API', error);
         }
         
+        if (captchaRef.current) {
+                captchaRef.current.reset();
+        }
     };
 
     return (
@@ -113,18 +145,27 @@ const Login = (): React.ReactElement => {
                         onClick={togglePassword} 
                         variant="primary" 
                         className=""
+                        disabled={password === ''}
                     >
                         {isPasswordVisible ? '🙈' : '👁'}
                     </Button>
                 </Form.Group>
 
-                <Button type="submit" className="btn btn-primary w-100">
+                <Button 
+                type="submit" 
+                className="btn btn-primary w-100"
+                disabled={!isFormValid}
+                >
                     Se connecter
                 </Button>
             </Form>
 
             {/* Affichage de l'alerte en cas d'erreur */}
             {error && <Alert variant="danger">{error}</Alert>}
+            <CustomCaptcha 
+                        ref={captchaRef} // On attache la ref
+                        onVerify={(isValid: boolean) => setIsCaptchaValid(isValid)} // On écoute le résultat
+            />
         </div>
     );
 };

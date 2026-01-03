@@ -156,7 +156,7 @@ const Register = () : React.ReactElement => {
                 captchaRef.current.reset();
         }
         
-    }
+    };
 
         // TODO ajouter captcha
 
@@ -216,6 +216,7 @@ const Register = () : React.ReactElement => {
                             onClick={togglePassword} 
                             variant="primary" 
                             className=""
+                            disabled={password === '' && password2 === ''}
                             >
                             {isPasswordVisible ? '🙈' : '👁'}
                         </Button>
