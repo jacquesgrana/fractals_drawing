@@ -1,3 +1,4 @@
 // types/index.ts
 export * from './userTypes';
 export * from './commonTypes';
+export * from './captchaType';

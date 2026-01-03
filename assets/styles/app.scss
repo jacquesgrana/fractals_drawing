@@ -9,11 +9,13 @@
 @import 'base/reset';
 @import 'base/typography';
 @import 'base/colors';
+@import 'base/text';
 
 // 3. Composants
 @import 'components/buttons';
 @import 'components/links';
 @import 'components/forms';
+@import 'components/captcha';
 
 // 4. Layout
 @import 'layout/body';

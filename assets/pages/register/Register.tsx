@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import SecurityService from '../../services/SecurityService';
 import { useNavigate } from 'react-router-dom';
-import { Nullable, UserRegister } from '../../types/indexType';
+import { CaptchaHandle, Nullable, UserRegister } from '../../types/indexType';
 import ToastFacade from '../../facade/ToastFacade';
 import UserConfig from '../../config/UserConfig';
+import CustomCaptcha from '../../common/CustomCaptcha';
 
 const Register = () : React.ReactElement => {
     //const [error, setError] = useState<string | null>(null);
@@ -19,12 +20,16 @@ const Register = () : React.ReactElement => {
     const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
     const [isFormValid, setIsFormValid] = useState<boolean>(false);
 
-
     // État pour l'affichage de l'alerte rouge en haut
     const [displayError, setDisplayError] = useState<string | null>(null);
     
     // État "silencieux" qui contient le message composé (ex: "Email vide / Pseudo vide")
     const [composedError, setComposedError] = useState<string>('');
+
+    // 1. STATE : Pour savoir si le captcha est bon
+    const [isCaptchaValid, setIsCaptchaValid] = useState<boolean>(false);
+    
+    const captchaRef = useRef<CaptchaHandle>(null);
 
     const securityService = SecurityService.getInstance();
     const navigate = useNavigate();  
@@ -78,6 +83,11 @@ const Register = () : React.ReactElement => {
             isValid &&= false;
             errorMsg += 'Les mots de passe ne correspondent pas / ';
         }
+        if(!isCaptchaValid) {
+            isValid &&= false;
+            errorMsg += 'Captcha invalide / ';
+        }
+
 
         if(errorMsg.endsWith(' / ')) {
             errorMsg = errorMsg.substring(0, errorMsg.length - 3);
@@ -102,13 +112,18 @@ const Register = () : React.ReactElement => {
             setDisplayError(null);
         }
 
-    }, [email, password, password2, pseudo, firstName, lastName]); // Dépendances
+    }, [email, password, password2, pseudo, firstName, lastName, isCaptchaValid]); // Dépendances
 
     const togglePassword = () => {
         setIsPasswordVisible((previous) => !previous);
     }
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault(); // Empêche le rechargement de la page
+
+        if (!isCaptchaValid) {
+            alert("Veuillez résoudre le calcul de sécurité.");
+            return;
+        }
 
         const userData: UserRegister = {
             email: email,
@@ -137,6 +152,9 @@ const Register = () : React.ReactElement => {
             }
         }
 
+        if (captchaRef.current) {
+                captchaRef.current.reset();
+        }
         
     }
 
@@ -249,8 +267,12 @@ const Register = () : React.ReactElement => {
                     />
                 </Form.Group>
 
-                <Button type="submit" disabled={!isFormValid} className="btn btn-primary w-100">S'inscrire</Button>
+                <Button type="submit" disabled={!isFormValid || !isCaptchaValid} className="btn btn-primary w-100">S'inscrire</Button>
             </Form>
+            <CustomCaptcha 
+                        ref={captchaRef} // On attache la ref
+                        onVerify={(isValid) => setIsCaptchaValid(isValid)} // On écoute le résultat
+            />
         </div>
     );
 };

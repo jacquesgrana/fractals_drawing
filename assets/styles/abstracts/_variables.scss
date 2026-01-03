@@ -16,7 +16,7 @@ $warning-color-dark: hsl(33, 70%, 26%);
 $warning-color-light: hsl(33, 54%, 66%);
 
 $danger-color: hsl(0, 78%, 57%);
-$danger-color-dark: hsl(0, 70%, 26%);
+$danger-color-dark: hsl(0, 65%, 36%);
 $danger-color-light: hsl(0, 54%, 66%);
 
 $success-color: hsl(120, 63%, 47%);
@@ -33,6 +33,9 @@ $dark-bg: hsl(263, 31%, 37%);
 
 $dark-text: hsl(0, 0%, 15%);
 $light-text: hsl(0, 0%, 85%);
+
+$white-color: hsl(0, 0%, 100%);
+$black-color: hsl(0, 0%, 0%);
 
 // Polices
 $font-stack: 'Helvetica Neue', Helvetica, Arial, sans-serif;
