@@ -8,6 +8,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Repository\VerificationTokenRepository;
+use App\Service\MailerService;
+use Doctrine\ORM\EntityManagerInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
@@ -65,7 +68,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->verificationTokens = new ArrayCollection();
     }
-
 
     /**
      * Ensure the session doesn't contain actual password hashes by CRC32C-hashing them, as supported since Symfony 7.3.
@@ -276,4 +278,37 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    /*
+    public function sendVerificationEmail(): void
+    {
+        // TODO : utiliser un fichier de config pour les 15 minutes
+        
+        $tokenValue = null;
+        
+        do {
+            $tokenValue = bin2hex(random_bytes(32));
+            
+            $existingToken = $this->verificationTokenRepository->findOneBy(['token' => $tokenValue]);
+            
+        } while ($existingToken !== null);
+
+        $token = new \App\Entity\VerificationToken();
+        
+        $token->setToken($tokenValue);
+        //$token->setExpiresAt(new \DateTimeImmutable('+15 minutes'));
+        //$token->setUser($user);
+        $this->addVerificationToken($token);
+        
+
+        // 6. Enregistrement en base de données
+        $this->em->persist($this);
+        $this->em->persist($token);
+        $this->em->flush();
+
+        // 7. Envoi de l'email de vérification de compte avec un lien de confirmation contenant le token de confirmation
+
+        $this->mailer->sendVerificationEmail($this, $tokenValue);
+    }
+    */
 }

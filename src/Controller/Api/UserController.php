@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Repository\VerificationTokenRepository;
+use App\Service\AccountService;
 use App\Service\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -51,8 +52,7 @@ class UserController extends AbstractController
         Request $request,
         UserPasswordHasherInterface $passwordHasher,
         UserRepository $userRepository,
-        VerificationTokenRepository $verificationTokenRepository,
-        MailerService $mailer
+        AccountService $accountService
         ): JsonResponse
     {
         try {
@@ -119,6 +119,7 @@ class UserController extends AbstractController
 
         // TODO : utiliser un fichier de config pour les 15 minutes
         
+        /*
         $tokenValue = null;
         
         do {
@@ -144,6 +145,12 @@ class UserController extends AbstractController
         // 7. Envoi de l'email de vérification de compte avec un lien de confirmation contenant le token de confirmation
 
         $mailer->sendVerificationEmail($user, $tokenValue);
+        */
+
+        $em->persist($user);
+        $em->flush();
+        //$accountService = $this->get(AccountService::class);
+        $accountService->sendVerificationEmail($user);
 
         return $this->json([
             'message' => "Inscription Réussie : Email de vérification envoyé",
@@ -219,7 +226,9 @@ class UserController extends AbstractController
         }
 
         $user->setIsVerified(true);
-        $user->removeVerificationToken($token);
+        // supprimer tous les tokens de l'user
+        $user->getVerificationTokens()->clear();
+        //$user->removeVerificationToken($token);
         $em->persist($user);
         //$em->remove($token);
         $em->flush();

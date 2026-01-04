@@ -18,6 +18,18 @@
     color: $danger-color !important;
 }
 
+.text-info {
+    color: $info-color !important;
+}
+
+.text-warning {
+    color: $warning-color !important;
+}
+
+.text-warning-dark {
+    color: $warning-color-dark !important;
+}
+
 .text-success {
     color: $success-color !important;
 }
@@ -44,6 +56,16 @@
 
 .text-small-danger {
     color: $danger-color;
+    font-size: small;
+}
+
+.text-small-info {
+    color: $info-color;
+    font-size: small;
+}
+
+.text-small-warning {
+    color: $warning-color;
     font-size: small;
 }
 
@@ -77,6 +99,16 @@
     font-size: medium;
 }
 
+.text-medium-info {
+    color: $info-color;
+    font-size: medium;
+}
+
+.text-medium-warning {
+    color: $warning-color;
+    font-size: medium;
+}
+
 .text-medium-success {
     color: $success-color;
     font-size: medium;
@@ -104,6 +136,16 @@
 
 .text-large-danger {
     color: $danger-color;
+    font-size: large;
+}
+
+.text-large-info {
+    color: $info-color;
+    font-size: large;
+}
+
+.text-large-warning {
+    color: $warning-color;
     font-size: large;
 }
 

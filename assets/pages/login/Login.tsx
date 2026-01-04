@@ -152,19 +152,17 @@ const Login = (): React.ReactElement => {
                 </Form.Group>
 
                 <Button 
-                type="submit" 
-                className="btn btn-primary w-100"
-                disabled={!isFormValid}
+                    type="submit" 
+                    className="btn btn-primary w-100"
+                    disabled={!isFormValid}
                 >
                     Se connecter
                 </Button>
             </Form>
 
-            {/* Affichage de l'alerte en cas d'erreur */}
-            {error && <Alert variant="danger">{error}</Alert>}
             <CustomCaptcha 
-                        ref={captchaRef} // On attache la ref
-                        onVerify={(isValid: boolean) => setIsCaptchaValid(isValid)} // On écoute le résultat
+                ref={captchaRef} // On attache la ref
+                onVerify={(isValid: boolean) => setIsCaptchaValid(isValid)} // On écoute le résultat
             />
         </div>
     );

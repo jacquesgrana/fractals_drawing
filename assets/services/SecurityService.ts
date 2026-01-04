@@ -13,7 +13,7 @@ class SecurityService {
     private _isAuthenticated: boolean = false;
 
     // Liste des souscripteurs de l'authentification : tableau de callback
-    private subscribers: Array<(user: UserInfo | null) => void> = [];
+    private subscribers: Array<(user: Nullable<UserInfo>) => void> = [];
 
     private constructor() {}
 
@@ -120,6 +120,7 @@ class SecurityService {
         }
     }
 
+    /*
     public register = async (userData: UserRegister): Promise<Nullable<Response>> => {
         try {
             const response = await fetch(UrlConfig.REGISTER_URL, {
@@ -136,6 +137,7 @@ class SecurityService {
             return null;
         }
     }
+    */
 
     public verifyEmail = async (token: string, email: string): Promise<Response> => {
         

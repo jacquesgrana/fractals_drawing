@@ -1,0 +1,32 @@
+.account-page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+
+    .account-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: start;
+        gap: 0px;
+        background-color: $light-bg;
+        padding: $padding-base;
+        border-radius: $radius-base;
+        width: 380px;
+        
+        p {
+            margin: 0;
+            padding: 0;
+        }   
+    }
+
+    .account-buttons-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+        gap: $space-base;
+    }
+}

@@ -61,7 +61,7 @@ const VerifyEmail = () : React.ReactElement => {
     }, [token, email]);
 
     return (
-    <div className="react-card home-page">
+    <div className="react-card verify-page">
         <h2>Page de Vérification</h2>
         <p>Vérification de l'adresse email.</p>
         <ul>

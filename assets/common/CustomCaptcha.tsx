@@ -103,7 +103,7 @@ const CustomCaptcha = forwardRef<CaptchaHandle, CaptchaProps>(({ onVerify }, ref
             -
         </button>
           <input 
-            className={isCaptchaValid ? 'captcha-input-success captcha-field' : 'captcha-field captcha-input-danger'}
+            className={isCaptchaValid ? 'captcha-input-success captcha-field form-control' : 'captcha-field captcha-input-danger form-control'}
             id="captcha"
             type="number" 
             min="0" 

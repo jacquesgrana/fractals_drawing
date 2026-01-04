@@ -3,12 +3,21 @@
 namespace App\Security;
 
 use App\Entity\User as AppUser;
+use App\Service\AccountService; 
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAccountStatusException;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+
 class UserChecker implements UserCheckerInterface
 {
+
+    // Injection du service via le constructeur
+    public function __construct(
+        private AccountService $accountService
+    ) {
+    }
+
     public function checkPreAuth(UserInterface $user): void
     {
         if (!$user instanceof AppUser) {
@@ -22,9 +31,32 @@ class UserChecker implements UserCheckerInterface
             throw new CustomUserMessageAccountStatusException('Votre compte a été banni.');
         }
 
-        // Vérification 2 : Le compte est-il vérifié ? (optionnel selon ta logique)
         if (!$user->isVerified()) {
-            throw new CustomUserMessageAccountStatusException('Votre compte n\'est pas encore activé.');
+            // OPTIONNEL : Renvoyer un email automatiquement
+            // Attention : cela enverra un mail à CHAQUE tentative de connexion ratée.
+            // Pour éviter le spam, tu pourrais vérifier la date du dernier token avant d'envoyer.
+
+            // vérifier si pas token non expiré pour cet user
+            // TODO mettre dans le service
+            /*
+            $tokens = $user->getVerificationTokens();
+            $isAllTokensExpired = true;
+            foreach ($tokens as $token) {
+                if($token->getExpiresAt() > new \DateTime()) {
+                    $isAllTokensExpired = false;
+                    break;
+                }
+            }
+            */
+
+            if($this->accountService->isAllTokensExpired($user)) {
+                $this->accountService->sendVerificationEmail($user);
+            }
+
+            // On bloque la connexion avec un message clair
+            throw new CustomUserMessageAccountStatusException(
+                'Votre compte n\'est pas activé. Si besoin, un email de vérification vous a été envoyé.'
+            );
         }
     }
 

@@ -6,6 +6,7 @@ import { CaptchaHandle, Nullable, UserRegister } from '../../types/indexType';
 import ToastFacade from '../../facade/ToastFacade';
 import UserConfig from '../../config/UserConfig';
 import CustomCaptcha from '../../common/CustomCaptcha';
+import UserService from '../../services/UserService';
 
 const Register = () : React.ReactElement => {
     //const [error, setError] = useState<string | null>(null);
@@ -32,6 +33,7 @@ const Register = () : React.ReactElement => {
     const captchaRef = useRef<CaptchaHandle>(null);
 
     const securityService = SecurityService.getInstance();
+    const userService = UserService.getInstance();
     const navigate = useNavigate();  
 
 
@@ -139,7 +141,7 @@ const Register = () : React.ReactElement => {
 
         // TODO ajouter vérification du captcha
 
-        const response: Nullable<Response> = await securityService.register(userData);
+        const response: Nullable<Response> = await userService.register(userData);
         if(response) {
             const data = await response.json();
             if (data.status === 201) {

@@ -1,15 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Nullable, UserInfo } from '../types/indexType';
 import SecurityService from '../services/SecurityService';
 import ToastFacade from '../facade/ToastFacade';
 
 const Header = () : React.ReactElement => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [user, setUser] = useState<null | UserInfo>(null);
+    const [user, setUser] = useState<Nullable<UserInfo>>(null);
     const securityService = SecurityService.getInstance();
 
     const unsubscribeRef = useRef<Nullable<() => void>>(null);
+
+    const navigate = useNavigate();
 
     const updateAuthState = useCallback(() => {
         setIsAuthenticated(securityService.isAuthenticated());
@@ -47,7 +49,7 @@ const Header = () : React.ReactElement => {
         await securityService.logout();
         ToastFacade.success('Déconnexion réussie !');
         // Redirection après déconnexion
-        //navigate('/login'); 
+        navigate('/login'); 
     };
 
     return(
@@ -61,8 +63,14 @@ const Header = () : React.ReactElement => {
                     <>
                     <Link className="react-link" to="/login">Connexion</Link>
                     <Link className="react-link" to="/register">Inscription</Link>
+
                     </>
-                    )  : (<a href="#" className="react-link" onClick={handleLogout}>Déconnexion</a>) } 
+                    )  : (
+                        <>
+                        <Link className="react-link" to="/account">Compte</Link>
+                        <a href="#" className="react-link" onClick={handleLogout}>Déconnexion</a>
+                        </>
+                    ) } 
             </nav>
             {isAuthenticated ? <div className="react-header-small-text">Connecté en tant que <span className="color-warning">{user?.pseudo}</span></div> : <div className="react-header-small-text">Non connecté</div>}
         </div>

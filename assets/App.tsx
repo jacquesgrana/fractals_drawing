@@ -14,6 +14,7 @@ import Footer from './layout/Footer';
 import SecurityService from './services/SecurityService';
 import { Toaster } from 'react-hot-toast';
 import Register from './pages/register/Register';
+import Account from './pages/account/Account';
 
 const ReactBody = () => {
 
@@ -59,6 +60,7 @@ const ReactBody = () => {
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/verify" element={<VerifyEmail />} />
+                        <Route path="/account" element={<Account />} />
                         <Route path="/error401" element={<Error401 />} />
                         <Route path="*" element={<Error404 />} />
                     </Routes>
