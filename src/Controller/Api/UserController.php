@@ -287,7 +287,20 @@ class UserController extends AbstractController
         // vérifier que le pseudo n'est pas déjà utilisé
         $user = $this->getUser();
 
-        $userWithSamePseudo = $em->getRepository(User::class)->findOneBy(['pseudo' => $data['pseudo']]);
+        $usersWithSamePseudo = $em->getRepository(User::class)->findBy(['pseudo' => $data['pseudo']]);
+
+        if(count($usersWithSamePseudo) > 0) {
+            foreach($usersWithSamePseudo as $userWithSamePseudo) {
+                if($userWithSamePseudo->getEmail() !== $user->getUserIdentifier()) {
+                    return $this->json([
+                        'message' => 'Pseudo déjà utilisé',
+                        'status' => 409,
+                        'data' => []
+                    ], 409);
+                }
+            }
+        }
+        /*
         if($userWithSamePseudo && $userWithSamePseudo->getEmail() !== $user->getUserIdentifier()) {
             return $this->json([
                 'message' => 'Pseudo déjà utilisé',
@@ -295,7 +308,7 @@ class UserController extends AbstractController
                 'data' => []
             ], 409);
         }
-        
+        */
         
 
         $userFromBd = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
@@ -307,9 +320,9 @@ class UserController extends AbstractController
             ], 404);
         }
 
-        $userFromBd->setPseudo($data['pseudo']);
-        $userFromBd->setFirstName($data['firstName']);
-        $userFromBd->setLastName($data['lastName']);
+        if($userFromBd->getPseudo() !== $data['pseudo']) $userFromBd->setPseudo($data['pseudo']);
+        if($userFromBd->getFirstName() !== $data['firstName']) $userFromBd->setFirstName($data['firstName']);
+        if($userFromBd->getLastName() !== $data['lastName']) $userFromBd->setLastName($data['lastName']);
 
         $em->persist($userFromBd);
         $em->flush();
