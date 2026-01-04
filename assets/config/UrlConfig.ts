@@ -4,6 +4,8 @@ class UrlConfig {
     public static ME_URL = '/api/me';
     public static REGISTER_URL = '/api/user/register';
     public static VERIFY_EMAIL_URL = '/api/user/verify-email';
+
+    public static UPDATE_USER_PARAMS_URL = '/api/user/patch-params';
 }
 
 export default UrlConfig;

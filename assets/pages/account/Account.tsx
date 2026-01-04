@@ -1,44 +1,73 @@
 // assets/pages/account/Account.tsx
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import SecurityService from '../../services/SecurityService';
 import { useNavigate } from 'react-router-dom';
 import { Nullable, UserInfo } from '../../types/indexType';
 import UserUtil from '../../utils/UserUtil';
 import DateUtil from '../../utils/DateUtil';
+import { Button } from 'react-bootstrap';
+import ModalEditUser from '../register/ModalEditUser';
 
 
 const Account = (): React.ReactElement => {
     const [user, setUser] = useState<Nullable<UserInfo>>(null);
+    const [isModalEditOpen, setIsModalEditOpen] = useState(false);
+
     const securityService = SecurityService.getInstance();
     const navigate = useNavigate();  
 
     useEffect(() => {
         const checkAuth = async () => {
-            try {
-                const response = await securityService.me();
-                if (!securityService.isAuthenticated()) {
-                    setUser(null);
-                    navigate('/login');
-                }
-                else {
-                    setUser(securityService.getUser());
-                }   
-            } 
-            catch (error) {
-                console.error('Erreur API', error);
-            } 
-            finally {
-                //setIsLoading(false);
-            }
+            await loadUser();
         };
-
         checkAuth();
-        
     }, []);
 
+    const loadUser = async () => {
+        try {
+            await securityService.me();
+            if (!securityService.isAuthenticated()) {
+                setUser(null);
+                navigate('/login');
+            }
+            else {
+                setUser(securityService.getUser());
+            }   
+        } 
+        catch (error) {
+            console.error('Erreur API', error);
+        } 
+        finally {
+            //setIsLoading(false);
+        }
+    };
+
+    const handleEditInfos = (e: React.MouseEvent) => {
+        e.preventDefault();
+        //navigate('/account/edit');
+        console.log('Edit infos');
+        setIsModalEditOpen(true);
+    };
+
+    const handleEditEmail = (e: React.MouseEvent) => {
+        e.preventDefault();
+        //navigate('/account/edit-email');
+        console.log('Edit email');
+    };
+
+    const handleEditPassword = (e: React.MouseEvent) => {
+        e.preventDefault();
+        //navigate('/account/edit-password');
+        console.log('Edit password');
+    };
+
+    const handleCloseEditModal = useCallback(() => {
+        setIsModalEditOpen(false);
+    }, []);
 
     return (
+        <>
         <div className="react-card account-page">
             <h2>Page du compte</h2>
             <p>Page de gestion du compte.</p>
@@ -58,9 +87,20 @@ const Account = (): React.ReactElement => {
                 </div> 
             )}
             <div className="account-buttons-container">
-
+                <Button type="button" onClick={handleEditInfos} className="btn btn-primary w-100">Modifier les infos</Button>
+                <Button type="button" onClick={handleEditEmail} className="btn btn-primary w-100">Modifier l'email</Button>
+                <Button type="button" onClick={handleEditPassword} className="btn btn-primary w-100">Modifier le mot de passe</Button>
             </div>
         </div>
+        {user && isModalEditOpen && (
+            <ModalEditUser 
+                isModalEditUserOpen={isModalEditOpen}
+                handleCloseEditUserModal={handleCloseEditModal}
+                user={user}
+                loadUser={loadUser}
+            />
+        )}
+        </>
     );
 };
 export default Account;

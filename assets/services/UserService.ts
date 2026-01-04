@@ -1,5 +1,5 @@
 import UrlConfig from "../config/UrlConfig";
-import { Nullable, UserRegister } from "../types/indexType";
+import { Nullable, UserParams, UserRegister } from "../types/indexType";
 
 
 class UserService {
@@ -17,6 +17,25 @@ class UserService {
         try {
             const response = await fetch(UrlConfig.REGISTER_URL, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
+            return response;
+        } 
+        catch (err) {
+            console.error(err);
+            return null;
+        }
+    }
+
+    // TODO : typer !
+
+    public updateUserParams = async (userData: UserParams): Promise<Nullable<Response>> => {
+        try {
+            const response = await fetch(UrlConfig.UPDATE_USER_PARAMS_URL, {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
                 },

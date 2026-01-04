@@ -241,4 +241,70 @@ class UserController extends AbstractController
             ]
         ], 201); // 201 = Created
     }
+
+    #[Route('/patch-params', name: 'patch_user_params', methods: ['PATCH'])]
+    public function patchUserParams(
+        EntityManagerInterface $em, 
+        Request $request
+    )
+    {
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        if(empty($data['pseudo']) || empty($data['firstName']) || empty($data['lastName'])
+        ) {
+            return $this->json([
+                'message' => 'Données manquantes',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        // vérifier que le pseudo n'est pas déjà utilisé
+        
+        $userWithSamePseudo = $em->getRepository(User::class)->findOneBy(['pseudo' => $data['pseudo']]);
+        if($userWithSamePseudo) {
+            return $this->json([
+                'message' => 'Pseudo déjà utilisé',
+                'status' => 409,
+                'data' => []
+            ], 409);
+        }
+        
+        $user = $this->getUser();
+
+        $userFromBd = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
+        if(!$userFromBd) {
+            return $this->json([
+                'message' => 'Utilisateur non trouvé',
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+        $userFromBd->setPseudo($data['pseudo']);
+        $userFromBd->setFirstName($data['firstName']);
+        $userFromBd->setLastName($data['lastName']);
+
+        $em->persist($userFromBd);
+        $em->flush();
+
+        return $this->json([
+            'message' => "Paramètres modifiés",
+            'status' => 201,
+            'data' => [
+                "email" => $userFromBd->getEmail(),
+                "pseudo" => $userFromBd->getPseudo(),
+                "firstName" => $userFromBd->getFirstName(),
+                "lastName" => $userFromBd->getLastName()
+            ]
+        ], 201); // 201 = Created
+    }
 }

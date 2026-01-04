@@ -1,0 +1,22 @@
+.modal-dark {
+    background-color: $dark-bg;
+    color: $light-text;
+
+
+    .modal-dark-header {
+        background-color: $medium-bg;
+        color: $light-text;
+        display: flex;
+        justify-content: center;
+    }
+
+    .modal-dark-body {
+        background-color: $medium-bg;
+        color: $light-text;
+    }
+
+    .modal-dark-footer {
+        background-color: $medium-bg;
+        color: $light-text;
+    }
+}

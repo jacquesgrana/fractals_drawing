@@ -33,3 +33,9 @@ export type UserRegister = {
   firstName: string;
   lastName: string;
 }
+
+export type UserParams = {
+  pseudo: string;
+  firstName: string;
+  lastName: string;
+}
