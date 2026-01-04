@@ -207,6 +207,22 @@ class UserController extends AbstractController
 
         $user = $token->getUser();
 
+        if(!$user) {
+            return $this->json([
+                'message' => 'Utilisateur non trouvé',
+                'status' => 400,
+                'data' => []
+            ]);
+        }
+
+        if($user->isVerified()) {
+            return $this->json([
+                'message' => 'Utilisateur déjà vérifié',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
         if($user->getEmail() !== $data['email']) {
             return $this->json([
                 'message' => 'Token et email ne correspondent pas',
@@ -269,9 +285,10 @@ class UserController extends AbstractController
         }
 
         // vérifier que le pseudo n'est pas déjà utilisé
-        
+        $user = $this->getUser();
+
         $userWithSamePseudo = $em->getRepository(User::class)->findOneBy(['pseudo' => $data['pseudo']]);
-        if($userWithSamePseudo) {
+        if($userWithSamePseudo && $userWithSamePseudo->getEmail() !== $user->getUserIdentifier()) {
             return $this->json([
                 'message' => 'Pseudo déjà utilisé',
                 'status' => 409,
@@ -279,7 +296,7 @@ class UserController extends AbstractController
             ], 409);
         }
         
-        $user = $this->getUser();
+        
 
         $userFromBd = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
         if(!$userFromBd) {
@@ -289,6 +306,7 @@ class UserController extends AbstractController
                 'data' => []
             ], 404);
         }
+
         $userFromBd->setPseudo($data['pseudo']);
         $userFromBd->setFirstName($data['firstName']);
         $userFromBd->setLastName($data['lastName']);
