@@ -39,3 +39,7 @@ export type UserParams = {
   firstName: string;
   lastName: string;
 }
+
+export type UserEmail = {
+  email: string;
+}

@@ -6,6 +6,8 @@ class UrlConfig {
     public static VERIFY_EMAIL_URL = '/api/user/verify-email';
 
     public static UPDATE_USER_PARAMS_URL = '/api/user/patch-params';
+    public static UPDATE_USER_PASSWORD_URL = '/api/user/patch-password';
+    public static UPDATE_USER_EMAIL_URL = '/api/user/patch-email';
 }
 
 export default UrlConfig;

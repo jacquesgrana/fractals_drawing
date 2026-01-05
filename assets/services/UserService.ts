@@ -1,5 +1,5 @@
 import UrlConfig from "../config/UrlConfig";
-import { Nullable, UserParams, UserRegister } from "../types/indexType";
+import { Nullable, UserEmail, UserParams, UserRegister } from "../types/indexType";
 
 
 class UserService {
@@ -35,6 +35,23 @@ class UserService {
     public updateUserParams = async (userData: UserParams): Promise<Nullable<Response>> => {
         try {
             const response = await fetch(UrlConfig.UPDATE_USER_PARAMS_URL, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
+            return response;
+        } 
+        catch (err) {
+            console.error(err);
+            return null;
+        }
+    }
+
+    public updateUserEmail = async (userData: UserEmail): Promise<Nullable<Response>> => {
+        try {
+            const response = await fetch(UrlConfig.UPDATE_USER_EMAIL_URL, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'

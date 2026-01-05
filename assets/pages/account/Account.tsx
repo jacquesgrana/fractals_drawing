@@ -7,12 +7,15 @@ import { Nullable, UserInfo } from '../../types/indexType';
 import UserUtil from '../../utils/UserUtil';
 import DateUtil from '../../utils/DateUtil';
 import { Button } from 'react-bootstrap';
-import ModalEditUser from '../register/ModalEditUser';
+import EditUserParamsModal from './EditUserParamsModal';
+import EditUserEmailModal from './EditUserEmailModal';
 
 
 const Account = (): React.ReactElement => {
     const [user, setUser] = useState<Nullable<UserInfo>>(null);
-    const [isModalEditOpen, setIsModalEditOpen] = useState(false);
+    const [isModalEditParamsOpen, setIsModalEditParamsOpen] = useState(false);
+    const [isModalEditEmailOpen, setIsModalEditEmailOpen] = useState(false);
+    const [isModalEditPasswordOpen, setIsModalEditPasswordOpen] = useState(false);
 
     const securityService = SecurityService.getInstance();
     const navigate = useNavigate();  
@@ -43,27 +46,37 @@ const Account = (): React.ReactElement => {
         }
     };
 
-    const handleEditInfos = (e: React.MouseEvent) => {
+    const handleEditParams = (e: React.MouseEvent) => {
         e.preventDefault();
         //navigate('/account/edit');
-        console.log('Edit infos');
-        setIsModalEditOpen(true);
+        //console.log('Edit infos');
+        setIsModalEditParamsOpen(true);
     };
 
     const handleEditEmail = (e: React.MouseEvent) => {
         e.preventDefault();
         //navigate('/account/edit-email');
-        console.log('Edit email');
+        //console.log('Edit email');
+        setIsModalEditEmailOpen(true);
     };
 
     const handleEditPassword = (e: React.MouseEvent) => {
         e.preventDefault();
         //navigate('/account/edit-password');
-        console.log('Edit password');
+        //console.log('Edit password');
+        setIsModalEditPasswordOpen(true);
     };
 
-    const handleCloseEditModal = useCallback(() => {
-        setIsModalEditOpen(false);
+    const handleCloseEditParamsModal = useCallback(() => {
+        setIsModalEditParamsOpen(false);
+    }, []);
+
+    const handleCloseEditEmailModal = useCallback(() => {
+        setIsModalEditEmailOpen(false);
+    }, []);
+
+    const handleCloseEditPasswordModal = useCallback(() => {
+        setIsModalEditPasswordOpen(false);
     }, []);
 
     return (
@@ -87,20 +100,42 @@ const Account = (): React.ReactElement => {
                 </div> 
             )}
             <div className="account-buttons-container">
-                <Button type="button" onClick={handleEditInfos} className="btn btn-primary w-100">Modifier les infos</Button>
+                <Button type="button" onClick={handleEditParams} className="btn btn-primary w-100">Modifier les infos</Button>
                 <Button type="button" onClick={handleEditEmail} className="btn btn-primary w-100">Modifier l'email</Button>
                 <Button type="button" onClick={handleEditPassword} className="btn btn-primary w-100">Modifier le mot de passe</Button>
             </div>
         </div>
-        {user && isModalEditOpen && (
-            <ModalEditUser 
-                isModalEditUserOpen={isModalEditOpen}
-                handleCloseEditUserModal={handleCloseEditModal}
+        {user && isModalEditParamsOpen && (
+            <EditUserParamsModal 
+                isModalEditUserParamsOpen={isModalEditParamsOpen}
+                handleCloseEditUserParamsModal={handleCloseEditParamsModal}
                 user={user}
                 loadUser={loadUser}
             />
         )}
+        {user && isModalEditEmailOpen && (
+            <EditUserEmailModal 
+                isModalEditUserEmailOpen={isModalEditEmailOpen}
+                handleCloseEditUserEmailModal={handleCloseEditEmailModal}
+                user={user}
+                loadUser={loadUser}
+            />
+        )}
+        
         </>
     );
 };
 export default Account;
+
+/*
+
+{user && isModalEditPasswordOpen && (
+            <EditUserPasswordModal 
+                isModalEditUserPasswordOpen={isModalEditPasswordOpen}
+                handleCloseEditUserPasswordModal={handleCloseEditPasswordModal}
+                user={user}
+                loadUser={loadUser}
+            />
+        )}
+
+        */

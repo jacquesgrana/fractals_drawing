@@ -1,27 +1,28 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { UserInfo, UserParams } from '../../types/indexType';
 import UserService from '../../services/UserService';
 import ToastFacade from '../../facade/ToastFacade';
+import UserConfig from '../../config/UserConfig';
 
-type ModalEditUserProps = {
-    isModalEditUserOpen: boolean,
-    handleCloseEditUserModal: () => void,
+type EditUserParamsModalProps = {
+    isModalEditUserParamsOpen: boolean,
+    handleCloseEditUserParamsModal: () => void,
     loadUser: () => void,
     user: UserInfo
 }
 
-const ModalEditUser = ({ 
-        isModalEditUserOpen, 
-        handleCloseEditUserModal, 
+const EditUserParamsModal = ({ 
+        isModalEditUserParamsOpen, 
+        handleCloseEditUserParamsModal, 
         user,
         loadUser
-    } : ModalEditUserProps
+    } : EditUserParamsModalProps
 ) : React.ReactElement => {
     // TODO mettre dans config !!
-    const MIN_LENGTH = 3;
-    const MAX_LENGTH_PSEUDO = 15;
-    const MAX_LENGTH = 30;
+    //const MIN_LENGTH = 3;
+    //const MAX_LENGTH_PSEUDO = 15;
+    //const MAX_LENGTH = 30;
     //const [isLoading, setIsLoading] = useState(false);
     const [pseudo, setPseudo] = useState<string>(user.pseudo);
     const [firstName, setFirstName] = useState<string>(user.firstName);
@@ -33,14 +34,17 @@ const ModalEditUser = ({
 
     useEffect(() => {
 
-        // TODO faire méthode
+        // TODO faire méthodes
         if (
-            pseudo.length > MIN_LENGTH 
-            && firstName.length > MIN_LENGTH 
-            && lastName.length > MIN_LENGTH
-            && pseudo.length <= MAX_LENGTH_PSEUDO
-            && firstName.length <= MAX_LENGTH
-            && lastName.length <= MAX_LENGTH
+            pseudo.length >= UserConfig.PSEUDO_MIN_LENGTH 
+            && firstName.length >= UserConfig.NAME_MIN_LENGTH 
+            && lastName.length >= UserConfig.NAME_MIN_LENGTH
+            && pseudo.length <= UserConfig.PSEUDO_MAX_LENGTH
+            && firstName.length <= UserConfig.NAME_MAX_LENGTH
+            && lastName.length <= UserConfig.NAME_MAX_LENGTH
+            && UserConfig.PSEUDO_REGEX.test(pseudo)
+            && UserConfig.NAME_REGEX.test(firstName)
+            && UserConfig.NAME_REGEX.test(lastName)
             && (pseudo !== user.pseudo || firstName !== user.firstName || lastName !== user.lastName)
         ) {
             setIsFormValid(true);
@@ -52,7 +56,7 @@ const ModalEditUser = ({
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log('Submit');
+        //console.log('Submit');
 
         // récupérer les données du formulaire
         const userData: UserParams = {
@@ -61,15 +65,8 @@ const ModalEditUser = ({
             lastName: lastName
         }
         // vérifier/valider les données
-        // TODO faire méthode
-        if(!(pseudo.length > MIN_LENGTH 
-            && firstName.length > MIN_LENGTH 
-            && lastName.length > MIN_LENGTH
-            && pseudo.length <= MAX_LENGTH_PSEUDO
-            && firstName.length <= MAX_LENGTH
-            && lastName.length <= MAX_LENGTH
-            && (pseudo !== user.pseudo || firstName !== user.firstName || lastName !== user.lastName)
-        )) {
+        // TODO faire méthodes
+        if(!isFormValid) {
             return;
         }
     
@@ -85,7 +82,7 @@ const ModalEditUser = ({
             const data = await response.json();
             if(response.status === 201) {
                 loadUser();
-                handleCloseEditUserModal();
+                handleCloseEditUserParamsModal();
                 ToastFacade.success('Mise à jour reussie : ' + data.message + ' !');
             } else if(response.status === 409) {
                 // afficher un message dans un toast (ex : nouveau pseudo deja pris)
@@ -110,8 +107,8 @@ const ModalEditUser = ({
         <Modal
             size="lg"
             className="modal-dark"
-            show={isModalEditUserOpen} 
-            onHide={handleCloseEditUserModal} 
+            show={isModalEditUserParamsOpen} 
+            onHide={handleCloseEditUserParamsModal} 
             centered
         >
             <Modal.Header className="modal-dark-header">
@@ -122,30 +119,38 @@ const ModalEditUser = ({
                     <Form.Group className="mb-3" controlId="formPseudo">
                         <Form.Label className="mb-0" >Pseudo</Form.Label>
                         <Form.Control 
+                            min={UserConfig.PSEUDO_MIN_LENGTH}
+                            max={UserConfig.PSEUDO_MAX_LENGTH}
                             type="text" 
                             name="pseudo"
                             className="react-input mt-0"
                             onChange={(e) => setPseudo(e.target.value)}
                             defaultValue={user.pseudo}
                             placeholder="Pseudo"
+                            title={`Le pseudo doit être composé de lettres (majuscules et minuscules), chiffres, tirets et underscores et faire entre ${UserConfig.PSEUDO_MIN_LENGTH} et ${UserConfig.PSEUDO_MAX_LENGTH} caractères`}
                             required
                         />
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formFirstName">
                         <Form.Label className="mb-0" >Prénom</Form.Label>
                         <Form.Control 
+                            min={UserConfig.NAME_MIN_LENGTH}
+                            max={UserConfig.NAME_MAX_LENGTH}
                             type="text" 
                             name="firstName"
                             className="react-input mt-0"
                             onChange={(e) => setFirstName(e.target.value)}
                             defaultValue={user.firstName}
                             placeholder="Prénom"
+                            title={`Le prénom doit faire entre ${UserConfig.NAME_MIN_LENGTH} et ${UserConfig.NAME_MAX_LENGTH} caractères et composé de lettres (majuscules et minuscules) et tirets`}
                             required
                         />
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formLastName">
                         <Form.Label className="mb-0" >Nom</Form.Label>
                         <Form.Control 
+                            min={UserConfig.NAME_MIN_LENGTH}
+                            max={UserConfig.NAME_MAX_LENGTH}
                             type="text" 
                             name="lastName"
                             className="react-input mt-0"
@@ -153,6 +158,7 @@ const ModalEditUser = ({
                             defaultValue={user.lastName}
                             //value={lastName}
                             placeholder="Nom"
+                            title={`Le nom doit faire entre ${UserConfig.NAME_MIN_LENGTH} et ${UserConfig.NAME_MAX_LENGTH} caractères et composé de lettres (majuscules et minuscules) et tirets`}
                             required
                         />
                     </Form.Group>
@@ -161,10 +167,10 @@ const ModalEditUser = ({
 
             </Modal.Body>
             <Modal.Footer className="modal-dark-footer">
-                <Button variant="primary" onClick={handleCloseEditUserModal} type="button">Fermer</Button>
+                <Button variant="primary" onClick={handleCloseEditUserParamsModal} type="button">Fermer</Button>
             </Modal.Footer>
         </Modal>
     );
 };
 
-export default ModalEditUser;
+export default EditUserParamsModal;

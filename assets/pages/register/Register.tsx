@@ -32,7 +32,7 @@ const Register = () : React.ReactElement => {
     
     const captchaRef = useRef<CaptchaHandle>(null);
 
-    const securityService = SecurityService.getInstance();
+    //const securityService = SecurityService.getInstance();
     const userService = UserService.getInstance();
     const navigate = useNavigate();  
 
@@ -53,17 +53,29 @@ const Register = () : React.ReactElement => {
             isValid &&= false;
             errorMsg += 'Mot de passe vide / ';
         }
-        if(password.length > 0 && password.length < UserConfig.PASSWORD_MIN_LENGTH) {
+        if(password.length < UserConfig.PASSWORD_MIN_LENGTH) {
             isValid &&= false;
             errorMsg += 'Mot de passe trop court (< ' + UserConfig.PASSWORD_MIN_LENGTH + ') / ';
+        }
+        if(password.length > UserConfig.PASSWORD_MAX_LENGTH) {
+            isValid &&= false;
+            errorMsg += 'Mot de passe trop long (> ' + UserConfig.PASSWORD_MAX_LENGTH + ') / ';
         }
         if(password2 === '') {
             isValid &&= false;
             errorMsg += 'Confirmation vide / ';
         }
-        if(password2.length > 0 && password2.length < UserConfig.PASSWORD_MIN_LENGTH) {
+        if(password2.length < UserConfig.PASSWORD_MIN_LENGTH) {
             isValid &&= false;
             errorMsg += 'Confirmation trop courte (< ' + UserConfig.PASSWORD_MIN_LENGTH + ') / ';
+        }
+        if(password2.length > UserConfig.PASSWORD_MAX_LENGTH) {
+            isValid &&= false;
+            errorMsg += 'Confirmation trop longue (> ' + UserConfig.PASSWORD_MAX_LENGTH + ') / ';
+        }
+        if(password.localeCompare(password2) !== 0) {
+            isValid &&= false;
+            errorMsg += 'Les mots de passe ne correspondent pas / ';
         }
         if(pseudo === '') {
             isValid &&= false;
@@ -73,17 +85,45 @@ const Register = () : React.ReactElement => {
             isValid &&= false;
             errorMsg += 'Format Pseudo invalide / ';
         }
+        if(pseudo.length < UserConfig.PSEUDO_MIN_LENGTH) {
+            isValid &&= false;
+            errorMsg += 'Pseudo trop court (< ' + UserConfig.PSEUDO_MIN_LENGTH + ') / ';
+        }
+        if(pseudo.length > UserConfig.PSEUDO_MAX_LENGTH) {
+            isValid &&= false;
+            errorMsg += 'Pseudo trop long (> ' + UserConfig.PSEUDO_MAX_LENGTH + ') / ';
+        }
         if(firstName === '') {
             isValid &&= false;
             errorMsg += 'Prénom vide / ';
         }
+        if(!UserConfig.NAME_REGEX.test(firstName)) {
+            isValid &&= false;
+            errorMsg += 'Format Prénom invalide / ';
+        }
+        if(firstName.length < UserConfig.NAME_MIN_LENGTH) {
+            isValid &&= false;
+            errorMsg += 'Prénom trop court (< ' + UserConfig.NAME_MIN_LENGTH + ') / ';
+        }
+        if(firstName.length > UserConfig.NAME_MAX_LENGTH) {
+            isValid &&= false;
+            errorMsg += 'Prénom trop long (> ' + UserConfig.NAME_MAX_LENGTH + ') / ';
+        }
         if(lastName === '') {
             isValid &&= false;
-            errorMsg += 'Nom de famille vide / ';
+            errorMsg += 'Nom vide / ';
         }
-        if(password !== '' && password2 !== '' && password.localeCompare(password2) !== 0) {
+        if(!UserConfig.NAME_REGEX.test(lastName)) {
             isValid &&= false;
-            errorMsg += 'Les mots de passe ne correspondent pas / ';
+            errorMsg += 'Format Nom invalide / ';
+        }
+        if(lastName.length < UserConfig.NAME_MIN_LENGTH) {
+            isValid &&= false;
+            errorMsg += 'Nom trop court (< ' + UserConfig.NAME_MIN_LENGTH + ') / ';
+        }
+        if(lastName.length > UserConfig.NAME_MAX_LENGTH) {
+            isValid &&= false;
+            errorMsg += 'Nom trop long (> ' + UserConfig.NAME_MAX_LENGTH + ') / ';
         }
         if(!isCaptchaValid) {
             isValid &&= false;
@@ -172,6 +212,8 @@ const Register = () : React.ReactElement => {
             <Form onSubmit={handleSubmit} className="react-form">
                 <Form.Group className="w-100">
                     <input 
+                        min={UserConfig.EMAIL_MIN_LENGTH}
+                        max={UserConfig.EMAIL_MAX_LENGTH}
                         type="email" 
                         name="email" 
                         placeholder="Email" 
@@ -183,11 +225,14 @@ const Register = () : React.ReactElement => {
                         }
                         required
                         autoComplete="off"
+                        title={`L'email doit comporter entre ${UserConfig.EMAIL_MIN_LENGTH} et ${UserConfig.EMAIL_MAX_LENGTH} caractères et doit respecter le format suivant : ${UserConfig.EMAIL_FORMAT}`}
                     />
                 </Form.Group>
 
                 <Form.Group className="w-100 d-flex flex-column gap-2">
                     <input 
+                        min={UserConfig.PASSWORD_MIN_LENGTH}
+                        max={UserConfig.PASSWORD_MAX_LENGTH}
                         type={isPasswordVisible ? 'text' : 'password'} 
                         name="password" 
                         placeholder="Mot de passe" 
@@ -199,9 +244,12 @@ const Register = () : React.ReactElement => {
                         }
                         required
                         autoComplete="new-password" 
+                        title={`Le mot de passe doit comporter entre ${UserConfig.PASSWORD_MIN_LENGTH} et ${UserConfig.PASSWORD_MAX_LENGTH} caractères et doit respecter le format suivant : ${UserConfig.PASSWORD_FORMAT}`}
                     />
                     <div className="d-flex gap-2 w-100">
                         <input 
+                            min={UserConfig.PASSWORD_MIN_LENGTH}
+                            max={UserConfig.PASSWORD_MAX_LENGTH}
                             type={isPasswordVisible ? 'text' : 'password'} 
                             name="password2" 
                             placeholder="Confirmation" 
@@ -212,6 +260,7 @@ const Register = () : React.ReactElement => {
                                 }
                             }
                             required
+                            title={`La confirmation doit comporter entre ${UserConfig.PASSWORD_MIN_LENGTH} et ${UserConfig.PASSWORD_MAX_LENGTH} caractères et doit respecter le format suivant : ${UserConfig.PASSWORD_FORMAT}`}
                         />
                         <Button 
                             type="button"
@@ -227,6 +276,8 @@ const Register = () : React.ReactElement => {
 
                 <Form.Group className="w-100">
                     <input 
+                        min={UserConfig.PSEUDO_MIN_LENGTH}
+                        max={UserConfig.PSEUDO_MAX_LENGTH}
                         type="text" 
                         name="pseudo" 
                         placeholder="Pseudo" 
@@ -237,11 +288,15 @@ const Register = () : React.ReactElement => {
                             }
                         }
                         required
+                        autoComplete="off"
+                        title={`Le pseudo doit comporter entre ${UserConfig.PSEUDO_MIN_LENGTH} et ${UserConfig.PSEUDO_MAX_LENGTH} caractères et doit respecter le format suivant : ${UserConfig.PSEUDO_FORMAT}`}
                     />
                 </Form.Group>
 
                 <Form.Group className="w-100">
                     <input 
+                        min={UserConfig.NAME_MIN_LENGTH}
+                        max={UserConfig.NAME_MAX_LENGTH}
                         type="text" 
                         name="firstName" 
                         placeholder="Prénom" 
@@ -252,11 +307,14 @@ const Register = () : React.ReactElement => {
                             }
                     }
                         required
+                        title={`Le prénom doit comporter entre ${UserConfig.NAME_MIN_LENGTH} et ${UserConfig.NAME_MAX_LENGTH} caractères et doit respecter le format suivant : ${UserConfig.NAME_FORMAT}`}
                     />
                 </Form.Group>
 
                 <Form.Group className="w-100">
                     <input 
+                        min={UserConfig.NAME_MIN_LENGTH}
+                        max={UserConfig.NAME_MAX_LENGTH}
                         type="text" 
                         name="lastName" 
                         placeholder="Nom" 
@@ -267,6 +325,7 @@ const Register = () : React.ReactElement => {
                             }
                         }
                         required
+                        title={`Le nom doit comporter entre ${UserConfig.NAME_MIN_LENGTH} et ${UserConfig.NAME_MAX_LENGTH} caractères et doit respecter le format suivant : ${UserConfig.NAME_FORMAT}`}
                     />
                 </Form.Group>
 
