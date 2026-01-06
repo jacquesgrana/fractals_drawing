@@ -3,10 +3,10 @@
 namespace App\Controller\Api;
 
 use App\Entity\User;
+use App\Entity\EmailVerificationCode;
 use App\Repository\UserRepository;
 use App\Repository\VerificationTokenRepository;
 use App\Service\AccountService;
-use App\Service\MailerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -334,8 +334,203 @@ class UserController extends AbstractController
                 "email" => $userFromBd->getEmail(),
                 "pseudo" => $userFromBd->getPseudo(),
                 "firstName" => $userFromBd->getFirstName(),
-                "lastName" => $userFromBd->getLastName()
+                "lastName" => $userFromBd->getLastName(),
+                'createdAt' => $userFromBd->getCreatedAt()->format('Y-m-d H:i:s'), 
+                'updatedAt' => $userFromBd->getUpdatedAt()->format('Y-m-d H:i:s'),
             ]
         ], 201); // 201 = Created
+    }
+
+    #[Route('/patch-email', name: 'patch_email', methods: ['PATCH'])]
+    public function patchEmail(
+        EntityManagerInterface $em, 
+        Request $request
+    ) {
+
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        if(empty($data['email'])) {
+            return $this->json([
+                'message' => 'Données manquantes',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        // vérifier que l'email n'est pas deja utilisé
+        $user = $this->getUser();
+
+        $userWithSameEmail = $em->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+        if($userWithSameEmail && $userWithSameEmail->getEmail() !== $user->getUserIdentifier()) {
+            return $this->json([
+                'message' => 'Email déjà utilisé',
+                'status' => 409,
+                'data' => []
+            ], 409);
+        }
+
+        $userFromBd = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
+        if(!$userFromBd) {
+            return $this->json([
+                'message' => 'Utilisateur non trouvé',
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+
+        if($userFromBd->getEmail() !== $data['email']) $userFromBd->setEmail($data['email']);
+
+        // TODO : vider les codes de vérification de l'user
+        $userFromBd->getEmailVerificationCodes()->clear();
+        $em->persist($userFromBd);
+        $em->flush();
+
+        return $this->json([
+            'message' => "Email modifié",
+            'status' => 201,
+            'data' => [
+                "email" => $userFromBd->getEmail(),
+                "pseudo" => $userFromBd->getPseudo(),
+                "firstName" => $userFromBd->getFirstName(),
+                "lastName" => $userFromBd->getLastName(),
+                'createdAt' => $userFromBd->getCreatedAt()->format('Y-m-d H:i:s'), 
+                'updatedAt' => $userFromBd->getUpdatedAt()->format('Y-m-d H:i:s'),
+            ]
+        ], 201);
+    }
+
+    #[Route('/email-not-used', name: 'email_not_used', methods: ['POST'])]
+    public function getEmailNonUsed(
+        EntityManagerInterface $em, 
+        Request $request
+    ) {
+
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+        if($user)
+        {
+            return $this->json([
+                'message' => 'Email déjà utilisé',
+                'status' => 409,
+                'data' => []
+            ], 409);
+            
+        } else {
+            return $this->json([
+                'message' => 'Email non utilisé',
+                'status' => 201,
+                'data' => []
+            ], 201);
+        }
+    }
+
+    #[Route('/send-email-with-code', name: 'send_email_with_code', methods: ['POST'])]
+    public function sendEmailWithCodeToEmail(
+        Request $request,
+        AccountService $accountService
+    ) {
+        try {
+            $data = $request->toArray();
+        }
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+        $email = $data['email'];
+        $user = $this->getUser();
+        try {
+           $isOk = $accountService->sendEmailWithCodeToEmail($user, $email);
+           if(!$isOk) {
+               return $this->json([
+                   'message' => 'Email non envoyé - essayez plus tard',
+                   'status' => 400,
+                   'data' => []
+               ], 400);
+           }
+           else {
+                return $this->json([
+                    'message' => 'Email envoyé',
+                    'status' => 200,
+                    'data' => []
+                ], 200);
+           }
+             
+        }
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => $e->getMessage(),
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+    }
+
+    #[Route('/verify-email-code', name: 'verify_email_code', methods: ['POST'])]
+    public function verifyEmailCode(
+        EntityManagerInterface $em, 
+        Request $request
+    )
+    {
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+        $user = $this->getUser();
+        $userFromDb = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
+        if(!$user) {
+            return $this->json([
+                'message' => 'Utilisateur non trouvé',
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+
+        $verifCode = $em->getRepository(EmailVerificationCode::class)->findOneBy(['email' => $data['email'], 'code' => $data['code']]);
+
+        if($verifCode && $verifCode->getExpiresAt() > new \DateTime() && $verifCode->getUser()->getId() === $userFromDb->getId()) {
+            //$user->setEmailVerified(true);
+            //$em->persist($user);
+            //$em->flush();
+            return $this->json([
+                'message' => 'Email verifié',
+                'status' => 200,
+                'data' => []
+            ], 200);
+        } 
+        else {
+            return $this->json([
+                'message' => 'Code de vérification incorrect',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
     }
 }

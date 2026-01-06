@@ -37,10 +37,25 @@ const Login = (): React.ReactElement => {
     useEffect(() => {
         let isValid = true;
         if(email === '' || password === '') {
-            isValid &&= false;
+            isValid = false;
+        }
+        if(password.length > UserConfig.PASSWORD_MAX_LENGTH) {
+            isValid = false;
+        }
+        if(password.length < UserConfig.PASSWORD_MIN_LENGTH) {
+            isValid = false;
+        }
+        if(email.length > UserConfig.EMAIL_MAX_LENGTH) {
+            isValid = false;
+        }
+        if(email.length < UserConfig.EMAIL_MIN_LENGTH) {
+            isValid = false;
         }
         if(!UserConfig.EMAIL_REGEX.test(email)) {
-            isValid &&= false;
+            isValid = false;
+        }
+        if(!UserConfig.PASSWORD_REGEX.test(password)) {
+            isValid = false;
         }
         if(!isCaptchaValid) {
             isValid &&= false;
@@ -119,6 +134,8 @@ const Login = (): React.ReactElement => {
                 {/* Champ Email contrôlé */}
                 <Form.Group className="w-100">
                     <input 
+                        max={UserConfig.EMAIL_MAX_LENGTH} 
+                        min={UserConfig.EMAIL_MIN_LENGTH}
                         type="email" 
                         name="email" 
                         placeholder="Email" 
@@ -132,6 +149,8 @@ const Login = (): React.ReactElement => {
                 {/* Champ Password contrôlé */}
                 <Form.Group className="d-flex gap-2 w-100">
                     <input 
+                        max={UserConfig.PASSWORD_MAX_LENGTH} 
+                        min={UserConfig.PASSWORD_MIN_LENGTH}
                         type={isPasswordVisible ? 'text' : 'password'} 
                         name="password" 
                         placeholder="Mot de passe" 

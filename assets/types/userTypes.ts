@@ -43,3 +43,8 @@ export type UserParams = {
 export type UserEmail = {
   email: string;
 }
+
+export type UserEmailWithCode = {
+  email: string;
+  code: string;
+}

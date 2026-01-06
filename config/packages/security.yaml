@@ -40,6 +40,9 @@ security:
     access_control:
         - { path: /api/logout, roles: ROLE_USER }
         - { path: /api/user/patch-params, roles: ROLE_USER }
+        - { path: /api/user/patch-email, roles: ROLE_USER }
+        - { path: /api/user/email-not-used, roles: ROLE_USER }
+        - { path: /api/user/send-email-with-code, roles: ROLE_USER }
 
         - { path: /api/me, roles: PUBLIC_ACCESS }
         - { path: /api/login, roles: PUBLIC_ACCESS}

@@ -10,6 +10,7 @@
         border-radius: $radius-base;
         font-size: 1rem;
         color:$dark-text;
+        width: 100%;
         
         // 1. Ta couleur de base (pour quand l'autocomplétion n'est pas active)
         background-color: $light-bg; 

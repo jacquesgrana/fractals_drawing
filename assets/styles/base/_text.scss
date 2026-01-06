@@ -18,12 +18,32 @@
     color: $danger-color !important;
 }
 
+.text-danger-dark {
+    color: $danger-color-dark !important;
+}
+
+.text-danger-light {
+    color: $danger-color-light !important;
+}
+
 .text-info {
     color: $info-color !important;
 }
 
+.text-info-dark {
+    color: $info-color-dark !important;
+}
+
+.text-info-light {
+    color: $info-color-light !important;
+}
+
 .text-warning {
     color: $warning-color !important;
+}
+
+.text-warning-light {
+    color: $warning-color-light !important;
 }
 
 .text-warning-dark {
@@ -32,6 +52,14 @@
 
 .text-success {
     color: $success-color !important;
+}
+
+.text-success-dark {
+    color: $success-color-dark !important;
+}
+
+.text-success-light {
+    color: $success-color-light !important;
 }
 
 .text-small-primary {

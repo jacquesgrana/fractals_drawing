@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\User;
 use App\Entity\VerificationToken;
+use App\Entity\EmailVerificationCode;
 use App\Repository\VerificationTokenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -54,6 +55,35 @@ class AccountService
                 return false;
             }
         }
+        return true;
+    }
+
+    public function sendEmailWithCodeToEmail(User $user, string $email): bool {
+        if(empty($email)) {
+            return false;
+        }
+        if(!$user) {
+            return false;
+        }
+        $verifCode = new EmailVerificationCode();
+        $verifCode->setEmail($email);
+        
+        // vérifier si il y a déjà un code non expiré pour cet user et cet email
+        $verifCodes = $user->getEmailVerificationCodes();
+        foreach ($verifCodes as $vCode) {
+            if($vCode->getEmail() === $email && $vCode->getExpiresAt() > new \DateTime()) {
+                return false;
+            }
+        }
+
+        $user->addEmailVerificationCode($verifCode);
+
+        $this->em->persist($verifCode);
+        $this->em->persist($user);
+        $this->em->flush();
+
+        $this->mailer->sendVerificationCodeEmail($user, $verifCode);
+
         return true;
     }
 }

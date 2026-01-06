@@ -64,9 +64,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: VerificationToken::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $verificationTokens;
 
+    /**
+     * @var Collection<int, EmailVerificationCode>
+     */
+    #[ORM\OneToMany(targetEntity: EmailVerificationCode::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $emailVerificationCodes;
+
     public function __construct()
     {
         $this->verificationTokens = new ArrayCollection();
+        $this->emailVerificationCodes = new ArrayCollection();
     }
 
     /**
@@ -311,4 +318,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->mailer->sendVerificationEmail($this, $tokenValue);
     }
     */
+
+    /**
+     * @return Collection<int, EmailVerificationCode>
+     */
+    public function getEmailVerificationCodes(): Collection
+    {
+        return $this->emailVerificationCodes;
+    }
+
+    public function addEmailVerificationCode(EmailVerificationCode $emailVerificationCode): static
+    {
+        if (!$this->emailVerificationCodes->contains($emailVerificationCode)) {
+            $this->emailVerificationCodes->add($emailVerificationCode);
+            $emailVerificationCode->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEmailVerificationCode(EmailVerificationCode $emailVerificationCode): static
+    {
+        if ($this->emailVerificationCodes->removeElement($emailVerificationCode)) {
+            // set the owning side to null (unless already changed)
+            if ($emailVerificationCode->getUser() === $this) {
+                $emailVerificationCode->setUser(null);
+            }
+        }
+
+        return $this;
+    }
 }

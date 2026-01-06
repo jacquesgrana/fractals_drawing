@@ -112,7 +112,7 @@ const EditUserParamsModal = ({
             centered
         >
             <Modal.Header className="modal-dark-header">
-                <Modal.Title>Modifier les paramètres</Modal.Title>
+                <Modal.Title>Modifier les informations</Modal.Title>
             </Modal.Header>
             <Modal.Body className="modal-dark-body">
                 <Form className="react-form" noValidate onSubmit={handleSubmit}>
