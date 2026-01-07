@@ -87,7 +87,7 @@ const EditUserParamsModal = ({
             } else if(response.status === 409) {
                 // afficher un message dans un toast (ex : nouveau pseudo deja pris)
                 //console.log('Le nouveau pseudo est deja pris');
-                ToastFacade.error('Erreur : ' + data.message + ' !');
+                ToastFacade.error('Erreur 409 : ' + data.message + ' !');
             } else {
                 // afficher un message dans un toast (ex : erreur lors de la mise à jour)
                 //console.log('Erreur lors de la mise à jour');
@@ -116,7 +116,7 @@ const EditUserParamsModal = ({
             </Modal.Header>
             <Modal.Body className="modal-dark-body">
                 <Form className="react-form" noValidate onSubmit={handleSubmit}>
-                    <Form.Group className="mb-3" controlId="formPseudo">
+                    <Form.Group className="mb-3 w-75" controlId="formPseudo">
                         <Form.Label className="mb-0" >Pseudo</Form.Label>
                         <Form.Control 
                             min={UserConfig.PSEUDO_MIN_LENGTH}
@@ -131,7 +131,7 @@ const EditUserParamsModal = ({
                             required
                         />
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="formFirstName">
+                    <Form.Group className="mb-3 w-75" controlId="formFirstName">
                         <Form.Label className="mb-0" >Prénom</Form.Label>
                         <Form.Control 
                             min={UserConfig.NAME_MIN_LENGTH}
@@ -146,7 +146,7 @@ const EditUserParamsModal = ({
                             required
                         />
                     </Form.Group>
-                    <Form.Group className="mb-3" controlId="formLastName">
+                    <Form.Group className="mb-3 w-75" controlId="formLastName">
                         <Form.Label className="mb-0" >Nom</Form.Label>
                         <Form.Control 
                             min={UserConfig.NAME_MIN_LENGTH}

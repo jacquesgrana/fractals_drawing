@@ -11,7 +11,6 @@ class UrlConfig {
     public static GET_EMAIL_NOT_USED_URL = '/api/user/email-not-used';
     public static SEND_EMAIL_WITH_CODE_URL = '/api/user/send-email-with-code';
     public static VERIFY_EMAIL_CODE_URL = '/api/user/verify-email-code';
-
 }
 
 export default UrlConfig;

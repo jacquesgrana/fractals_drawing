@@ -8,15 +8,17 @@
     border: none;
     font-weight: bold;
     transition: background-color 0.3s ease;
+    background-color: $primary-color !important;
 
-    &.btn-primary {
-        background-color: $primary-color;
+    &:hover {
+        transition: background-color 0.3s ease;
+        background-color: $primary-color-light !important;
+    }
+
+    .btn-primary {
+        background-color: $primary-color !important;
         color: white;
-
-        /*
-        &:hover {
-            //background-color: darken($primary-color, 10%);
-        }
-        */
+        height: 40px;;
+        
     }
 }

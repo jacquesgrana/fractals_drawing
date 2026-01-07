@@ -118,34 +118,6 @@ class UserController extends AbstractController
         $user->setPassword($hashedPassword);
 
         // TODO : utiliser un fichier de config pour les 15 minutes
-        
-        /*
-        $tokenValue = null;
-        
-        do {
-            $tokenValue = bin2hex(random_bytes(32));
-            
-            $existingToken = $verificationTokenRepository->findOneBy(['token' => $tokenValue]);
-            
-        } while ($existingToken !== null);
-
-        $token = new \App\Entity\VerificationToken();
-        
-        $token->setToken($tokenValue);
-        //$token->setExpiresAt(new \DateTimeImmutable('+15 minutes'));
-        //$token->setUser($user);
-        $user->addVerificationToken($token);
-        
-
-        // 6. Enregistrement en base de données
-        $em->persist($user);
-        $em->persist($token);
-        $em->flush();
-
-        // 7. Envoi de l'email de vérification de compte avec un lien de confirmation contenant le token de confirmation
-
-        $mailer->sendVerificationEmail($user, $tokenValue);
-        */
 
         $em->persist($user);
         $em->flush();
@@ -300,16 +272,6 @@ class UserController extends AbstractController
                 }
             }
         }
-        /*
-        if($userWithSamePseudo && $userWithSamePseudo->getEmail() !== $user->getUserIdentifier()) {
-            return $this->json([
-                'message' => 'Pseudo déjà utilisé',
-                'status' => 409,
-                'data' => []
-            ], 409);
-        }
-        */
-        
 
         $userFromBd = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
         if(!$userFromBd) {
@@ -396,6 +358,90 @@ class UserController extends AbstractController
 
         return $this->json([
             'message' => "Email modifié",
+            'status' => 201,
+            'data' => [
+                "email" => $userFromBd->getEmail(),
+                "pseudo" => $userFromBd->getPseudo(),
+                "firstName" => $userFromBd->getFirstName(),
+                "lastName" => $userFromBd->getLastName(),
+                'createdAt' => $userFromBd->getCreatedAt()->format('Y-m-d H:i:s'), 
+                'updatedAt' => $userFromBd->getUpdatedAt()->format('Y-m-d H:i:s'),
+            ]
+        ], 201);
+    }
+
+    #[Route('/patch-password', name: 'patch_password', methods: ['PATCH'])]
+    public function patchPassword(
+        EntityManagerInterface $em, 
+        Request $request
+    ) {
+
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        if(
+            empty($data['oldPassword']) || 
+            empty($data['password']) || 
+            empty($data['password2'])) {
+            return $this->json([
+                'message' => 'Données manquantes',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        $user = $this->getUser();
+
+        $userFromBd = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
+        if(!$userFromBd) {
+            return $this->json([
+                'message' => 'Utilisateur non rencontré',
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+
+        if(!password_verify($data['oldPassword'], $userFromBd->getPassword())) {
+            return $this->json([
+                'message' => 'Ancien mot de passe incorrect',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        if($data['password'] === $data['oldPassword']) {
+            return $this->json([
+                'message' => 'Le nouveau mot de passe est identique à l\'ancien',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        if($data['password'] !== $data['password2']) {
+            return $this->json([
+                'message' => 'Les mots de passe ne correspondent pas',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        // créer le hash du nouveau mot de passe
+        $hash = password_hash($data['password'], PASSWORD_DEFAULT);
+
+        $userFromBd->setPassword($hash);
+        $em->persist($userFromBd);
+        $em->flush();
+
+        return $this->json([
+            'message' => "Mot de passe modifié",
             'status' => 201,
             'data' => [
                 "email" => $userFromBd->getEmail(),
@@ -522,7 +568,9 @@ class UserController extends AbstractController
             return $this->json([
                 'message' => 'Email verifié',
                 'status' => 200,
-                'data' => []
+                'data' => [
+                    'email' => $data['email']
+                ]
             ], 200);
         } 
         else {

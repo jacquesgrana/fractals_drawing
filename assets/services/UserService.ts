@@ -1,5 +1,5 @@
 import UrlConfig from "../config/UrlConfig";
-import { Nullable, UserEmail, UserEmailWithCode, UserParams, UserRegister } from "../types/indexType";
+import { Nullable, UserEmail, UserEmailWithCode, UserParams, UserPassword, UserRegister } from "../types/indexType";
 
 
 class UserService {
@@ -105,6 +105,23 @@ class UserService {
         try {
             const response = await fetch(UrlConfig.VERIFY_EMAIL_CODE_URL, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
+            return response;
+        } 
+        catch (err) {
+            console.error(err);
+            return null;
+        }
+    }
+
+    public changePassword = async (userData: UserPassword): Promise<Nullable<Response>> => {
+        try {
+            const response = await fetch(UrlConfig.UPDATE_USER_PASSWORD_URL, {
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json'
                 },

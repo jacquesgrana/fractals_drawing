@@ -9,6 +9,7 @@ import DateUtil from '../../utils/DateUtil';
 import { Button } from 'react-bootstrap';
 import EditUserParamsModal from './EditUserParamsModal';
 import EditUserEmailModal from './EditUserEmailModal';
+import EditUserPasswordModal from './EditUserPasswordModal';
 
 
 const Account = (): React.ReactElement => {
@@ -121,7 +122,14 @@ const Account = (): React.ReactElement => {
                 loadUser={loadUser}
             />
         )}
-        
+        {user && isModalEditPasswordOpen && (
+            <EditUserPasswordModal 
+                isModalEditUserPasswordOpen={isModalEditPasswordOpen}
+                handleCloseEditUserPasswordModal={handleCloseEditPasswordModal}
+                //user={user}
+                loadUser={loadUser}
+            />
+        )}
         </>
     );
 };

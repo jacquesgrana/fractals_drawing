@@ -63,11 +63,11 @@ const EditUserEmailModal = ({
                 setIsEmailNotUsed(true);
             }
             else if (data.status === 409) {
-                ToastFacade.error('Vérification échouée : ' + data.message + ' !');
+                ToastFacade.error('Erreur 409 : ' + data.message + ' !');
                 setIsEmailNotUsed(false);
             }
             else if (data.status === 400) {
-                ToastFacade.error('Erreur : ' + data.message + ' !');
+                ToastFacade.error('Erreur 400 : ' + data.message + ' !');
                 setIsEmailNotUsed(false);
             }
             else {
@@ -106,7 +106,7 @@ const EditUserEmailModal = ({
                 setIsEmailWithCodeSent(true);
             }
             else if (data.status === 400) {
-                ToastFacade.error('Erreur : ' + data.message + ' !');
+                ToastFacade.error('Erreur 400 : ' + data.message + ' !');
                 setIsEmailWithCodeSent(false);
             }
             else {
@@ -143,7 +143,7 @@ const EditUserEmailModal = ({
                 setIsEmailVerified(true);
             }
             else if (data.status === 400) {
-                ToastFacade.error('Vérification échouée : ' + data.message + ' !');
+                ToastFacade.error('Erreur 400 : Vérification échouée : ' + data.message + ' !');
                 setIsEmailVerified(false);
             }
             else {
@@ -184,10 +184,10 @@ const EditUserEmailModal = ({
                 if (data.status === 201) {
                     handleCloseEditUserEmailModal();
                     loadUser();
-                    ToastFacade.success('Mise à jour reussie : ' + data.message + ' !');
+                    ToastFacade.success('Mise à jour réussie : ' + data.message + ' !');
                 }
                 else if (data.status === 400) {
-                    ToastFacade.error('Erreur : ' + data.message + ' !');
+                    ToastFacade.error('Erreur 400 : ' + data.message + ' !');
                 }
                 else {
                     ToastFacade.error('Erreur : ' + data.message + ' !');
