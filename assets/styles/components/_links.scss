@@ -15,3 +15,21 @@
         color: $warning-color-light;
     }
 }
+
+.react-link-dark {
+    transition: color 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    color: $primary-color-dark;
+
+    &:hover {
+        transition: color 0.3s ease;
+        text-decoration: underline;
+        color: $warning-color;
+    }
+
+    &.active {
+        text-decoration: underline;
+        color: $warning-color-light;
+    }
+}

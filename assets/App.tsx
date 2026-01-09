@@ -15,6 +15,7 @@ import SecurityService from './services/SecurityService';
 import { Toaster } from 'react-hot-toast';
 import Register from './pages/register/Register';
 import Account from './pages/account/Account';
+import ForgotPassword from './pages/forgot-password/ForgotPassword';
 
 const ReactBody = () => {
 
@@ -61,6 +62,7 @@ const ReactBody = () => {
                         <Route path="/register" element={<Register />} />
                         <Route path="/verify" element={<VerifyEmail />} />
                         <Route path="/account" element={<Account />} />
+                        <Route path="forgot-password" element={<ForgotPassword />} />
                         <Route path="/error401" element={<Error401 />} />
                         <Route path="*" element={<Error404 />} />
                     </Routes>

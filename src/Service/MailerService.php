@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\EmailVerificationCode;
+use App\Entity\PasswordVerificationCode;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use App\Entity\User;
@@ -44,6 +45,20 @@ class MailerService
             ->from($this->from)
             ->to($verifCode->getEmail())
             ->subject('Vérification de la nouvelle adresse email')
+            ->htmlTemplate('emails/account/verification_code.html.twig')
+            ->context([
+                'user' => $user,
+                'code' => $verifCode->getCode(),
+                'newEmail' => $verifCode->getEmail()
+            ]);
+        $this->mailer->send($emailTosend);
+    }
+
+    public function sendVerificationCodeEmailForPassword(User $user, PasswordVerificationCode $verifCode) {
+        $emailTosend = (new TemplatedEmail())
+            ->from($this->from)
+            ->to($verifCode->getEmail())
+            ->subject('Vérification de l\'adresse email')
             ->htmlTemplate('emails/account/verification_code.html.twig')
             ->context([
                 'user' => $user,

@@ -10,7 +10,8 @@ class DateUtil {
 
         // Astuce : Safari/vieux navigateurs n'aiment pas l'espace dans "YYYY-MM-DD HH:mm:ss"
         // On remplace l'espace par un 'T' pour respecter la norme ISO s'il n'y est pas
-        const safeDateString = dateString.replace(' ', 'T');
+        // et on ajoute un 'Z' pour indiquer que la date est en UTC
+         const safeDateString = dateString.replace(' ', 'T') + 'Z';
         const date = new Date(safeDateString);
 
         // Si la date est invalide, on retourne la string d'origine

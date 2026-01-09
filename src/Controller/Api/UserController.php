@@ -427,7 +427,7 @@ class UserController extends AbstractController
 
         if($data['password'] !== $data['password2']) {
             return $this->json([
-                'message' => 'Les mots de passe ne correspondent pas',
+                'message' => 'Les nouveaux mots de passe ne correspondent pas',
                 'status' => 400,
                 'data' => []
             ], 400);
@@ -452,6 +452,78 @@ class UserController extends AbstractController
                 'updatedAt' => $userFromBd->getUpdatedAt()->format('Y-m-d H:i:s'),
             ]
         ], 201);
+    }
+
+    #[Route('/patch-forgot-password', name: 'patch-forgot-password', methods: ['PATCH'])]
+    public function patchForgotPassword(
+        EntityManagerInterface $em, 
+        Request $request
+    ) {
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        if(empty($data['email']) || empty($data['password']) || empty($data['password2']) || empty($data['code'])) {
+            return $this->json([
+                'message' => 'Données manquantes',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        if($data['password'] !== $data['password2']) {
+            return $this->json([
+                'message' => 'Les nouveaux mots de passe ne correspondent pas',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+
+        if(!$user) {
+            return $this->json([
+                'message' => 'Utilisateur non rencontré',
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+
+        $verifCodes = $user->getPasswordVerificationCodes();
+        foreach ($verifCodes as $vCode) {
+            if($vCode->getCode() === $data['code'] && $vCode->getExpiresAt() > new \DateTime()) {
+                $hash = password_hash($data['password'], PASSWORD_DEFAULT);
+                $user->setPassword($hash);
+                $user->getPasswordVerificationCodes()->clear();
+                $em->persist($user);
+                $em->flush();
+                return $this->json([
+                    'message' => "Mot de passe modifié",
+                    'status' => 201,
+                    'data' => [
+                        "email" => $user->getEmail(),
+                        "pseudo" => $user->getPseudo(),
+                        "firstName" => $user->getFirstName(),
+                        "lastName" => $user->getLastName(),
+                        'createdAt' => $user->getCreatedAt()->format('Y-m-d H:i:s'), 
+                        'updatedAt' => $user->getUpdatedAt()->format('Y-m-d H:i:s'),
+                    ]
+                ], 201);
+            }
+
+        }
+        return $this->json([
+            'message' => 'Erreur : mot de passe non modifié',
+            'status' => 400,
+            'data' => []
+        ], 400);
     }
 
     #[Route('/email-not-used', name: 'email_not_used', methods: ['POST'])]
@@ -486,6 +558,41 @@ class UserController extends AbstractController
                 'status' => 201,
                 'data' => []
             ], 201);
+        }
+    }
+
+    #[Route('/email-used', name: 'email_used', methods: ['POST'])]
+    public function getEmailUsed(
+        EntityManagerInterface $em, 
+        Request $request
+    ) {
+
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+        if($user)
+        {
+            return $this->json([
+                'message' => 'Email utilisé',
+                'status' => 201,
+                'data' => []
+            ], 201);
+            
+        } else {
+            return $this->json([
+                'message' => 'Email non utilisé',
+                'status' => 404,
+                'data' => []
+            ], 404);
         }
     }
 
@@ -533,6 +640,60 @@ class UserController extends AbstractController
         }
     }
 
+    #[Route('/send-code-for-password', name: 'send_code_for_password', methods: ['POST'])]
+    public function sendEmailWithCodeToEmailForPassword(
+        Request $request,
+        AccountService $accountService,
+        EntityManagerInterface $em
+    ) {
+        try {
+            $data = $request->toArray();
+        }
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+        $email = $data['email'];
+        $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
+
+        if(!$user) {
+            return $this->json([
+                'message' => 'Adresse email non utilisée',
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+
+
+        try {
+           $isOk = $accountService->sendEmailWithCodeToEmailForPassword($user, $email);
+           if(!$isOk) {
+               return $this->json([
+                   'message' => 'Email non envoyé - essayez plus tard',
+                   'status' => 400,
+                   'data' => []
+               ], 400);
+           }
+           else {
+                return $this->json([
+                    'message' => 'Email envoyé',
+                    'status' => 200,
+                    'data' => []
+                ], 200);
+           }
+        }     
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => $e->getMessage(),
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+    }
+
     #[Route('/verify-email-code', name: 'verify_email_code', methods: ['POST'])]
     public function verifyEmailCode(
         EntityManagerInterface $em, 
@@ -545,9 +706,9 @@ class UserController extends AbstractController
         catch (\Exception $e) {
             return $this->json([
                 'message' => 'Données JSON invalides',
-                'status' => 400,
+                'status' => 404,
                 'data' => []
-            ], 400);
+            ], 404);
         }
         $user = $this->getUser();
         $userFromDb = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
@@ -559,6 +720,7 @@ class UserController extends AbstractController
             ], 404);
         }
 
+        /*
         $verifCode = $em->getRepository(EmailVerificationCode::class)->findOneBy(['email' => $data['email'], 'code' => $data['code']]);
 
         if($verifCode && $verifCode->getExpiresAt() > new \DateTime() && $verifCode->getUser()->getId() === $userFromDb->getId()) {
@@ -580,5 +742,72 @@ class UserController extends AbstractController
                 'data' => []
             ], 400);
         }
+        */
+
+        $verifCodes = $userFromDb->getEmailVerificationCodes();
+        foreach ($verifCodes as $verifCode) {
+            if($verifCode->getEmail() === $data['email'] && $verifCode->getCode() === $data['code'] && $verifCode->getExpiresAt() > new \DateTime()) {
+                //$user->setEmailVerified(true);
+                //$em->persist($user);
+                //$em->flush();
+                return $this->json([
+                    'message' => 'Email verifié',
+                    'status' => 200,
+                    'data' => [
+                        'email' => $data['email']
+                    ]
+                ], 200);
+            }
+        }
+        return $this->json([
+            'message' => 'Code de vérification incorrect ou expiré',
+            'status' => 400,
+            'data' => []
+        ], 400);
+    }
+
+    #[Route('/verify-code-for-password', name: 'verify_code_for_password', methods: ['POST'])]
+    public function verifyCodeForPassword(
+        EntityManagerInterface $em, 
+        Request $request
+    )
+    {
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+
+        $userFromDb = $em->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+        if(!$userFromDb) {
+            return $this->json([
+                'message' => 'Utilisateur non trouvé',
+                'status' => 40,
+                'data' => []
+            ], 404);
+        }
+
+        $verifCodes = $userFromDb->getPasswordVerificationCodes();
+        foreach ($verifCodes as $verifCode) {
+            if($verifCode->getEmail() === $data['email'] && $verifCode->getCode() === $data['code'] && $verifCode->getExpiresAt() > new \DateTime()) {
+                return $this->json([
+                    'message' => 'Code de vérification correct',
+                    'status' => 200,
+                    'data' => [
+                        'email' => $data['email']
+                    ]
+                ], 200);
+            }
+        }
+        return $this->json([
+            'message' => 'Code de vérification incorrect ou expiré',
+            'status' => 400,
+            'data' => []
+        ], 400);
     }
 }

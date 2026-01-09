@@ -70,10 +70,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: EmailVerificationCode::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $emailVerificationCodes;
 
+    /**
+     * @var Collection<int, PasswordVerificationCode>
+     */
+    #[ORM\OneToMany(targetEntity: PasswordVerificationCode::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $passwordVerificationCodes;
+
     public function __construct()
     {
         $this->verificationTokens = new ArrayCollection();
         $this->emailVerificationCodes = new ArrayCollection();
+        $this->passwordVerificationCodes = new ArrayCollection();
     }
 
     /**
@@ -343,6 +350,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($emailVerificationCode->getUser() === $this) {
                 $emailVerificationCode->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PasswordVerificationCode>
+     */
+    public function getPasswordVerificationCodes(): Collection
+    {
+        return $this->passwordVerificationCodes;
+    }
+
+    public function addPasswordVerificationCode(PasswordVerificationCode $passwordVerificationCode): static
+    {
+        if (!$this->passwordVerificationCodes->contains($passwordVerificationCode)) {
+            $this->passwordVerificationCodes->add($passwordVerificationCode);
+            $passwordVerificationCode->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePasswordVerificationCode(PasswordVerificationCode $passwordVerificationCode): static
+    {
+        if ($this->passwordVerificationCodes->removeElement($passwordVerificationCode)) {
+            // set the owning side to null (unless already changed)
+            if ($passwordVerificationCode->getUser() === $this) {
+                $passwordVerificationCode->setUser(null);
             }
         }
 

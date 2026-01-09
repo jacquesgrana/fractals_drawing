@@ -18,10 +18,13 @@ class UserConfig {
         public static EMAIL_MAX_LENGTH : number = 40;
         public static EMAIL_FORMAT : string = 'xxx@xxx.xxx';
 
+        public static VERIF_CODE_LENGTH : number = 8;
+        public static VERIF_CODE_FORMAT : string = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+
         public static PASSWORD_REGEX : RegExp = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,30}$/;
         public static EMAIL_REGEX : RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         public static PSEUDO_REGEX : RegExp = /^[a-zA-Z0-9_-]{3,16}$/;
-
+        public static VERIF_CODE_REGEX : RegExp = /^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$/;
 
 }
 

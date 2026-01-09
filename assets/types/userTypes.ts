@@ -54,3 +54,10 @@ export type UserPassword = {
   password: string;
   password2: string;
 }
+
+export type UserPasswordWithCode = {
+  email: string;
+  code: string;
+  password: string;
+  password2: string;
+}

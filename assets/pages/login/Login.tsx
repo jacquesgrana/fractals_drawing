@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Form, Alert } from 'react-bootstrap';
+import { Button, Form } from 'react-bootstrap';
 import SecurityService from "../../services/SecurityService";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ToastFacade from '../../facade/ToastFacade';
 import { Nullable } from '../../types/commonTypes';
 import UserConfig from '../../config/UserConfig';
@@ -143,6 +143,8 @@ const Login = (): React.ReactElement => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
+                        autoComplete="off"
+                        title={`L'email doit comporter entre ${UserConfig.EMAIL_MIN_LENGTH} et ${UserConfig.EMAIL_MAX_LENGTH} caractères et doit respecter le format suivant : ${UserConfig.EMAIL_FORMAT}`}
                     />
                 </Form.Group>
 
@@ -183,6 +185,7 @@ const Login = (): React.ReactElement => {
                 ref={captchaRef} // On attache la ref
                 onVerify={(isValid: boolean) => setIsCaptchaValid(isValid)} // On écoute le résultat
             />
+            <Link className="react-link-dark" to="/forgot-password">Mot de passe oublié</Link>
         </div>
     );
 };

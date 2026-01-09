@@ -65,30 +65,33 @@ const EditUserPasswordModal = ({
             password2: password2
         }
         const response = await userService.changePassword(data);
-        if (response) {
-
-            try {
-                const data = await response.json();
-                if (data.status === 201) {
-                    handleCloseEditUserPasswordModal();
-                    loadUser(); // ???
-                    ToastFacade.success('Mise à jour réussie : ' + data.message + ' !');
-                }
-                else if (data.status === 400) {
-                    ToastFacade.error('Erreur 400 : ' + data.message + ' !');
-                }
-                else if (data.status === 404) {
-                    ToastFacade.error('Erreur 404 : ' + data.message + ' !');
-                }
-                else {
-                    ToastFacade.error('Erreur : ' + data.message + ' !');
-                }
-            } catch (err) {
-                console.error(err);
-                ToastFacade.error('Erreur : Erreur lors de la mise à jour !');
-            }
-            
+        if(!response) {
+            ToastFacade.error('Erreur : Erreur lors de la mise à jour !');
+            return;
         }
+
+        try {
+            const data = await response.json();
+            if (data.status === 201) {
+                handleCloseEditUserPasswordModal();
+                loadUser(); // ???
+                ToastFacade.success('Mise à jour réussie : ' + data.message + ' !');
+            }
+            else if (data.status === 400) {
+                ToastFacade.error('Erreur 400 : ' + data.message + ' !');
+            }
+            else if (data.status === 404) {
+                ToastFacade.error('Erreur 404 : ' + data.message + ' !');
+            }
+            else {
+                ToastFacade.error('Erreur : ' + data.message + ' !');
+            }
+        } catch (err) {
+            console.error(err);
+            ToastFacade.error('Erreur : Erreur lors de la mise à jour !');
+        }
+            
+        
     }
 
     return (
