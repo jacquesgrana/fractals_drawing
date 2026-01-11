@@ -13,7 +13,7 @@ const DrawZone = () : React.ReactElement => {
     // REFS : Stockage mutable persistant sans re-render
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const contextRef = useRef<Nullable<CanvasRenderingContext2D>>(null);
-    const bufferRef = useRef<Nullable<ImageData>>(null);
+    //const bufferRef = useRef<Nullable<ImageData>>(null);
     const maxIRef = useRef(0);
     const maxJRef = useRef(0);
 
@@ -29,7 +29,7 @@ const DrawZone = () : React.ReactElement => {
         canvas.width = rect.width;
         canvas.height = rect.height;
 
-        maxIRef.current = canvas.width;
+        maxIRef.current = canvas.width; // enlever ?
         maxJRef.current = canvas.height;
 
         // 2. Récupération et cache du contexte
@@ -37,13 +37,7 @@ const DrawZone = () : React.ReactElement => {
         if (!ctx) return;
         contextRef.current = ctx;
 
-        // 3. Initialisation du fond noir
-        //ctx.fillStyle = "black";
-        //ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // 4. CRITIQUE : On crée le buffer en mémoire UNE SEULE FOIS
-        // On récupère l'état initial des pixels
-        bufferRef.current = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        // 4. Initialisation du service
 
         canvasService.setCanvas(canvasRef.current!);
         canvasService.setCanvasContext(ctx);
@@ -53,50 +47,102 @@ const DrawZone = () : React.ReactElement => {
         canvasService.initTabToDraw();
         canvasService.initImageData();
 
+        //canvasService.setBuffer(ctx.getImageData(0, 0, canvas.width, canvas.height));
+
         drawCanvas();
     }, []);
 
+    /*
     const drawCanvas =  useCallback(async () =>  {
-        setIsDrawing(true);
-        console.log('maxI : ' + maxIRef.current + ' maxJ : ' + maxJRef.current);
-        const ctx = contextRef.current;
-        const buffer = bufferRef.current; // On récupère notre "ImageData" stocké
-
+        setIsDrawing(() => true);
+        const ctx = canvasService.getCanvasContext();
+        const buffer = canvasService.getBuffer();
         if (!ctx || !buffer) return;
 
         const data = buffer.data; // Accès direct au tableau Uint8ClampedArray
-        
-        
-
-        const datasFromService: Color[][] = await canvasService.updateTabToDraw();
-
-        //console.log(datasFromService);
-
+        const datasFromService: Color[][] = await canvasService.getTabToDraw();
 
         for (let i = 0; i < datasFromService.length; i++) {
             for (let j = 0; j < datasFromService[0].length; j++) {
-                const ii = (j * buffer.width + i) * 4;
-                data[ii]     = datasFromService[i][j].getRed(); // R
-                data[ii + 1] = datasFromService[i][j].getGreen()   ; // G
-                data[ii + 2] = datasFromService[i][j].getBlue(); // B
-                data[ii + 3] = datasFromService[i][j].getAlpha(); // Alpha totalement opaque
+                const k = (j * buffer.width + i) * 4;
+                data[k]     = datasFromService[i][j].getRed(); // R
+                data[k + 1] = datasFromService[i][j].getGreen(); // G
+                data[k + 2] = datasFromService[i][j].getBlue(); // B
+                data[k + 3] = datasFromService[i][j].getAlpha(); // Alpha
             }
         }
 
         ctx.putImageData(buffer, 0, 0);
-        setIsDrawing(false);
+        setIsDrawing(() => false);
 
     }, []); // useCallback pour optimiser la référence de la fonction
+    */
 
-    const handleClick = useCallback(() => {
+    const drawCanvas = useCallback(async () => {
+        setIsDrawing(true);
+        await canvasService.computeFractalToBuffer();
+        canvasService.drawBufferToCanvas();
+        setIsDrawing(false);
+    }, []);
+
+    const handleZoomPlus = useCallback(() => {
         //canvasService.zoom = canvasService.zoom - 0.25;
         canvasService.currentScene.setZoom(canvasService.currentScene.getZoom() * 0.9);
         //canvasService.currentScene.updateMatrix();
         drawCanvas();
-    }, [drawCanvas]);
+    }, []);
+
+    const handleZoomMoins = useCallback(() => {
+        //canvasService.zoom = canvasService.zoom + 0.25;
+        canvasService.currentScene.setZoom(canvasService.currentScene.getZoom() / 0.9);
+        //canvasService.currentScene.updateMatrix();
+        drawCanvas();
+    }, []);
+
+    const handleTranslateLeft = useCallback(() => {
+        const trans = canvasService.currentScene.getTrans();
+        const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
+        trans.setX(trans.getX() - deltaFromZoom);
+        canvasService.currentScene.setTrans(trans);
+        drawCanvas();
+    }, []);
+
+    const handleTranslateRight = useCallback(() => {
+        const trans = canvasService.currentScene.getTrans();
+        const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
+        trans.setX(trans.getX() + deltaFromZoom);
+        canvasService.currentScene.setTrans(trans);
+        drawCanvas();
+    }, []);
+
+    const handleTranslateUp = useCallback(() => {
+        const trans = canvasService.currentScene.getTrans();
+        const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
+        trans.setY(trans.getY() - deltaFromZoom);
+        canvasService.currentScene.setTrans(trans);
+        drawCanvas();
+    }, []);
+
+    const handleTranslateDown = useCallback(() => {
+        const trans = canvasService.currentScene.getTrans();
+        const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
+        trans.setY(trans.getY() + deltaFromZoom);
+        canvasService.currentScene.setTrans(trans);
+        drawCanvas();   
+    }, []);
+
+    const handleRotateTrigonometry = useCallback(() => {
+        canvasService.currentScene.setAngle(canvasService.currentScene.getAngle() - 10);
+        drawCanvas();
+    }, []);
+
+    const handleRotateReverseTrigonometry = useCallback(() => {
+        canvasService.currentScene.setAngle(canvasService.currentScene.getAngle() + 10);
+        drawCanvas();
+    }, []);
 
     return (
-    <div>
+    <div className="draw-zone-container d-flex flex-column align-items-center justify-content-center gap-2">
         
         {/* Le message de chargement se superpose via CSS */}
         {isDrawing && (
@@ -119,11 +165,18 @@ const DrawZone = () : React.ReactElement => {
         <canvas 
             ref={canvasRef} 
             className="draw-zone"
-            width={800} // Assurez-vous que la taille est fixée
-            height={600}
+            //width={800} // Assurez-vous que la taille est fixée
+            //height={600}
         />
+        <div className="d-flex gap-1">
+            <Button className="btn" onClick={handleTranslateRight}>◀</Button>
+            <Button className="btn" onClick={handleTranslateLeft}>▶</Button>
+            <Button className="btn" onClick={handleTranslateUp}>▲</Button>
+            <Button className="btn" onClick={handleTranslateDown}>▼</Button>
+            <Button className="btn" onClick={handleZoomPlus}>➕</Button>
+            <Button className="btn" onClick={handleZoomMoins}>➖</Button>
+        </div>
         
-        <Button onClick={handleClick}>Dessiner</Button>
     </div>
 );
 };
@@ -131,6 +184,11 @@ const DrawZone = () : React.ReactElement => {
 export default DrawZone;
 
 /*
+<Button className="btn" onClick={handleRotateTrigonometry}>↺</Button>
+<Button className="btn" onClick={handleRotateReverseTrigonometry}>↻</Button>
+
+↺
+↻
 i = x * maxI + y
 j = x * maxJ + y
 

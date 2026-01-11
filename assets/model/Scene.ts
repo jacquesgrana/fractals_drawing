@@ -138,6 +138,38 @@ export class Scene {
     return `minX : ${this.minX} minY : ${this.minY} rangeX : ${this.rangeX} rangeY : ${this.rangeY} trans ( ${this.trans.toString()} ) angle : ${this.angle} zoom : ${this.zoom}`;
   }
 
+  toJSON(): object {
+    return {
+      minX: this.minX,
+      minY: this.minY,
+      rangeX: this.rangeX,
+      rangeY: this.rangeY,
+      trans: this.trans.toJSON(),
+      angle: this.angle,
+      zoom: this.zoom
+    };
+  }
+
+  static fromJSON(json: {
+    minX: number;
+    minY: number;
+    rangeX: number;
+    rangeY: number;
+    trans: any; // Remplace par le type de Point
+    angle: number;
+    zoom: number;
+}): Scene {
+    return new Scene(
+        json.minX,
+        json.minY,
+        json.rangeX,
+        json.rangeY,
+        Point.fromJSON(json.trans), // Supposons que Point.fromJSON accepte un objet
+        json.angle,
+        json.zoom
+    );
+}
+
   calcStepX(sizeX: number): number {
     if (sizeX === 0) return 0;
     return (this.rangeX / sizeX);

@@ -129,7 +129,7 @@ export class MatrixLibrary {
     const det = MatrixLibrary.determinant(matrix);
 
     // Attention aux erreurs d'arrondi des flottants, on compare avec un epsilon très petit
-    if (Math.abs(det) < 0.00000001) {
+    if (Math.abs(det) < 0.000000000001) {
       throw new Error("Matrix is singular (determinant is 0), cannot be inverted.");
     }
 

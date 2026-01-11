@@ -130,4 +130,24 @@ export class ComplexNb {
   toString(): string {
     return `Z = ${this.real.toFixed(2)} + i${this.imag.toFixed(2)} (Mod: ${this.mod.toFixed(2)}, Arg: ${this.arg.toFixed(2)}°)`;
   }
+
+  toJSON(): object {
+    return {
+      real: this.real,
+      imag: this.imag,
+      mod: this.mod,
+      arg: this.arg
+    };
+  } 
+
+  static fromJSON(json: {
+    isCart: boolean;
+    real: number;
+    imag: number;
+    mod: number;
+    arg: number;
+  }): ComplexNb {
+    
+    return new ComplexNb(true, json.real, json.imag);
+  }
 }

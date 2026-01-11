@@ -70,6 +70,24 @@ export class Color {
     return `color [red : ${this.red} green : ${this.green} blue : ${this.blue} alpha : ${this.alpha}]`;
   }
 
+  public toJSON(): object {
+    return {
+      red: this.red,
+      green: this.green,
+      blue: this.blue,
+      alpha: this.alpha
+    };
+  }
+
+  public static fromJSON(json: {
+    red: number;
+    green: number;
+    blue: number;
+    alpha: number;
+  }): Color {
+    return new Color(json.red, json.green, json.blue, json.alpha);
+  }
+
   // --- Helpers ---
 
   /*
@@ -105,4 +123,5 @@ export class Color {
     
     return colorToReturn;
   }
+
 }

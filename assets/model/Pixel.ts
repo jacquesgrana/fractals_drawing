@@ -44,6 +44,22 @@ export class Pixel {
     return `i : ${this.i} / j : ${this.j}`;
   }
 
+  toJSON(): object {
+    return {
+      i: this.i,
+      j: this.j
+    };
+  }
+
+  static fromJSON(json: {
+    i: number;
+    j: number;
+  }): Pixel {
+    return new Pixel(json.i, json.j);
+  }
+
+  // --- Méthodes utilitaires ---
+
   calcDist(endPixel: Pixel): number {
     // Utilisation de Math.hypot et accès direct aux propriétés pour la performance
     return Math.hypot(endPixel.i - this.i, endPixel.j - this.j);

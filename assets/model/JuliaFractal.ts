@@ -113,4 +113,36 @@ export class JuliaFractal {
   toString(): string {
     return `id : ${this.id} seed : ( ${this.seed.toString()} ) limit : ${this.limit} maxIt : ${this.maxIt}`;
   }
+
+  toJSON(): object {
+    return {
+      id: this.id,
+      name: this.name,
+      seed: this.seed.toJSON(),
+      limit: this.limit,
+      maxIt: this.maxIt
+    };
+  }
+
+  static fromJSON(json: {
+    id: number;
+    name: string;
+    seed: {
+      isCart: boolean;
+      real: number;
+      imag: number;
+      mod: number;
+      arg: number;
+    };
+    limit: number;
+    maxIt: number;
+  }): JuliaFractal {
+    return new JuliaFractal(
+      json.id,
+      json.name,
+      ComplexNb.fromJSON(json.seed),
+      json.limit,
+      json.maxIt
+    );
+  }
 }

@@ -32,6 +32,20 @@ export class Point {
     return `x : ${this.x} y : ${this.y}`;
   }
 
+  toJSON(): object {
+    return {
+      x: this.x,
+      y: this.y
+    };
+  }
+
+  static fromJSON(json: {
+    x: number;
+    y: number;
+  }): Point {
+    return new Point(json.x, json.y);
+  }
+
   calcMagnitude(): number {
     return Math.hypot(this.x, this.y);
   }

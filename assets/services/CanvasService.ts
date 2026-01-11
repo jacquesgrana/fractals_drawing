@@ -1,5 +1,6 @@
 import { GraphicLibrary } from "../libraries/GraphicLibrary";
 import { MathLibrary } from "../libraries/MathLibrary";
+//import { MathLibrary } from "../libraries/MathLibrary";
 import { Color } from "../model/Color";
 import { ComplexNb } from "../model/ComplexNb";
 import { JuliaFractal } from "../model/JuliaFractal";
@@ -7,6 +8,7 @@ import { MandelbrotFractal } from "../model/MandelbrotFractal";
 import { Pixel } from "../model/Pixel";
 import { Point } from "../model/Point";
 import { Scene } from "../model/Scene";
+import { Nullable } from "../types/commonTypes";
 
 const COLOR_FILL_SELECT: string = 'rgba(235, 125, 52, 0.38)';
 const COLOR_STROKE_SELECT: string = 'rgba(235, 125, 52, 0.0)';
@@ -20,8 +22,8 @@ const COLOR_FILL_AXES: string = 'rgba(255,255,255,0.62)';
 const DEFAULT_ZOOM_PERCENT_VALUE: number = 11.76;
 const STEP_ZOOM_PERCENT_VALUE: number = 5.96;
 
-const DEFAULT_GRADIENT_START: number = 3;
-const DEFAULT_GRADIANT_END: number = 5;
+const DEFAULT_GRADIENT_START: number = 0;
+const DEFAULT_GRADIANT_END: number = 3;
 
 /**
  * Classe du service qui gère le canvas
@@ -29,11 +31,13 @@ const DEFAULT_GRADIANT_END: number = 5;
 class CanvasService {
     private static instance: CanvasService;
 
+    private worker: Nullable<Worker> = null;
+
     private juliaFractal!: JuliaFractal;
 
     private mandelbrotFractal! : MandelbrotFractal;
 
-    private imageData!: ImageData;
+    //private imageData!: ImageData;
     private tabToDraw!: Color[][];
 
     private canvasWidth!: number;
@@ -43,6 +47,8 @@ class CanvasService {
     private canvas!: HTMLCanvasElement; // !!!!!!!
 
     private context!: CanvasRenderingContext2D;
+
+    private buffer!: ImageData;
 
     /*
     private real: number = 0;
@@ -76,9 +82,9 @@ class CanvasService {
         //this.iterNb = this.juliaFractal.getMaxIt();
     }
 
-  /**
-   * Méthode d'initialisation des données du service
-   */
+    /**
+     * Méthode d'initialisation des données du service
+     */
     public initService(): void {
         this.initTabToDraw();
         this.angle = 0;
@@ -93,6 +99,15 @@ class CanvasService {
         this.currentScene = new Scene(minX, minY, deltaX, deltaY, this.trans, this.angle, this.zoom);
         //this.initImageData();
     }
+
+    /*
+    public initWorker(): void {
+        // Utilise un import dynamique pour charger le worker
+        this.worker = new Worker(
+            new URL('../workers/JuliaFractalWorker.worker.ts?worker', import.meta.url)
+        );
+    } 
+    */  
 
     /**
      * Méthode d'initialisation du tableau qui sera affiché dans le canvas
@@ -111,7 +126,7 @@ class CanvasService {
      * Méthode d'initialisation de l'imageData du canvas
      */
     public initImageData(): void {
-        this.imageData = this.context.createImageData(this.canvasWidth, this.canvasHeight);
+        this.buffer = this.context.createImageData(this.canvasWidth, this.canvasHeight);
         //this.data = this.imageData.data;
     }
 
@@ -122,20 +137,20 @@ class CanvasService {
         for (let i = 0; i < this.canvasWidth; i++) {
             for (let j = 0; j < this.canvasHeight; j++) {
                 let indice: number = (j * this.canvasWidth * 4) + (i * 4);
-                this.imageData.data[indice] = this.tabToDraw[i][j].getRed();
-                this.imageData.data[indice + 1] = this.tabToDraw[i][j].getGreen();
-                this.imageData.data[indice + 2] = this.tabToDraw[i][j].getBlue();
-                this.imageData.data[indice + 3] = this.tabToDraw[i][j].getAlpha();
+                this.buffer.data[indice] = this.tabToDraw[i][j].getRed();
+                this.buffer.data[indice + 1] = this.tabToDraw[i][j].getGreen();
+                this.buffer.data[indice + 2] = this.tabToDraw[i][j].getBlue();
+                this.buffer.data[indice + 3] = this.tabToDraw[i][j].getAlpha();
             }
         }
         //this.imageData.data = this.data;
     }
 
-    /**
+  /**
    * Méthode qui calcule et renvoie le tableau des couleurs calculées selon la fractale
    * @returns promise tableau contenant les couleurs calculées des pixels du canvas
    */
-  public async updateTabToDraw(): Promise<Color[][]> {
+  public async getTabToDraw(): Promise<Color[][]> {
     //this.cd.detectChanges();
     return new Promise<Color[][]>((resolve) => {
         //let startTime: Date = new Date(Date.now());
@@ -180,6 +195,56 @@ class CanvasService {
 
   }
 
+  /**
+     * Calcule la fractale et remplit directement le buffer (sans Color[][])
+     */
+    public async computeFractalToBuffer(): Promise<void> {
+        return new Promise((resolve) => {
+            const pix = new Pixel(0, 0);
+            const data = this.buffer.data; // Accès direct au Uint8ClampedArray
+
+            for (let i = 0; i < this.canvasWidth; i++) {
+                for (let j = 0; j < this.canvasHeight; j++) {
+                    //const jj = this.canvasHeight - j - 1;
+                    pix.setI(i);
+                    
+                    pix.setJ(j);
+                    pix.setJ(pix.getJToDraw(this.canvasHeight));
+                    const pointM = GraphicLibrary.calcPointFromPix(
+                        pix,
+                        this.currentScene,
+                        this.canvasWidth,
+                        this.canvasHeight
+                    );
+                    const z = new ComplexNb(true, pointM.getX(), pointM.getY());
+
+                    // Récupère la couleur sous forme d'objet Color (à adapter)
+                    const color = this.juliaFractal.calcColorFromJuliaFractal(
+                        z,
+                        this.gradientStart,
+                        this.gradientEnd - this.gradientStart,
+                        COLOR_BACKGROUND
+                    );
+
+                    // Calcule l'index dans le buffer
+                    const idx = (j * this.canvasWidth + i) * 4;
+                    data[idx] = color.getRed();     // R
+                    data[idx + 1] = color.getGreen(); // G
+                    data[idx + 2] = color.getBlue();  // B
+                    data[idx + 3] = color.getAlpha(); // Alpha
+                }
+            }
+            resolve();
+        });
+    }
+
+    /**
+     * Dessine le buffer dans le canvas
+     */
+    public drawBufferToCanvas(): void {
+        this.context.putImageData(this.buffer, 0, 0);
+    }
+
 
   setCanvasWidth(width: number): void {
     this.canvasWidth = width;
@@ -195,6 +260,22 @@ class CanvasService {
 
   setCanvas(canvas: HTMLCanvasElement): void {
     this.canvas = canvas;
+  }
+
+  setBuffer(buffer: ImageData): void {
+    this.buffer = buffer;
+  }
+
+  getCanvas(): HTMLCanvasElement {
+    return this.canvas;
+  }
+
+  getCanvasContext(): CanvasRenderingContext2D {
+    return this.context;
+  }
+
+  getBuffer(): ImageData {
+    return this.buffer;
   }
 }
 
