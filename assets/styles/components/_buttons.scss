@@ -14,11 +14,19 @@
         transition: background-color 0.3s ease;
         background-color: $primary-color-light !important;
     }
+}
 
-    .btn-primary {
-        background-color: $primary-color !important;
-        color: white;
-        height: 40px;;
-        
-    }
+.btn-primary {
+    background-color: $primary-color !important;
+    color: white;
+    height: 40px;;
+    
+}
+
+.btn-small-primary {
+    background-color: $primary-color !important;
+    color: white;
+    height: 50px;
+    width: 80px;
+    //font-size: small;
 }

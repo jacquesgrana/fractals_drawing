@@ -4,18 +4,19 @@ import { Button } from "react-bootstrap";
 import { Nullable } from "../../types/commonTypes"; 
 import CanvasService from "../../services/CanvasService";
 import { Color } from "../../model/Color";
+import { Point } from "../../model/Point";
+import ToastFacade from "../../facade/ToastFacade";
 
 const DrawZone = () : React.ReactElement => {
     const [isDrawing, setIsDrawing] = useState(false);
-    // On garde uniquement les états liés à l'UI
-    // Pas de maxI, maxJ ou context dans le State !
+    const [copySuccess, setCopySuccess] = useState(false);
     
     // REFS : Stockage mutable persistant sans re-render
     const canvasRef = useRef<HTMLCanvasElement>(null);
     //const contextRef = useRef<Nullable<CanvasRenderingContext2D>>(null);
     //const bufferRef = useRef<Nullable<ImageData>>(null);
-    const maxIRef = useRef(0);
-    const maxJRef = useRef(0);
+    //const maxIRef = useRef(0);
+    //const maxJRef = useRef(0);
 
     const canvasService = CanvasService.getInstance();
 
@@ -29,8 +30,8 @@ const DrawZone = () : React.ReactElement => {
         canvas.width = rect.width;
         canvas.height = rect.height;
 
-        maxIRef.current = canvas.width; // enlever ?
-        maxJRef.current = canvas.height;
+        //maxIRef.current = canvas.width; // enlever ?
+        //maxJRef.current = canvas.height;
 
         // 2. Récupération et cache du contexte
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -44,7 +45,7 @@ const DrawZone = () : React.ReactElement => {
         canvasService.setCanvasWidth(canvasRef.current!.width);
         canvasService.setCanvasHeight(canvasRef.current!.height);
         canvasService.initService();
-        canvasService.initTabToDraw();
+        //canvasService.initTabToDraw();
         //canvasService.initImageData();
 
         //canvasService.setBuffer(ctx.getImageData(0, 0, canvas.width, canvas.height));
@@ -119,7 +120,7 @@ const DrawZone = () : React.ReactElement => {
     const handleTranslateLeft = useCallback(async () => {
         const trans = canvasService.currentScene.getTrans();
         const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
-        trans.setX(trans.getX() - deltaFromZoom);
+        trans.setX(trans.getX() + deltaFromZoom);
         canvasService.currentScene.setTrans(trans);
         await drawCanvas();
     }, []);
@@ -127,7 +128,7 @@ const DrawZone = () : React.ReactElement => {
     const handleTranslateRight = useCallback(async () => {
         const trans = canvasService.currentScene.getTrans();
         const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
-        trans.setX(trans.getX() + deltaFromZoom);
+        trans.setX(trans.getX() - deltaFromZoom);
         canvasService.currentScene.setTrans(trans);
         await drawCanvas();
     }, []);
@@ -135,7 +136,7 @@ const DrawZone = () : React.ReactElement => {
     const handleTranslateUp = useCallback(async () => {
         const trans = canvasService.currentScene.getTrans();
         const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
-        trans.setY(trans.getY() - deltaFromZoom);
+        trans.setY(trans.getY() + deltaFromZoom);
         canvasService.currentScene.setTrans(trans);
         await drawCanvas();
     }, []);
@@ -143,10 +144,54 @@ const DrawZone = () : React.ReactElement => {
     const handleTranslateDown = useCallback(async () => {
         const trans = canvasService.currentScene.getTrans();
         const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
-        trans.setY(trans.getY() + deltaFromZoom);
+        trans.setY(trans.getY() - deltaFromZoom);
         canvasService.currentScene.setTrans(trans);
         await drawCanvas();   
     }, []);
+
+    const handleReset = useCallback(async () => {
+        //this.angle = 0;
+        //this.zoom = 1.5;
+        //this.trans = new Point(0, 0);
+        canvasService.currentScene.setAngle(0);
+        canvasService.currentScene.setZoom(1.5);
+        canvasService.currentScene.setTrans(new Point(0, 0));
+        await drawCanvas();
+    }, []);
+
+    const handleCopyToClipboard = useCallback(async () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        try {
+            // 1. Convertir le canvas en Blob (format PNG par défaut)
+            const blob = await new Promise<Blob | null>((resolve) => {
+                canvas.toBlob((b) => resolve(b), 'image/png');
+            });
+
+            if (!blob) {
+                console.error("Impossible de générer l'image du canvas");
+                return;
+            }
+
+            // 2. Créer l'item pour le presse-papier
+            // Le type MIME doit correspondre au blob créé
+            const item = new ClipboardItem({ "image/png": blob });
+
+            // 3. Écrire dans le presse-papier
+            await navigator.clipboard.write([item]);
+
+            // 4. Feedback utilisateur
+            ToastFacade.success("Image copiée dans le presse-papier.");
+            setCopySuccess(true);
+            setTimeout(() => setCopySuccess(false), 2000); // Reset après 2 secondes
+
+        } catch (err) {
+            console.error("Erreur lors de la copie dans le presse-papier :", err);
+            alert("Erreur: Impossible de copier l'image (Navigateur non supporté ou contexte non sécurisé ?)");
+        }
+    }, []);
+
 
     const handleRotateTrigonometry = useCallback(async () => {
         canvasService.currentScene.setAngle(canvasService.currentScene.getAngle() - 10);
@@ -169,12 +214,24 @@ const DrawZone = () : React.ReactElement => {
             //height={600}
         />
         <div className="d-flex gap-1">
-            <Button className="btn" disabled={isDrawing} onClick={handleTranslateRight}>◀</Button>
-            <Button className="btn" disabled={isDrawing} onClick={handleTranslateLeft}>▶</Button>
-            <Button className="btn" disabled={isDrawing} onClick={handleTranslateUp}>▲</Button>
-            <Button className="btn" disabled={isDrawing} onClick={handleTranslateDown}>▼</Button>
-            <Button className="btn" disabled={isDrawing} onClick={handleZoomPlus}>➕</Button>
-            <Button className="btn" disabled={isDrawing} onClick={handleZoomMoins}>➖</Button>
+            <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleTranslateRight} title="déplacement vers la gauche">◀</Button>
+            <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleTranslateLeft} title="déplacement vers la droite">▶</Button>
+            <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleTranslateUp} title="déplacement vers le haut">▲</Button>
+            <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleTranslateDown} title="déplacement vers le bas">▼</Button>
+            <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleZoomPlus} title="zoom +">+</Button>
+            <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleZoomMoins} title="zoom -">-</Button>
+            <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleReset} title="reset">⎚</Button>
+            <Button variant={copySuccess ? "success" : "primary"} className="btn btn-small-primary" disabled={isDrawing} onClick={handleCopyToClipboard} title="copier l'image dans le presse-papier">
+                {copySuccess ? (
+                    <>
+                        ✓
+                    </>
+                ) : (
+                    <>
+                        📋
+                    </>
+                )}
+            </Button>
         </div>
         
     </div>
@@ -186,7 +243,7 @@ export default DrawZone;
 /*
 <Button className="btn" onClick={handleRotateTrigonometry}>↺</Button>
 <Button className="btn" onClick={handleRotateReverseTrigonometry}>↻</Button>
-
+➕ ➖
 ↺
 ↻
 i = x * maxI + y

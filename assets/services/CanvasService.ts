@@ -25,7 +25,7 @@ const DEFAULT_ZOOM_PERCENT_VALUE: number = 11.76;
 const STEP_ZOOM_PERCENT_VALUE: number = 5.96;
 
 const DEFAULT_GRADIENT_START: number = 0;
-const DEFAULT_GRADIANT_END: number = 3;
+const DEFAULT_GRADIANT_END: number = 6;
 
 /**
  * Classe du service qui gère le canvas
@@ -41,7 +41,7 @@ class CanvasService {
     //private mandelbrotFractal! : MandelbrotFractal;
 
     //private imageData!: ImageData;
-    private tabToDraw!: Color[][];
+    //private tabToDraw!: Color[][];
 
     private canvasWidth!: number;
     private canvasHeight!: number;
@@ -99,7 +99,7 @@ class CanvasService {
      * Méthode d'initialisation des données du service
      */
     public initService(): void {
-        this.initTabToDraw();
+        //this.initTabToDraw();
         this.angle = 0;
         this.zoom = 1.5;
         //this.trans = new Point(-1.33, 0);
@@ -118,6 +118,7 @@ class CanvasService {
     /**
      * Méthode d'initialisation du tableau qui sera affiché dans le canvas
      */
+    /*
     public initTabToDraw(): void {
         this.tabToDraw = new Array(this.canvasWidth);
         for (let i = 0; i < this.canvasWidth; i++) {
@@ -126,7 +127,7 @@ class CanvasService {
                 this.tabToDraw[i][j] = Color.createFromRgba(COLOR_BACKGROUND);
             }
         }
-    }
+    }*/
 
     /**
      * Méthode d'initialisation de l'imageData du canvas
@@ -136,9 +137,11 @@ class CanvasService {
         //this.data = this.imageData.data;
     }
 
+    
     /**
      * Méthode qui copie les couleurs du tableau vers l'imageData.data du canvas
      */
+    /*
     public loadImageFromTab(): void {
         for (let i = 0; i < this.canvasWidth; i++) {
             for (let j = 0; j < this.canvasHeight; j++) {
@@ -150,7 +153,7 @@ class CanvasService {
             }
         }
         //this.imageData.data = this.data;
-    }
+    }*/
 
   /**
    * Méthode qui calcule et renvoie le tableau des couleurs calculées selon la fractale

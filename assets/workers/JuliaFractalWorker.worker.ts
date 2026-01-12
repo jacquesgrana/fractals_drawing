@@ -16,7 +16,7 @@ const JuliaFractalWorker = {
         gradientEnd: number,
         backgroundColor: string
     ): Promise<Uint8ClampedArray> {
-        
+        //console.log('Lancement de la boucle de calcul do worker');
         // 1. Reconstruction des objets (Hydratation)
         const scene = Scene.fromJSON(sceneJson);
         const juliaFractal = JuliaFractal.fromJSON(juliaJson);
