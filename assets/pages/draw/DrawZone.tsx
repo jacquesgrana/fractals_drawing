@@ -12,7 +12,7 @@ const DrawZone = () : React.ReactElement => {
     
     // REFS : Stockage mutable persistant sans re-render
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const contextRef = useRef<Nullable<CanvasRenderingContext2D>>(null);
+    //const contextRef = useRef<Nullable<CanvasRenderingContext2D>>(null);
     //const bufferRef = useRef<Nullable<ImageData>>(null);
     const maxIRef = useRef(0);
     const maxJRef = useRef(0);
@@ -35,7 +35,7 @@ const DrawZone = () : React.ReactElement => {
         // 2. Récupération et cache du contexte
         const ctx = canvas.getContext("2d", { willReadFrequently: true });
         if (!ctx) return;
-        contextRef.current = ctx;
+        //contextRef.current = ctx;
 
         // 4. Initialisation du service
 
@@ -45,121 +45,121 @@ const DrawZone = () : React.ReactElement => {
         canvasService.setCanvasHeight(canvasRef.current!.height);
         canvasService.initService();
         canvasService.initTabToDraw();
-        canvasService.initImageData();
+        //canvasService.initImageData();
 
         //canvasService.setBuffer(ctx.getImageData(0, 0, canvas.width, canvas.height));
 
         drawCanvas();
     }, []);
 
-    /*
-    const drawCanvas =  useCallback(async () =>  {
-        setIsDrawing(() => true);
-        const ctx = canvasService.getCanvasContext();
-        const buffer = canvasService.getBuffer();
-        if (!ctx || !buffer) return;
+    const drawCanvas = useCallback(async () => {
+        // Si on est déjà en train de dessiner, on ignore les nouveaux clics (anti-spam)
+        if (isDrawing) return; 
 
-        const data = buffer.data; // Accès direct au tableau Uint8ClampedArray
-        const datasFromService: Color[][] = await canvasService.getTabToDraw();
-
-        for (let i = 0; i < datasFromService.length; i++) {
-            for (let j = 0; j < datasFromService[0].length; j++) {
-                const k = (j * buffer.width + i) * 4;
-                data[k]     = datasFromService[i][j].getRed(); // R
-                data[k + 1] = datasFromService[i][j].getGreen(); // G
-                data[k + 2] = datasFromService[i][j].getBlue(); // B
-                data[k + 3] = datasFromService[i][j].getAlpha(); // Alpha
+        setIsDrawing(true);
+        
+        // On laisse React faire le rendu du state "isDrawing" (pour afficher le loader)
+        // avant de lancer le calcul lourd (même s'il est dans un worker, c'est une bonne pratique)
+        requestAnimationFrame(async () => {
+            try {
+                // 1. Calcul dans le thread séparé (Worker)
+                await canvasService.computeFractal();
+                
+                // 2. Une fois fini, on peint le résultat
+                canvasService.drawBufferToCanvas();
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setIsDrawing(false);
             }
-        }
+        });
+    }, [isDrawing, canvasService]); // Ajout dépendances
 
-        ctx.putImageData(buffer, 0, 0);
-        setIsDrawing(() => false);
-
-    }, []); // useCallback pour optimiser la référence de la fonction
-    */
-
+    /*
+    // méthode qui fonctionne bien mais blocante
     const drawCanvas = useCallback(async () => {
         setIsDrawing(true);
         await canvasService.computeFractalToBuffer();
         canvasService.drawBufferToCanvas();
         setIsDrawing(false);
     }, []);
+    */
+    
+    /*
+    const drawCanvas = useCallback(async () => {
+        if (isDrawing) return; // Empêche les clics frénétiques
 
-    const handleZoomPlus = useCallback(() => {
+        setIsDrawing(true);
+        try {
+            // Le calcul se fait dans le thread séparé
+            await canvasService.computeFractal();
+            // L'affichage est instantané
+            canvasService.drawBufferToCanvas();
+        } catch (error) {
+            console.error("Erreur de calcul worker:", error);
+        } finally {
+            setIsDrawing(false);
+        }
+    }, [isDrawing]);*/
+
+    const handleZoomPlus = useCallback(async () => {
         //canvasService.zoom = canvasService.zoom - 0.25;
         canvasService.currentScene.setZoom(canvasService.currentScene.getZoom() * 0.9);
         //canvasService.currentScene.updateMatrix();
-        drawCanvas();
+        await drawCanvas();
     }, []);
 
-    const handleZoomMoins = useCallback(() => {
+    const handleZoomMoins = useCallback(async () => {
         //canvasService.zoom = canvasService.zoom + 0.25;
         canvasService.currentScene.setZoom(canvasService.currentScene.getZoom() / 0.9);
         //canvasService.currentScene.updateMatrix();
-        drawCanvas();
+        await drawCanvas();
     }, []);
 
-    const handleTranslateLeft = useCallback(() => {
+    const handleTranslateLeft = useCallback(async () => {
         const trans = canvasService.currentScene.getTrans();
         const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
         trans.setX(trans.getX() - deltaFromZoom);
         canvasService.currentScene.setTrans(trans);
-        drawCanvas();
+        await drawCanvas();
     }, []);
 
-    const handleTranslateRight = useCallback(() => {
+    const handleTranslateRight = useCallback(async () => {
         const trans = canvasService.currentScene.getTrans();
         const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
         trans.setX(trans.getX() + deltaFromZoom);
         canvasService.currentScene.setTrans(trans);
-        drawCanvas();
+        await drawCanvas();
     }, []);
 
-    const handleTranslateUp = useCallback(() => {
+    const handleTranslateUp = useCallback(async () => {
         const trans = canvasService.currentScene.getTrans();
         const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
         trans.setY(trans.getY() - deltaFromZoom);
         canvasService.currentScene.setTrans(trans);
-        drawCanvas();
+        await drawCanvas();
     }, []);
 
-    const handleTranslateDown = useCallback(() => {
+    const handleTranslateDown = useCallback(async () => {
         const trans = canvasService.currentScene.getTrans();
         const deltaFromZoom = canvasService.currentScene.getZoom() * 0.25;
         trans.setY(trans.getY() + deltaFromZoom);
         canvasService.currentScene.setTrans(trans);
-        drawCanvas();   
+        await drawCanvas();   
     }, []);
 
-    const handleRotateTrigonometry = useCallback(() => {
+    const handleRotateTrigonometry = useCallback(async () => {
         canvasService.currentScene.setAngle(canvasService.currentScene.getAngle() - 10);
-        drawCanvas();
+        await drawCanvas();
     }, []);
 
-    const handleRotateReverseTrigonometry = useCallback(() => {
+    const handleRotateReverseTrigonometry = useCallback(async () => {
         canvasService.currentScene.setAngle(canvasService.currentScene.getAngle() + 10);
-        drawCanvas();
+        await drawCanvas();
     }, []);
 
     return (
     <div className="draw-zone-container d-flex flex-column align-items-center justify-content-center gap-2">
-        
-        {/* Le message de chargement se superpose via CSS */}
-        {isDrawing && (
-            <div style={{
-                position: 'absolute', 
-                top: 0, 
-                left: 0, 
-                width: '100%', 
-                height: '100%', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                backgroundColor: 'rgba(255,255,255,0.7)'
-            }}>
-                En attente...
-            </div>
-        )}
 
         {/* Le canvas est TOUJOURS là, jamais de condition !isWaiting devant */}
         <canvas 
@@ -169,12 +169,12 @@ const DrawZone = () : React.ReactElement => {
             //height={600}
         />
         <div className="d-flex gap-1">
-            <Button className="btn" onClick={handleTranslateRight}>◀</Button>
-            <Button className="btn" onClick={handleTranslateLeft}>▶</Button>
-            <Button className="btn" onClick={handleTranslateUp}>▲</Button>
-            <Button className="btn" onClick={handleTranslateDown}>▼</Button>
-            <Button className="btn" onClick={handleZoomPlus}>➕</Button>
-            <Button className="btn" onClick={handleZoomMoins}>➖</Button>
+            <Button className="btn" disabled={isDrawing} onClick={handleTranslateRight}>◀</Button>
+            <Button className="btn" disabled={isDrawing} onClick={handleTranslateLeft}>▶</Button>
+            <Button className="btn" disabled={isDrawing} onClick={handleTranslateUp}>▲</Button>
+            <Button className="btn" disabled={isDrawing} onClick={handleTranslateDown}>▼</Button>
+            <Button className="btn" disabled={isDrawing} onClick={handleZoomPlus}>➕</Button>
+            <Button className="btn" disabled={isDrawing} onClick={handleZoomMoins}>➖</Button>
         </div>
         
     </div>

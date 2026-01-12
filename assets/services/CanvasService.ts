@@ -8,7 +8,9 @@ import { MandelbrotFractal } from "../model/MandelbrotFractal";
 import { Pixel } from "../model/Pixel";
 import { Point } from "../model/Point";
 import { Scene } from "../model/Scene";
-import { Nullable } from "../types/commonTypes";
+import { Nullable } from "../types/indexType";
+import * as Comlink from "comlink";
+import { JuliaFractalWorkerType } from "../workers/JuliaFractalWorker.worker";
 
 const COLOR_FILL_SELECT: string = 'rgba(235, 125, 52, 0.38)';
 const COLOR_STROKE_SELECT: string = 'rgba(235, 125, 52, 0.0)';
@@ -31,11 +33,12 @@ const DEFAULT_GRADIANT_END: number = 3;
 class CanvasService {
     private static instance: CanvasService;
 
-    private worker: Nullable<Worker> = null;
+    //private worker: Nullable<Worker> = null;
+    private workerApi: Comlink.Remote<JuliaFractalWorkerType> | null = null;
 
     private juliaFractal!: JuliaFractal;
 
-    private mandelbrotFractal! : MandelbrotFractal;
+    //private mandelbrotFractal! : MandelbrotFractal;
 
     //private imageData!: ImageData;
     private tabToDraw!: Color[][];
@@ -73,8 +76,18 @@ class CanvasService {
     }
 
     private constructor() {
+        //const worker = new Worker(new URL('../workers/JuliaFractalWorker.worker.ts', import.meta.url));
+        //this.workerApi = Comlink.wrap<JuliaFractalWorkerType>(worker);
+
+        const worker = new Worker(
+            new URL('../workers/JuliaFractalWorker.worker.ts', import.meta.url), 
+            { type: 'module' } // Important pour pouvoir faire des imports dans le worker
+        );
+        
+        this.workerApi = Comlink.wrap<JuliaFractalWorkerType>(worker);
+
         this.juliaFractal = new JuliaFractal(0, "Classique", new ComplexNb(true, -0.4, -0.59), 2, 150);
-        this.mandelbrotFractal = new MandelbrotFractal(1, "Mandelbrot", 2, 300);
+        //this.mandelbrotFractal = new MandelbrotFractal(1, "Mandelbrot", 2, 300);
 
         //this.real = this.juliaFractal.getSeed().getReal();
         //this.imag = this.juliaFractal.getSeed().getImag();
@@ -97,17 +110,10 @@ class CanvasService {
         const deltaX = deltaY * this.canvasWidth / this.canvasHeight;
         const minX = -1 * deltaX / 2;
         this.currentScene = new Scene(minX, minY, deltaX, deltaY, this.trans, this.angle, this.zoom);
-        //this.initImageData();
-    }
 
-    /*
-    public initWorker(): void {
-        // Utilise un import dynamique pour charger le worker
-        this.worker = new Worker(
-            new URL('../workers/JuliaFractalWorker.worker.ts?worker', import.meta.url)
-        );
+        //this.buffer = this.context.createImageData(this.canvasWidth, this.canvasHeight);
+        this.initImageData();
     } 
-    */  
 
     /**
      * Méthode d'initialisation du tableau qui sera affiché dans le canvas
@@ -236,6 +242,38 @@ class CanvasService {
             }
             resolve();
         });
+    }
+
+        /**
+     * Appelle le worker pour calculer la fractale
+     */
+    public async computeFractal(): Promise<void> {
+        if (!this.workerApi) {
+            console.error("Worker non initialisé");
+            return;
+        }
+
+        try {
+            // Appel asynchrone au worker
+            // On passe les versions .toJSON() des objets complexes
+            const rawPixels: Uint8ClampedArray = await this.workerApi.computeJulia(
+                this.canvasWidth,
+                this.canvasHeight,
+                this.currentScene.toJSON(),   // Sérialisation
+                this.juliaFractal.toJSON(),   // Sérialisation
+                this.gradientStart,
+                this.gradientEnd,
+                COLOR_BACKGROUND
+            );
+
+            // Mise à jour du buffer local avec les données reçues
+            // rawPixels est un Uint8ClampedArray, imageData.data en est un aussi.
+            // La méthode .set() est très rapide.
+            this.buffer.data.set(rawPixels);
+
+        } catch (error) {
+            console.error("Erreur lors du calcul dans le worker:", error);
+        }
     }
 
     /**
