@@ -18,7 +18,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 class UserController extends AbstractController
 {
 
-    #[Route('/list', name: 'index', methods: ['GET'])]
+    #[Route('/get-all', name: 'get_all', methods: ['GET'])]
     public function list(UserRepository $userRepository): JsonResponse
     {
         $users = $userRepository->findAll();
