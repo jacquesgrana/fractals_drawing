@@ -76,11 +76,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: PasswordVerificationCode::class, mappedBy: 'user', orphanRemoval: true)]
     private Collection $passwordVerificationCodes;
 
+    /**
+     * @var Collection<int, JuliaFractal>
+     */
+    #[ORM\OneToMany(targetEntity: JuliaFractal::class, mappedBy: 'user')]
+    private Collection $juliaFractals;
+
     public function __construct()
     {
         $this->verificationTokens = new ArrayCollection();
         $this->emailVerificationCodes = new ArrayCollection();
         $this->passwordVerificationCodes = new ArrayCollection();
+        $this->juliaFractals = new ArrayCollection();
     }
 
     /**
@@ -380,6 +387,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($passwordVerificationCode->getUser() === $this) {
                 $passwordVerificationCode->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, JuliaFractal>
+     */
+    public function getJuliaFractals(): Collection
+    {
+        return $this->juliaFractals;
+    }
+
+    public function addJuliaFractal(JuliaFractal $juliaFractal): static
+    {
+        if (!$this->juliaFractals->contains($juliaFractal)) {
+            $this->juliaFractals->add($juliaFractal);
+            $juliaFractal->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJuliaFractal(JuliaFractal $juliaFractal): static
+    {
+        if ($this->juliaFractals->removeElement($juliaFractal)) {
+            // set the owning side to null (unless already changed)
+            if ($juliaFractal->getUser() === $this) {
+                $juliaFractal->setUser(null);
             }
         }
 

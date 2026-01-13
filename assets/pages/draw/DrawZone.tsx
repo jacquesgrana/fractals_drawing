@@ -6,6 +6,8 @@ import CanvasService from "../../services/CanvasService";
 import { Color } from "../../model/Color";
 import { Point } from "../../model/Point";
 import ToastFacade from "../../facade/ToastFacade";
+import { Pixel } from "../../model/Pixel";
+import { GraphicLibrary } from "../../libraries/GraphicLibrary";
 
 const DrawZone = () : React.ReactElement => {
     const [isDrawing, setIsDrawing] = useState(false);
@@ -203,6 +205,39 @@ const DrawZone = () : React.ReactElement => {
         await drawCanvas();
     }, []);
 
+    const handleCanvasClick = useCallback(async (event: React.MouseEvent<HTMLCanvasElement>) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        const rect = canvas.getBoundingClientRect();
+        const i = Math.floor(event.clientX - rect.left);
+        const j = Math.floor(event.clientY - rect.top);
+        const currentScene = canvasService.currentScene;
+        
+        if (currentScene) {
+            const pixel = new Pixel(i, j);
+            pixel.setJ(pixel.getJToDraw(canvas.height));
+            //console.group("📍 Clic sur Canvas");
+            //console.log(`Pixel Coords : i=${i}, j=${j}`);
+            
+            const point = GraphicLibrary.calcPointFromPix(
+                pixel, 
+                currentScene, 
+                canvas.width, 
+                canvas.height
+            );
+            //console.log(`Plan Complexe: Re=${point.getX().toFixed(6)}, Im=${point.getY().toFixed(6)}`);
+            
+            canvasService.currentScene.setTrans(point);
+            await drawCanvas();
+            console.groupEnd();
+        } else {
+            console.warn("Pas de scène chargée dans le service");
+        }
+        
+    }, []);
+
+
     return (
     <div className="draw-zone-container d-flex flex-column align-items-center justify-content-center gap-2">
 
@@ -210,6 +245,7 @@ const DrawZone = () : React.ReactElement => {
         <canvas 
             ref={canvasRef} 
             className="draw-zone"
+            onClick={handleCanvasClick}
             //width={800} // Assurez-vous que la taille est fixée
             //height={600}
         />
@@ -222,15 +258,7 @@ const DrawZone = () : React.ReactElement => {
             <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleZoomMoins} title="zoom -">-</Button>
             <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleReset} title="reset">⎚</Button>
             <Button variant={copySuccess ? "success" : "primary"} className="btn btn-small-primary" disabled={isDrawing} onClick={handleCopyToClipboard} title="copier l'image dans le presse-papier">
-                {copySuccess ? (
-                    <>
-                        ✓
-                    </>
-                ) : (
-                    <>
-                        📋
-                    </>
-                )}
+                {copySuccess ? (<>✓</>) : (<>📋</>)}
             </Button>
         </div>
         
