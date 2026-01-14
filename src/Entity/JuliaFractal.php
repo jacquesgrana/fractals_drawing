@@ -182,4 +182,22 @@ class JuliaFractal
 
         return $this;
     }
+
+    public function normalize(): array
+    {
+        $user = $this->getUser() ? ['pseudo' => $this->getUser()->getPseudo()] : [];
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'seedReal' => $this->getSeedReal(),
+            'seedImag' => $this->getSeedImag(),
+            'escapeLimit' => $this->getEscapeLimit(),
+            'maxIterations' => $this->getMaxIterations(),
+            'isPublic' => $this->isPublic(),
+            'user' => $user,
+            'comment' => $this->getComment(),
+            'createdAt' => $this->getCreatedAt(),
+            'updatedAt' => $this->getUpdatedAt(),
+        ];
+    }
 }

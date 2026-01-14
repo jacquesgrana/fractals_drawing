@@ -86,7 +86,7 @@ class CanvasService {
         
         this.workerApi = Comlink.wrap<JuliaFractalWorkerType>(worker);
 
-        this.juliaFractal = new JuliaFractal(0, "Classique", new ComplexNb(true, -0.4, -0.59), 2, 150);
+        this.juliaFractal = new JuliaFractal(0, "Classique", "", new ComplexNb(true, -0.4, -0.59), 2, 150, true, "2026-01-13T15:53:59+00:00", "2026-01-13T15:55:01+00:00");
         //this.mandelbrotFractal = new MandelbrotFractal(1, "Mandelbrot", 2, 300);
 
         //this.real = this.juliaFractal.getSeed().getReal();
@@ -286,6 +286,13 @@ class CanvasService {
         this.context.putImageData(this.buffer, 0, 0);
     }
 
+    /**
+     * Efface le canvas
+     */
+    public clearCanvas(): void {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
 
   setCanvasWidth(width: number): void {
     this.canvasWidth = width;
@@ -307,6 +314,10 @@ class CanvasService {
     this.buffer = buffer;
   }
 
+  setJuliaFractal(juliaFractal: JuliaFractal): void {
+    this.juliaFractal = juliaFractal;
+  }
+
   getCanvas(): HTMLCanvasElement {
     return this.canvas;
   }
@@ -317,6 +328,10 @@ class CanvasService {
 
   getBuffer(): ImageData {
     return this.buffer;
+  }
+
+  getJuliaFractal(): JuliaFractal {
+    return this.juliaFractal;
   }
 }
 

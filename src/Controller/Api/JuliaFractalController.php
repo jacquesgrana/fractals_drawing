@@ -5,7 +5,6 @@ namespace App\Controller\Api;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use App\Entity\JuliaFractal;
 use App\Repository\JuliaFractalRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,11 +17,17 @@ class JuliaFractalController extends AbstractController
     public function getAll(JuliaFractalRepository $juliaFractalRepository): Response
     {
         $juliaFractals = $juliaFractalRepository->findAll();
+
+        $toReturn = [];
+        foreach ($juliaFractals as $juliaFractal) {
+            $toReturn[] = $juliaFractal->normalize();
+        }
+
         return $this->json([
             'message' => "Liste des fractales de julia",
             'status' => 200,
             'data' => [
-                'juliaFractals' => $juliaFractals
+                'juliaFractals' => $toReturn
             ]
         ], 200);
     }
@@ -32,11 +37,16 @@ class JuliaFractalController extends AbstractController
     public function getPublic(JuliaFractalRepository $juliaFractalRepository): Response
     {
         $juliaFractals = $juliaFractalRepository->findBy(['isPublic' => true]);
+        $toReturn = [];
+        foreach ($juliaFractals as $juliaFractal) {
+            $toReturn[] = $juliaFractal->normalize();
+        }
+        
         return $this->json([
             'message' => "Liste des fractales de julia publiques",
             'status' => 200,
             'data' => [
-                'juliaFractals' => $juliaFractals
+                'juliaFractals' => $toReturn
             ]
         ], 200);
     }
@@ -46,8 +56,9 @@ class JuliaFractalController extends AbstractController
         JuliaFractalRepository $juliaFractalRepository,
         UserRepository $userRepository): Response
     {
-        $user = $userRepository->findBy(['email' => $this->getUser()->getUserIdentifier()]);
-        if (!$user) {
+        $user = $this->getUser();
+        $userFromDb = $userRepository->findBy(['email' => $user->getUserIdentifier()]);
+        if (!$userFromDb) {
             return $this->json([
                 'message' => "Utilisateur non trouvé",
                 'status' => 404,
@@ -55,8 +66,26 @@ class JuliaFractalController extends AbstractController
             ], 404);
         }
         $juliaFractals = $juliaFractalRepository->findBy(['user' => $user]);
+        $toReturn = [];
+        foreach ($juliaFractals as $juliaFractal) {
+            $toReturn[] = $juliaFractal->normalize();
+        }
+        
         return $this->json([
             'message' => "Liste des fractales de julia de l'utilisateur connecté",
+            'status' => 200,
+            'data' => [
+                'juliaFractals' => $toReturn
+            ]
+        ], 200);
+    }
+
+    #[Route('/get-without-user', name: 'get_without_user', methods: ['GET'])]
+    public function getWithoutUser(JuliaFractalRepository $juliaFractalRepository): Response
+    {
+        $juliaFractals = $juliaFractalRepository->findBy(['user' => null]);
+        return $this->json([
+            'message' => "Liste des fractales de julia sans utilisateur",
             'status' => 200,
             'data' => [
                 'juliaFractals' => $juliaFractals

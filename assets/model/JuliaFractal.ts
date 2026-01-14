@@ -8,9 +8,13 @@ import { ComplexNb } from "./ComplexNb";
 export class JuliaFractal {
   private id: number;
   private name: string;
+  private comment: string;
   private seed: ComplexNb; // seed (c) de la fractale
   private limit: number;   // limite du module (seuil d'échappement)
   private maxIt: number;   // maximum d'itérations
+  private isPublic: boolean;
+  private createdAt: string;
+  private updatedAt: string;
 
   // Optimisation : on stocke la limite au carré pour éviter les sqrt() dans la boucle
   private limitSq: number; 
@@ -18,13 +22,17 @@ export class JuliaFractal {
   /*
    * Constructeur
    */
-  constructor(id: number, name: string, seed: ComplexNb, limit: number, maxIt: number) {
+  constructor(id: number, name: string, comment: string, seed: ComplexNb, limit: number, maxIt: number, isPublic: boolean, createdAt: string, updatedAt: string) {
     this.id = id;
     this.name = name;
+    this.comment = comment;
     this.seed = seed;
     this.limit = limit;
     this.limitSq = limit * limit; // Pré-calcul
     this.maxIt = maxIt;
+    this.isPublic = isPublic;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
   }
 
   // ==========================
@@ -33,20 +41,30 @@ export class JuliaFractal {
 
   getId(): number { return this.id; }
   getName(): string { return this.name; }
+  getComment(): string { return this.comment; }
   getSeed(): ComplexNb { return this.seed; }
   getLimit(): number { return this.limit; }
   getMaxIt(): number { return this.maxIt; }
+  getIsPublic(): boolean { return this.isPublic; }
+  getCreatedAt(): string { return this.createdAt; }
+  getUpdatedAt(): string { return this.updatedAt; }
+  
+  // ==========================
+  // Mutateurs
+  // ==========================
 
   setId(id: number): void { this.id = id; }
   setName(name: string): void { this.name = name; }
+  setComment(comment: string): void { this.comment = comment; }
   setSeed(seed: ComplexNb): void { this.seed = seed; }
-  
   setLimit(limit: number): void { 
     this.limit = limit;
     this.limitSq = limit * limit; // Mise à jour impérative de l'optimisation
   }
-  
   setMaxIt(maxIt: number): void { this.maxIt = maxIt; }
+  setIsPublic(isPublic: boolean): void { this.isPublic = isPublic; }
+  setCreatedAt(createdAt: string): void { this.createdAt = createdAt; }
+  setUpdatedAt(updatedAt: string): void { this.updatedAt = updatedAt; }
 
   /**
    * Calcule la couleur d'un point z donné selon les paramètres de la fractale.
@@ -102,22 +120,27 @@ export class JuliaFractal {
   clone(): JuliaFractal {
     // Note : seed.clone() est important pour éviter les références partagées
     return new JuliaFractal(
-        this.id, 
+        this.id, // attention !!!!!!
         this.name, 
+        this.comment,
         this.seed.clone(), 
         this.limit, 
-        this.maxIt
+        this.maxIt,
+        this.isPublic,
+        this.createdAt,
+        this.updatedAt
     );
   }
 
   toString(): string {
-    return `id : ${this.id} seed : ( ${this.seed.toString()} ) limit : ${this.limit} maxIt : ${this.maxIt}`;
+    return `id : ${this.id} name : ${this.name} seed : ( ${this.seed.toString()} ) limit : ${this.limit} maxIt : ${this.maxIt}`;
   }
 
   toJSON(): object {
     return {
       id: this.id,
       name: this.name,
+      comment: this.comment,
       seed: this.seed.toJSON(),
       limit: this.limit,
       maxIt: this.maxIt
@@ -127,6 +150,7 @@ export class JuliaFractal {
   static fromJSON(json: {
     id: number;
     name: string;
+    comment: string;
     seed: {
       isCart: boolean;
       real: number;
@@ -136,13 +160,20 @@ export class JuliaFractal {
     };
     limit: number;
     maxIt: number;
+    isPublic: boolean;
+    createdAt: string;
+    updatedAt: string;
   }): JuliaFractal {
     return new JuliaFractal(
       json.id,
       json.name,
+      json.comment,
       ComplexNb.fromJSON(json.seed),
       json.limit,
-      json.maxIt
+      json.maxIt,
+      json.isPublic,
+      json.createdAt,
+      json.updatedAt
     );
   }
 }

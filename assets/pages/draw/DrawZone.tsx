@@ -8,8 +8,15 @@ import { Point } from "../../model/Point";
 import ToastFacade from "../../facade/ToastFacade";
 import { Pixel } from "../../model/Pixel";
 import { GraphicLibrary } from "../../libraries/GraphicLibrary";
+import { JuliaFractal } from "../../model/JuliaFractal";
 
-const DrawZone = () : React.ReactElement => {
+interface DrawZoneProps {
+    selectedJuliaFractal: Nullable<JuliaFractal>;
+}
+
+const DrawZone = (
+    { selectedJuliaFractal }: DrawZoneProps 
+) : React.ReactElement => {
     const [isDrawing, setIsDrawing] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
     
@@ -54,6 +61,14 @@ const DrawZone = () : React.ReactElement => {
 
         drawCanvas();
     }, []);
+
+    useEffect(() => {
+        if (selectedJuliaFractal) {
+            canvasService.setJuliaFractal(selectedJuliaFractal);
+            handleReset();
+            drawCanvas();
+        }
+    }, [selectedJuliaFractal]);
 
     const drawCanvas = useCallback(async () => {
         // Si on est déjà en train de dessiner, on ignore les nouveaux clics (anti-spam)

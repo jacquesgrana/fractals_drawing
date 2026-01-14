@@ -57,9 +57,10 @@ security:
 
         - { path: /api/julia-fractal/get-all, roles: ROLE_ADMIN }
         - { path: /api/user/get-all, roles: ROLE_ADMIN }
-        
+
         - { path: /api/julia-fractal/get-from-current-user, roles: ROLE_USER }
         - { path: /api/julia-fractal/get-public, roles: PUBLIC_ACCESS }
+        - { path: /api/julia-fractal/get-without-user, roles: PUBLIC_ACCESS }
 
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }

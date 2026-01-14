@@ -10,4 +10,48 @@
         border: 1px solid $white-color;
         cursor: crosshair;
     }
+
+    .react-fractal-list {
+        margin-top: $margin-base;
+        padding: $padding-base;
+        background-color: $light-bg;
+        border-radius: $radius-base;
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+        gap: $space-base;
+
+
+        .react-fractal-list-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+            align-items: center;
+            gap: $space-base;
+            width: 100%;
+
+
+            .react-fractal-list-element {
+                padding: $padding-base;
+                background-color: $medium-bg;
+                border-radius: $radius-base;
+                width: 100%;
+                height: auto;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: $space-base;
+
+                p {
+                    color: $dark-text;
+                    margin: 0;
+                }
+
+            }
+        }
+    }
 }
