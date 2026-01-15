@@ -1,9 +1,8 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Button } from "react-bootstrap";
-// J'assume que tes types sont définis, sinon utilise null | ...
 import { Nullable } from "../../types/commonTypes"; 
 import CanvasService from "../../services/CanvasService";
-import { Color } from "../../model/Color";
+//import { Color } from "../../model/Color";
 import { Point } from "../../model/Point";
 import ToastFacade from "../../facade/ToastFacade";
 import { Pixel } from "../../model/Pixel";
@@ -19,6 +18,9 @@ const DrawZone = (
 ) : React.ReactElement => {
     const [isDrawing, setIsDrawing] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
+    const [dragStart, setDragStart] = useState<Nullable<Pixel>>(null);
+    const [dragEnd, setDragEnd] = useState<Nullable<Pixel>>(null);
+    const [isDragging, setIsDragging] = useState(false);
     
     // REFS : Stockage mutable persistant sans re-render
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -69,6 +71,59 @@ const DrawZone = (
             drawCanvas();
         }
     }, [selectedJuliaFractal]);
+
+    useEffect(() => {
+        if (!isDragging || !dragStart) return;
+
+        const handleMouseMove = (event: MouseEvent) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        // Calcul des coordonnées relatives au canvas
+        const rect = canvas.getBoundingClientRect();
+        const i = event.clientX - rect.left;
+        const j = event.clientY - rect.top;
+
+        // Création du pixel avec conversion Y
+        const pixel = new Pixel(i, j);
+        // Note: Ne pas faire pixel.setJ(pixel.getJToDraw(...)) ici car on veut les coordonnées canvas directes
+        
+        // Mise à jour de l'état
+        setDragEnd(pixel);
+
+        // ⚠️ Important: Redessiner d'abord le buffer pour effacer l'ancien rectangle
+        canvasService.drawBufferToCanvas();
+        
+        // Puis dessiner le nouveau rectangle de sélection
+        canvasService.drawSelectionRectangle(dragStart, pixel);
+        };
+
+        // Utiliser le canvas comme cible pour éviter les problèmes de coordonnées
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+
+        canvas.addEventListener('mousemove', handleMouseMove);
+
+        return () => {
+            canvas.removeEventListener('mousemove', handleMouseMove);
+        };
+    }, [isDragging, dragStart]); // ⚠️ Ajout de dragStart dans les dépendances
+
+    useEffect(() => {
+        const handleEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && isDragging) {
+                setIsDragging(false);
+                setDragStart(null);
+                setDragEnd(null);
+                canvasService.drawBufferToCanvas();
+            }
+        };
+
+        window.addEventListener('keydown', handleEscape);
+        return () => window.removeEventListener('keydown', handleEscape);
+    }, [isDragging]);
+
+
 
     const drawCanvas = useCallback(async () => {
         // Si on est déjà en train de dessiner, on ignore les nouveaux clics (anti-spam)
@@ -220,37 +275,156 @@ const DrawZone = (
         await drawCanvas();
     }, []);
 
-    const handleCanvasClick = useCallback(async (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseDown = useCallback(async (event: React.MouseEvent<HTMLCanvasElement>) => {
+    event.preventDefault();
+    console.log("handleMouseDown");
+    
+    const i = event.nativeEvent.offsetX;
+    const j = event.nativeEvent.offsetY;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const pixel = new Pixel(i, j);
+    
+    if (event.button === 1) { // Molette
+        console.log("Molette - Centrer");
+        pixel.setJ(pixel.getJToDraw(canvas.height));
+        const point = GraphicLibrary.calcPointFromPix(
+            pixel, 
+            canvasService.currentScene, 
+            canvas.width, 
+            canvas.height
+        );
+        canvasService.currentScene.setTrans(point);
+        await drawCanvas();
+    }
+    else if (event.button === 0) { // Clic gauche
+        console.log("Clic gauche - Début drag");
+        // Note: Ne pas convertir le J ici, on travaille en coordonnées canvas
+        setDragStart(pixel);
+        setDragEnd(pixel);
+        setIsDragging(true);
+    }
+}, []);
+
+
+    const handleMouseUp = useCallback(async (event: React.MouseEvent<HTMLCanvasElement>) => {
+        event.preventDefault();
+        console.log("handleMouseUp");
+        
+        if (event.button !== 0) return; // Seulement pour le clic gauche
+        
+        const i = event.nativeEvent.offsetX;
+        const j = event.nativeEvent.offsetY;
         const canvas = canvasRef.current;
         if (!canvas) return;
 
-        const rect = canvas.getBoundingClientRect();
-        const i = Math.floor(event.clientX - rect.left);
-        const j = Math.floor(event.clientY - rect.top);
-        const currentScene = canvasService.currentScene;
+        const pixel = new Pixel(i, j);
+        //pixel.setJ(pixel.getJToDraw(canvas.height));
         
-        if (currentScene) {
-            const pixel = new Pixel(i, j);
-            pixel.setJ(pixel.getJToDraw(canvas.height));
-            //console.group("📍 Clic sur Canvas");
-            //console.log(`Pixel Coords : i=${i}, j=${j}`);
+        setDragEnd(pixel);
+        setIsDragging(false);
+
+        // Si le drag est trop petit, on ignore (évite les clics accidentels)
+        if (dragStart && Math.abs(i - dragStart.getI()) > 5 && Math.abs(j - dragStart.getJ()) > 5) {
+            // Efface le rectangle de sélection
+            canvasService.drawBufferToCanvas();
             
-            const point = GraphicLibrary.calcPointFromPix(
-                pixel, 
-                currentScene, 
-                canvas.width, 
-                canvas.height
-            );
-            //console.log(`Plan Complexe: Re=${point.getX().toFixed(6)}, Im=${point.getY().toFixed(6)}`);
-            
-            canvasService.currentScene.setTrans(point);
-            await drawCanvas();
-            console.groupEnd();
+            // TODO : Appeler la méthode de zoom sur la zone
+            await handleZoomOnSelection(dragStart, pixel);
+            setDragStart(null);
+            setDragEnd(null);
+            setIsDragging(false);
         } else {
-            console.warn("Pas de scène chargée dans le service");
+            // Simple clic, pas de zoom
+            canvasService.drawBufferToCanvas();
         }
         
+        // Reset
+        setDragStart(null);
+        setDragEnd(null);
+    }, [dragStart]);
+
+
+
+    const handleMouseMove = useCallback(async (event: React.MouseEvent<HTMLCanvasElement>) => {
+        //setIsDrawing(true);
+        event.preventDefault();
+        if(isDragging) {
+            const i = event.nativeEvent.offsetX;
+            const j = event.nativeEvent.offsetY;
+            console.log("handleMouseMove");
+        }
     }, []);
+
+    const handleZoomOnSelection = useCallback(async (start: Pixel, end: Pixel) => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        start.setJ(start.getJToDraw(canvas.height));
+        end.setJ(end.getJToDraw(canvas.height));
+        // Convertir les pixels en points du plan complexe
+        const startPoint = GraphicLibrary.calcPointFromPix(
+            start, 
+            canvasService.currentScene, 
+            canvas.width, 
+            canvas.height
+        );
+
+        const endPoint = GraphicLibrary.calcPointFromPix(
+            end, 
+            canvasService.currentScene, 
+            canvas.width, 
+            canvas.height
+        );
+
+        // Calculer le centre de la sélection
+        const centerX = (startPoint.getX() + endPoint.getX()) / 2;
+        const centerY = (startPoint.getY() + endPoint.getY()) / 2;
+
+        // Calculer la largeur de la sélection dans le plan complexe
+        const selectionWidth = Math.abs(endPoint.getX() - startPoint.getX());
+        
+        // ⭐ CALCUL DYNAMIQUE : largeur actuelle basée sur les coins actuels du canvas
+        // Calculer les points aux coins du canvas
+        const topLeftPixel = new Pixel(0, 0);
+        const topRightPixel = new Pixel(canvas.width, 0);
+        
+        const topLeftPoint = GraphicLibrary.calcPointFromPix(
+            topLeftPixel,
+            canvasService.currentScene,
+            canvas.width,
+            canvas.height
+        );
+        
+        const topRightPoint = GraphicLibrary.calcPointFromPix(
+            topRightPixel,
+            canvasService.currentScene,
+            canvas.width,
+            canvas.height
+        );
+        
+        // La largeur réelle actuelle de la scène visible
+        const currentSceneWidth = Math.abs(topRightPoint.getX() - topLeftPoint.getX());
+        
+        // Le rapport entre la sélection et la scène complète
+        // Si on sélectionne 1/4 de l'écran, on veut zoomer 4x plus
+        const zoomRatio = selectionWidth / currentSceneWidth;
+        
+        // Le nouveau zoom : plus petit = plus zoomé
+        // Si zoomRatio = 0.25 (1/4 de l'écran), le nouveau zoom sera currentZoom * 0.25
+        const currentZoom = canvasService.currentScene.getZoom();
+        const newZoom = currentZoom * zoomRatio;
+
+        console.log(`Zoom: ${currentZoom} -> ${newZoom} (ratio: ${zoomRatio})`);
+
+        // Appliquer les transformations
+        canvasService.currentScene.setTrans(new Point(centerX, centerY));
+        canvasService.currentScene.setZoom(newZoom);
+
+        // Redessiner
+        await drawCanvas();
+    }, [drawCanvas]);
+
 
 
     return (
@@ -260,7 +434,9 @@ const DrawZone = (
         <canvas 
             ref={canvasRef} 
             className="draw-zone"
-            onClick={handleCanvasClick}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            //onMouseMove={handleMouseMove}
             //width={800} // Assurez-vous que la taille est fixée
             //height={600}
         />

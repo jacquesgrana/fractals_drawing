@@ -280,6 +280,36 @@ class CanvasService {
     }
 
     /**
+     * Dessine un rectangle de sélection semi-transparent sur le canvas
+     * @param startPixel - Pixel de départ du drag
+     * @param endPixel - Pixel de fin du drag
+     */
+    public drawSelectionRectangle(startPixel: Pixel, endPixel: Pixel): void {
+        if (!startPixel || !endPixel) return;
+
+        // Sauvegarde l'état actuel du canvas
+        this.context.save();
+
+        // Calcul des coordonnées du rectangle
+        const i = Math.min(startPixel.getI(), endPixel.getI());
+        const j = Math.min(startPixel.getJ(), endPixel.getJ());
+        const width = Math.abs(endPixel.getI() - startPixel.getI());
+        const height = Math.abs(endPixel.getJ() - startPixel.getJ());
+
+        // Style du rectangle
+        this.context.fillStyle = COLOR_FILL_SELECT; // 'rgba(235, 125, 52, 0.38)'
+        this.context.strokeStyle = 'rgba(235, 125, 52, 0.8)'; // Bordure plus visible
+        this.context.lineWidth = 2;
+
+        // Dessin du rectangle
+        this.context.fillRect(i, j, width, height);
+        this.context.strokeRect(i, j, width, height);
+
+        // Restaure l'état précédent
+        this.context.restore();
+    }
+
+    /**
      * Dessine le buffer dans le canvas
      */
     public drawBufferToCanvas(): void {

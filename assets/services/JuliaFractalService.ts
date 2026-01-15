@@ -24,6 +24,7 @@ class JuliaFractalService {
     public initService = async (): Promise<void> => {
         const response = await this.getPublicFractals();
         if (response) {
+            this.publicJuliaFractals = [];
             try {
                 const datas = await response.json();
                 const juliaFractalsFromDb = datas.data.juliaFractals;
@@ -66,7 +67,7 @@ class JuliaFractalService {
         }
         catch (err) {
             console.error(err);
-            return new Response("", { status: 500 });
+            return new Response("Erreur du serveur", { status: 500 });
         }
         
     }
