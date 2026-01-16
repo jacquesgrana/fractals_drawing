@@ -1,5 +1,4 @@
 import { GraphicLibrary } from "../libraries/GraphicLibrary";
-import { MathLibrary } from "../libraries/MathLibrary";
 //import { MathLibrary } from "../libraries/MathLibrary";
 import { Color } from "../model/Color";
 import { ComplexNb } from "../model/ComplexNb";
@@ -60,10 +59,14 @@ class CanvasService {
     private iterNb: number = 100;
     */
 
+    // TODO : passer en private avec getters et setters
+
     public currentScene!: Scene;
     public trans: Point = new Point(0, 0);;
     public angle!: number;
     public zoom!: number;
+
+    public canvasCalculationTime: number = 0;
 
     public gradientStart: number = DEFAULT_GRADIENT_START;
     public gradientEnd: number = DEFAULT_GRADIANT_END;
@@ -247,7 +250,7 @@ class CanvasService {
         });
     }
 
-        /**
+    /**
      * Appelle le worker pour calculer la fractale
      */
     public async computeFractal(): Promise<void> {
@@ -257,6 +260,8 @@ class CanvasService {
         }
 
         try {
+            this.canvasCalculationTime = 0;
+            const startTime = performance.now();
             // Appel asynchrone au worker
             // On passe les versions .toJSON() des objets complexes
             const rawPixels: Uint8ClampedArray = await this.workerApi.computeJulia(
@@ -274,6 +279,12 @@ class CanvasService {
             // La méthode .set() est très rapide.
             this.buffer.data.set(rawPixels);
 
+            // Arrêt du chronomètre
+            const endTime = performance.now();
+        
+            // Calcul du temps écoulé en millisecondes
+            this.canvasCalculationTime = endTime - startTime;
+            //console.log(`Calcul terminé en ${this.canvasCalculationTime.toFixed(2)} ms`);
         } catch (error) {
             console.error("Erreur lors du calcul dans le worker:", error);
         }

@@ -1,4 +1,5 @@
-import { MathLibrary } from '../libraries/MathLibrary';
+//import MathLibrary from '../libraries/MathLibrary';
+import { MathLibrary } from "../libraries/MathLibrary";
 
 export class Color {
 

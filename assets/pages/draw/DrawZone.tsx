@@ -8,6 +8,7 @@ import ToastFacade from "../../facade/ToastFacade";
 import { Pixel } from "../../model/Pixel";
 import { GraphicLibrary } from "../../libraries/GraphicLibrary";
 import { JuliaFractal } from "../../model/JuliaFractal";
+import DrawFractalInfos from "./DrawFractalInfos";
 
 interface DrawZoneProps {
     selectedJuliaFractal: Nullable<JuliaFractal>;
@@ -21,6 +22,14 @@ const DrawZone = (
     const [dragStart, setDragStart] = useState<Nullable<Pixel>>(null);
     const [dragEnd, setDragEnd] = useState<Nullable<Pixel>>(null);
     const [isDragging, setIsDragging] = useState(false);
+
+    // ⭐ AJOUT : States pour tracker les valeurs de la scène
+    const [zoom, setZoom] = useState<number>(1.5);
+    const [transX, setTransX] = useState<number>(0);
+    const [transY, setTransY] = useState<number>(0);
+    const [juliaFractalName, setJuliaFractalName] = useState<string>("");
+    const [canvasCalculationTime, setCanvasCalculationTime] = useState<number>(0);
+
     
     // REFS : Stockage mutable persistant sans re-render
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -30,6 +39,8 @@ const DrawZone = (
     //const maxJRef = useRef(0);
 
     const canvasService = CanvasService.getInstance();
+
+    
 
     // Initialisation unique
     useEffect(() => {
@@ -60,7 +71,7 @@ const DrawZone = (
         //canvasService.initImageData();
 
         //canvasService.setBuffer(ctx.getImageData(0, 0, canvas.width, canvas.height));
-
+        updateSceneInfos();
         drawCanvas();
     }, []);
 
@@ -123,7 +134,14 @@ const DrawZone = (
         return () => window.removeEventListener('keydown', handleEscape);
     }, [isDragging]);
 
-
+    // ⭐ FONCTION UTILITAIRE : Synchroniser les states avec canvasService
+    const updateSceneInfos = useCallback(() => {
+        setZoom(canvasService.currentScene.getZoom());
+        setTransX(canvasService.currentScene.getTrans().getX());
+        setTransY(canvasService.currentScene.getTrans().getY());
+        setJuliaFractalName(canvasService.getJuliaFractal()?.getName() || "");
+        setCanvasCalculationTime(canvasService.canvasCalculationTime);
+    }, [canvasService]);    
 
     const drawCanvas = useCallback(async () => {
         // Si on est déjà en train de dessiner, on ignore les nouveaux clics (anti-spam)
@@ -140,6 +158,7 @@ const DrawZone = (
                 
                 // 2. Une fois fini, on peint le résultat
                 canvasService.drawBufferToCanvas();
+                updateSceneInfos();
             } catch (e) {
                 console.error(e);
             } finally {
@@ -277,7 +296,7 @@ const DrawZone = (
 
     const handleMouseDown = useCallback(async (event: React.MouseEvent<HTMLCanvasElement>) => {
     event.preventDefault();
-    console.log("handleMouseDown");
+    //console.log("handleMouseDown");
     
     const i = event.nativeEvent.offsetX;
     const j = event.nativeEvent.offsetY;
@@ -287,7 +306,7 @@ const DrawZone = (
     const pixel = new Pixel(i, j);
     
     if (event.button === 1) { // Molette
-        console.log("Molette - Centrer");
+        //console.log("Molette - Centrer");
         pixel.setJ(pixel.getJToDraw(canvas.height));
         const point = GraphicLibrary.calcPointFromPix(
             pixel, 
@@ -299,7 +318,7 @@ const DrawZone = (
         await drawCanvas();
     }
     else if (event.button === 0) { // Clic gauche
-        console.log("Clic gauche - Début drag");
+        //console.log("Clic gauche - Début drag");
         // Note: Ne pas convertir le J ici, on travaille en coordonnées canvas
         setDragStart(pixel);
         setDragEnd(pixel);
@@ -310,7 +329,7 @@ const DrawZone = (
 
     const handleMouseUp = useCallback(async (event: React.MouseEvent<HTMLCanvasElement>) => {
         event.preventDefault();
-        console.log("handleMouseUp");
+        //console.log("handleMouseUp");
         
         if (event.button !== 0) return; // Seulement pour le clic gauche
         
@@ -353,13 +372,20 @@ const DrawZone = (
         if(isDragging) {
             const i = event.nativeEvent.offsetX;
             const j = event.nativeEvent.offsetY;
-            console.log("handleMouseMove");
+            //console.log("handleMouseMove");
         }
     }, []);
 
     const handleZoomOnSelection = useCallback(async (start: Pixel, end: Pixel) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+        // affecter dans start et end les min et max des pixels
+        if (start.getI() > end.getI() || start.getJ() > end.getJ()) {
+            const tmp = start;
+            start = end;
+            end = tmp;
+        }
+
         start.setJ(start.getJToDraw(canvas.height));
         end.setJ(end.getJToDraw(canvas.height));
         // Convertir les pixels en points du plan complexe
@@ -415,7 +441,7 @@ const DrawZone = (
         const currentZoom = canvasService.currentScene.getZoom();
         const newZoom = currentZoom * zoomRatio;
 
-        console.log(`Zoom: ${currentZoom} -> ${newZoom} (ratio: ${zoomRatio})`);
+        //console.log(`Zoom: ${currentZoom} -> ${newZoom} (ratio: ${zoomRatio})`);
 
         // Appliquer les transformations
         canvasService.currentScene.setTrans(new Point(centerX, centerY));
@@ -437,8 +463,13 @@ const DrawZone = (
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
             //onMouseMove={handleMouseMove}
-            //width={800} // Assurez-vous que la taille est fixée
-            //height={600}
+        />
+        <DrawFractalInfos 
+            zoom={zoom}
+            transX={transX}
+            transY={transY}
+            juliaFractalName={juliaFractalName} 
+            canvasCalculationTime={canvasCalculationTime}
         />
         <div className="d-flex gap-1">
             <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleTranslateRight} title="déplacement vers la gauche">◀</Button>

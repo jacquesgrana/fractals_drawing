@@ -1,5 +1,6 @@
 import { MathLibrary } from "../libraries/MathLibrary";
 
+
 export class ComplexNb {
   private real!: number;
   private imag!: number;

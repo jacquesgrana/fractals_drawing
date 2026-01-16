@@ -1,4 +1,10 @@
 export class MathLibrary {
+  /**
+   * Retourne la distance entre deux points
+   */
+  static distance(x1: number, y1: number, x2: number, y2: number): number {
+    return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+  }
 
   /**
    * Calcule le logarithme de x en base n
@@ -46,4 +52,10 @@ export class MathLibrary {
   static clamp(value: number, min: number, max: number): number {
     return Math.max(min, Math.min(max, value));
   }
+
+  static getZoomPercent(zoom: number): number {
+    return zoom === 0 ? 0 : MathLibrary.round(150 / zoom, 2);
+  }
 }
+
+//export default MathLibrary;

@@ -1,5 +1,6 @@
 import { MathLibrary } from "../libraries/MathLibrary";
 
+
 /*
  * Classe représentant un point du plan des réels
  */
