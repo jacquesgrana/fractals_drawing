@@ -7,10 +7,19 @@ interface ColorManagementSlidersProps {
     gradientEnd: number;
     handleChangeGradientStart: (gradientStart: number) => void;
     handleChangeGradientEnd: (gradientEnd: number) => void;
+    isColorManagementPanelOpen: boolean;
+    HandleToggleIsColorManagementPanelOpen: () => void;
 }
 
 const ColorManagementSliders = (
-    { gradientStart, gradientEnd, handleChangeGradientStart, handleChangeGradientEnd }: ColorManagementSlidersProps
+    { 
+        gradientStart, 
+        gradientEnd, 
+        handleChangeGradientStart, 
+        handleChangeGradientEnd,
+        isColorManagementPanelOpen,
+        HandleToggleIsColorManagementPanelOpen
+    }: ColorManagementSlidersProps
 ): React.ReactElement => {
 
     const canvasStartRef = useRef<HTMLCanvasElement>(null);
@@ -57,7 +66,7 @@ const ColorManagementSliders = (
         }
 
         drawGradient(canvas, 0, gradientEnd - 1);
-    }, [gradientEnd]);
+    }, [gradientEnd, isColorManagementPanelOpen]);
 
     // Effet pour dessiner le dégradé du slider End
     useEffect(() => {
@@ -72,7 +81,7 @@ const ColorManagementSliders = (
         }
 
         drawGradient(canvas, gradientStart + 1, 6);
-    }, [gradientStart]);
+    }, [gradientStart, isColorManagementPanelOpen]);
 
     // ⭐ Effet pour dessiner la prévisualisation complète de la gamme utilisée
     useEffect(() => {
@@ -84,72 +93,81 @@ const ColorManagementSliders = (
         canvas.height = 20;
 
         drawGradient(canvas, gradientStart, gradientEnd);
-    }, [gradientStart, gradientEnd]);
+    }, [gradientStart, gradientEnd, isColorManagementPanelOpen]);
 
     return (
         <div className="react-colors-management-container">
-            <Row className="gradient-sliders-container">
-                <Col xs={12} md={6} className="">
-                    <Form.Group className="">
-                        <Form.Label className="text-small-black">
-                            Gradient Start: {gradientStart}
-                        </Form.Label>
-                        {/* Canvas pour le dégradé */}
-                        <div className="gradient-canvas-container">
-                            <canvas 
-                                id="canvasStart"
-                                ref={canvasStartRef}
-                            />
-                        </div>
-                        <Form.Range
-                            className="gradient-range"
-                            min={0}
-                            max={gradientEnd - 1}
-                            step={1}
-                            value={gradientStart}
-                            onChange={(e) => handleChangeGradientStart(Number(e.target.value))}
-                        />
-                    </Form.Group>
-                </Col>
+            <p 
+            onClick={HandleToggleIsColorManagementPanelOpen}
+            className="text-small-black react-text-link-dark"
+            >Paramètres des couleurs utilisées :</p>
+            {isColorManagementPanelOpen && (
+               <>
+                    <Row className="gradient-sliders-container">
+                        <Col xs={12} md={6} className="">
+                            <Form.Group className="">
+                                <Form.Label className="text-small-black">
+                                    Gradient Start: {gradientStart}
+                                </Form.Label>
+                                {/* Canvas pour le dégradé */}
+                                <div className="gradient-canvas-container">
+                                    <canvas 
+                                        id="canvasStart"
+                                        ref={canvasStartRef}
+                                    />
+                                </div>
+                                <Form.Range
+                                    className="gradient-range"
+                                    min={0}
+                                    max={gradientEnd - 1}
+                                    step={1}
+                                    value={gradientStart}
+                                    onChange={(e) => handleChangeGradientStart(Number(e.target.value))}
+                                />
+                            </Form.Group>
+                        </Col>
 
-                <Col xs={12} md={6} className="">
-                    <Form.Group className="">
-                        <Form.Label className="text-small-black">
-                            Gradient End: {gradientEnd}
-                        </Form.Label>
-                        {/* Canvas pour le dégradé */}
-                        <div className="gradient-canvas-container">
-                            <canvas 
-                                id="canvasEnd"
-                                ref={canvasEndRef}
-                            />
-                        </div>
-                        <Form.Range
-                            className="gradient-range"
-                            min={gradientStart + 1}
-                            max={6}
-                            step={1}
-                            value={gradientEnd}
-                            onChange={(e) => handleChangeGradientEnd(Number(e.target.value))}
-                        />
-                    </Form.Group>
-                </Col>
-            </Row>
+                        <Col xs={12} md={6} className="">
+                            <Form.Group className="">
+                                <Form.Label className="text-small-black">
+                                    Gradient End: {gradientEnd}
+                                </Form.Label>
+                                {/* Canvas pour le dégradé */}
+                                <div className="gradient-canvas-container">
+                                    <canvas 
+                                        id="canvasEnd"
+                                        ref={canvasEndRef}
+                                    />
+                                </div>
+                                <Form.Range
+                                    className="gradient-range"
+                                    min={gradientStart + 1}
+                                    max={6}
+                                    step={1}
+                                    value={gradientEnd}
+                                    onChange={(e) => handleChangeGradientEnd(Number(e.target.value))}
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
 
-            {/* ⭐ Canvas de prévisualisation de la gamme complète utilisée */}
-            <Row className="w-50 mb-md-0 mt-0 mb-0 pb-0 pt-0">
-                <Col xs={12}>
-                    <Form.Label className="text-small-black mb-1">
-                        Gamme de couleurs utilisée (de {gradientStart} à {gradientEnd})
-                    </Form.Label>
-                    <div className="preview-gradient-container">
-                        <canvas 
-                            className="preview-gradient-canvas"
-                            ref={canvasPreviewRef}
-                        />
-                    </div>
-                </Col>
-            </Row>
+                    {/* ⭐ Canvas de prévisualisation de la gamme complète utilisée */}
+                    <Row className="w-50 mb-md-0 mt-0 mb-0 pb-0 pt-0">
+                        <Col xs={12}>
+                            <Form.Label className="text-small-black mb-1">
+                                Gamme de couleurs utilisée (de {gradientStart} à {gradientEnd})
+                            </Form.Label>
+                            <div className="preview-gradient-container">
+                                <canvas 
+                                    className="preview-gradient-canvas"
+                                    ref={canvasPreviewRef}
+                                />
+                            </div>
+                        </Col>
+                    </Row>
+               </> 
+            )}
+            
         </div>
     );
 };

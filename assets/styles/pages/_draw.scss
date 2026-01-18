@@ -40,6 +40,13 @@
         }
 
         .react-julia-fractal-management-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: $space-base;
+            //height: 60px;
+
             .fractal-values-input {
                 background-color: $very-light-bg;
                 color: $dark-text;
@@ -212,8 +219,8 @@
 
 
     .react-fractal-list {
-        margin-top: $margin-base;
-        padding: $padding-base;
+        margin-top: $margin-small;
+        padding: $padding-small;
         background-color: $light-bg;
         border-radius: $radius-base;
         width: 100%;

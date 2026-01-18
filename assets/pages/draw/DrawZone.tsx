@@ -39,6 +39,9 @@ const DrawZone = (
     const [fractalSeedImag, setFractalSeedImag] = useState<number>(0);
     const [fractalMaxIter, setFractalMaxIter] = useState<number>(100);
     const [fractalLimit, setFractalLimit] = useState<number>(2);
+
+    const [isJuliaFractalManagementPanelOpen, setIsJuliaFractalManagementPanelOpen] = useState<boolean>(false);
+    const [isColorManagementPanelOpen, setIsColorManagementPanelOpen] = useState<boolean>(false);
     
     // REFS : Stockage mutable persistant sans re-render
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -208,6 +211,14 @@ const DrawZone = (
             setIsDrawing(false);
         }
     }, [isDrawing]);*/
+
+    const HandleToggleIsJuliaFractalManagementPanelOpen = useCallback(() => {
+        setIsJuliaFractalManagementPanelOpen(!isJuliaFractalManagementPanelOpen);
+    }, [isJuliaFractalManagementPanelOpen]);
+
+    const HandleToggleIsColorManagementPanelOpen = useCallback(() => {
+        setIsColorManagementPanelOpen(!isColorManagementPanelOpen);
+    }, [isColorManagementPanelOpen]);
 
     const handleZoomPlus = useCallback(async () => {
         //canvasService.zoom = canvasService.zoom - 0.25;
@@ -542,6 +553,8 @@ const DrawZone = (
             handleChangeJuliaFractalSeedImag={handleChangeJuliaFractalSeedImag}
             handleChangeJuliaFractalMaxIter={handleChangeJuliaFractalMaxIter}
             handleChangeJuliaFractalLimit={handleChangeJuliaFractalLimit}
+            isJuliaFractalManagementPanelOpen={isJuliaFractalManagementPanelOpen}
+            HandleToggleIsJuliaFractalManagementPanelOpen={HandleToggleIsJuliaFractalManagementPanelOpen}   
         />
 
         <ColorManagementSliders 
@@ -549,6 +562,8 @@ const DrawZone = (
             gradientEnd={gradientEnd}
             handleChangeGradientStart={handleChangeGradientStart}
             handleChangeGradientEnd={handleChangeGradientEnd}
+            isColorManagementPanelOpen={isColorManagementPanelOpen}
+            HandleToggleIsColorManagementPanelOpen={HandleToggleIsColorManagementPanelOpen}
         />
         
         
