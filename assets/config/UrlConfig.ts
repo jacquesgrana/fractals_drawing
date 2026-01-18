@@ -20,6 +20,7 @@ class UrlConfig {
     public static JULIA_FRACTAL_GET_WITHOUT_USER_URL = '/api/julia-fractal/get-without-user';
     public static JULIA_FRACTAL_GET_PUBLIC_URL = '/api/julia-fractal/get-public';
     public static JULIA_FRACTAL_GET_FROM_CURRENT_USER_URL = '/api/julia-fractal/get-from-current-user';
+    public static JULIA_FRACTAL_ADD_TO_USER_URL = '/api/julia-fractal/add-to-user';
 }   
 
 export default UrlConfig;

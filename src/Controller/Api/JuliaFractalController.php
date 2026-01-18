@@ -9,6 +9,8 @@ use App\Repository\JuliaFractalRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\User;
+use App\Entity\JuliaFractal;
 
 #[Route('/api/julia-fractal', name: 'julia_fractal_', methods: ['GET'])]
 class JuliaFractalController extends AbstractController
@@ -65,7 +67,7 @@ class JuliaFractalController extends AbstractController
                 'data' => []
             ], 404);
         }
-        $juliaFractals = $juliaFractalRepository->findBy(['user' => $user]);
+        $juliaFractals = $juliaFractalRepository->findBy(['user' => $userFromDb]);
         $toReturn = [];
         foreach ($juliaFractals as $juliaFractal) {
             $toReturn[] = $juliaFractal->normalize();
@@ -89,6 +91,70 @@ class JuliaFractalController extends AbstractController
             'status' => 200,
             'data' => [
                 'juliaFractals' => $juliaFractals
+            ]
+        ], 200);
+    }
+
+    #[Route('/add-to-user', name: 'add_to_user', methods: ['POST'])]
+    public function addJuliaFractalToUser(
+        EntityManagerInterface $em,
+        Request $request
+        ): Response {
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        $user = $this->getUser();
+        $userFromDb = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
+        if (!$userFromDb) {
+            return $this->json([
+                'message' => "Utilisateur non trouvé",
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+        $juliaFractal = $em->getRepository(JuliaFractal::class)->findOneBy(['id' => $data['juliaFractalId']]);
+        if (!$juliaFractal) {
+            return $this->json([
+                'message' => "Fractal de julia non trouvée",
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+        $juliaFractalClone = new JuliaFractal();
+        $juliaFractalClone->setName($juliaFractal->getName());
+        $juliaFractalClone->setSeedReal($juliaFractal->getSeedReal());
+        $juliaFractalClone->setSeedImag($juliaFractal->getSeedImag());
+        $juliaFractalClone->setEscapeLimit($juliaFractal->getEscapeLimit());
+        $juliaFractalClone->setMaxIterations($juliaFractal->getMaxIterations());
+        $juliaFractalClone->setIsPublic(false);
+        $juliaFractalClone->setComment($juliaFractal->getComment());
+         
+        $userFromDb->addJuliaFractal($juliaFractalClone);
+        $em->persist($juliaFractalClone);
+        $em->persist($userFromDb);
+        $em->flush();
+
+        return $this->json([
+            'message' => "Utilisateur modifié",
+            'status' => 200,
+            'data' => [
+                'user' => [
+                    'id' => $userFromDb->getId(),
+                'email' => $userFromDb->getEmail(),
+                'pseudo' => $userFromDb->getPseudo(),
+                'firstName' => $userFromDb->getFirstName(),
+                'lastName' => $userFromDb->getLastName(),
+                'createdAt' => $userFromDb->getCreatedAt()?->format('Y-m-d H:i:s'), 
+                'updatedAt' => $userFromDb->getUpdatedAt()?->format('Y-m-d H:i:s'),
+                ]
             ]
         ], 200);
     }

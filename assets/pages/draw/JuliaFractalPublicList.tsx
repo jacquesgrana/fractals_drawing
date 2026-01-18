@@ -3,24 +3,26 @@ import React from 'react';
 import { JuliaFractal } from '../../model/JuliaFractal';
 import JuliaFractalListElement from './JuliaFractalListElement';
 
-interface JuliaFractalListProps {
+interface JuliaFractalPublicListProps {
     juliaFractals: JuliaFractal[];
     setCurrentJuliaFractal: (fractal: JuliaFractal) => void;
     isJuliaFractalListPanelOpen: boolean;
     handleToggleIsJuliaFractalListPanelOpen: () => void;
     isAuthenticated: boolean;
+    reloadUserJuliaFractals: () => Promise<void>;
 }
 
-const JuliaFractalList = ({ 
+const JuliaFractalPublicList = ({ 
     juliaFractals, 
     setCurrentJuliaFractal,
     isJuliaFractalListPanelOpen,
     handleToggleIsJuliaFractalListPanelOpen,
-    isAuthenticated
-} : JuliaFractalListProps ) : React.ReactElement => {
+    isAuthenticated,
+    reloadUserJuliaFractals
+} : JuliaFractalPublicListProps ) : React.ReactElement => {
 
     return (
-        <div className="react-fractal-list">
+        <div className="react-fractal-list mb-2">
             <p 
             onClick={handleToggleIsJuliaFractalListPanelOpen}
             className="text-small-black react-text-link-dark"
@@ -33,6 +35,7 @@ const JuliaFractalList = ({
                     juliaFractal={juliaFractal} 
                     setCurrentJuliaFractal={setCurrentJuliaFractal}
                     isAuthenticated={isAuthenticated}
+                    reloadUserJuliaFractals={reloadUserJuliaFractals}
                     />
                 ))}
                 </div>
@@ -42,7 +45,7 @@ const JuliaFractalList = ({
     );
 };
 
-export default JuliaFractalList;
+export default JuliaFractalPublicList;
 
 /*
 <li key={juliaFractal.getId()}>{juliaFractal.getName()}</li>

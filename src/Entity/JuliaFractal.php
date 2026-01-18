@@ -49,7 +49,7 @@ class JuliaFractal
     {
         $this->createdAt = new \DateTimeImmutable();
         $this->updatedAt = new \DateTime(); 
-        $this->isPublic = true;
+        //$this->isPublic = true;
     }
 
     #[ORM\PreUpdate]
