@@ -9,6 +9,8 @@ import { Pixel } from "../../model/Pixel";
 import { GraphicLibrary } from "../../libraries/GraphicLibrary";
 import { JuliaFractal } from "../../model/JuliaFractal";
 import DrawFractalInfos from "./DrawFractalInfos";
+import ColorManagementSliders from "./ColorManagementSliders";
+import JuliaFractalManagementSliders from "./JuliaFractalManagementSliders";
 
 interface DrawZoneProps {
     selectedJuliaFractal: Nullable<JuliaFractal>;
@@ -30,6 +32,13 @@ const DrawZone = (
     const [juliaFractalName, setJuliaFractalName] = useState<string>("");
     const [canvasCalculationTime, setCanvasCalculationTime] = useState<number>(0);
 
+    const [gradientStart, setGradientStart] = useState<number>(0);
+    const [gradientEnd, setGradientEnd] = useState<number>(0);
+
+    const [fractalSeedReal, setFractalSeedReal] = useState<number>(0);
+    const [fractalSeedImag, setFractalSeedImag] = useState<number>(0);
+    const [fractalMaxIter, setFractalMaxIter] = useState<number>(100);
+    const [fractalLimit, setFractalLimit] = useState<number>(2);
     
     // REFS : Stockage mutable persistant sans re-render
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -141,6 +150,12 @@ const DrawZone = (
         setTransY(canvasService.currentScene.getTrans().getY());
         setJuliaFractalName(canvasService.getJuliaFractal()?.getName() || "");
         setCanvasCalculationTime(canvasService.canvasCalculationTime);
+        setGradientStart(canvasService.gradientStart);
+        setGradientEnd(canvasService.gradientEnd);
+        setFractalSeedReal(canvasService.getJuliaFractal()?.getSeed().getReal() || 0);
+        setFractalSeedImag(canvasService.getJuliaFractal()?.getSeed().getImag() || 0);
+        setFractalLimit(canvasService.getJuliaFractal()?.getLimit() || 0);
+        setFractalMaxIter(canvasService.getJuliaFractal()?.getMaxIt() || 0);
     }, [canvasService]);    
 
     const drawCanvas = useCallback(async () => {
@@ -451,7 +466,40 @@ const DrawZone = (
         await drawCanvas();
     }, [drawCanvas]);
 
+    const handleChangeGradientStart = async (value: number) => {
+        setGradientStart(value);
+        canvasService.gradientStart = value;
+        await drawCanvas();
+    };
+    const handleChangeGradientEnd = async (value: number) => {
+        setGradientEnd(value);
+        canvasService.gradientEnd = value;
+        await drawCanvas();
+    };  
 
+    const handleChangeJuliaFractalSeedReal = async (value: number) => {
+        setFractalSeedReal(value);
+        canvasService.getJuliaFractal().getSeed().setReal(value);
+        await drawCanvas();
+    }
+
+    const handleChangeJuliaFractalSeedImag = async (value: number) => {
+        setFractalSeedImag(value);
+        canvasService.getJuliaFractal().getSeed().setImag(value);
+        await drawCanvas();
+    }
+
+    const handleChangeJuliaFractalMaxIter = async (value: number) => {
+        setFractalMaxIter(value);
+        canvasService.getJuliaFractal().setMaxIt(value);
+        await drawCanvas();
+    }
+
+    const handleChangeJuliaFractalLimit = async (value: number) => {
+        setFractalLimit(value);
+        canvasService.getJuliaFractal().setLimit(value);
+        await drawCanvas();
+    }
 
     return (
     <div className="draw-zone-container d-flex flex-column align-items-center justify-content-center gap-2">
@@ -471,7 +519,8 @@ const DrawZone = (
             juliaFractalName={juliaFractalName} 
             canvasCalculationTime={canvasCalculationTime}
         />
-        <div className="d-flex gap-1">
+
+        <div className="d-flex gap-1 mb-2">
             <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleTranslateRight} title="déplacement vers la gauche">◀</Button>
             <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleTranslateLeft} title="déplacement vers la droite">▶</Button>
             <Button variant="primary" className="btn btn-small-primary" disabled={isDrawing} onClick={handleTranslateUp} title="déplacement vers le haut">▲</Button>
@@ -483,6 +532,25 @@ const DrawZone = (
                 {copySuccess ? (<>✓</>) : (<>📋</>)}
             </Button>
         </div>
+
+        <JuliaFractalManagementSliders 
+            fractalSeedReal={fractalSeedReal}
+            fractalSeedImag={fractalSeedImag}
+            fractalMaxIter={fractalMaxIter}
+            fractalLimit={fractalLimit}
+            handleChangeJuliaFractalSeedReal={handleChangeJuliaFractalSeedReal}
+            handleChangeJuliaFractalSeedImag={handleChangeJuliaFractalSeedImag}
+            handleChangeJuliaFractalMaxIter={handleChangeJuliaFractalMaxIter}
+            handleChangeJuliaFractalLimit={handleChangeJuliaFractalLimit}
+        />
+
+        <ColorManagementSliders 
+            gradientStart={gradientStart}
+            gradientEnd={gradientEnd}
+            handleChangeGradientStart={handleChangeGradientStart}
+            handleChangeGradientEnd={handleChangeGradientEnd}
+        />
+        
         
     </div>
 );

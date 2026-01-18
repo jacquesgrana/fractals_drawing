@@ -18,6 +18,7 @@ const DrawFractalInfos = (
 ): React.ReactElement => {
     const zoomPercent = MathLibrary.getZoomPercent(zoom);
 
+    // déplacer dans une librairie
     const formatTime = (ms: number): string => {
         if (ms < 1000) return `${ms.toFixed(2)} ms`;
         return `${(ms / 1000).toFixed(3)} s`;
@@ -26,8 +27,8 @@ const DrawFractalInfos = (
     return (
         <div className="d-flex flex-column align-items-center justify-content-center gap-0">
             <div className="react-draw-fractal-infos-container mb-0">
-                <p className="text-small-black mb-0">Translation x : {transX.toFixed(8)}, y : {transY.toFixed(8)}</p>
                 <p className="text-small-black mb-0">Nom : <strong>{juliaFractalName}</strong></p>
+                <p className="text-small-black mb-0">Translation x : {transX.toFixed(8)}, y : {transY.toFixed(8)}</p>
                 <p className="text-small-black mb-0">Calcul : {formatTime(canvasCalculationTime)}</p>
             </div>
             <ZoomPercentProgressBar zoomPercent={zoomPercent} />

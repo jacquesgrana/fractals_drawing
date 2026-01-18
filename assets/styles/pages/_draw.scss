@@ -18,6 +18,19 @@
         align-items: center;
         gap: $space-base;
 
+        .react-julia-fractal-management-container {
+            display: flex;
+            padding: $padding-small;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 0px;
+            background-color: $light-bg;
+            border-radius: $radius-base;
+            width: 100%;
+            margin-bottom: $margin-small;
+        }
+
         .react-draw-fractal-infos-container {
             display: flex;
             flex-direction: row;
@@ -25,7 +38,178 @@
             align-items: center;
             gap: $space-base;
         }
+
+        .react-julia-fractal-management-container {
+            .fractal-values-input {
+                background-color: $very-light-bg;
+                color: $dark-text;
+                border: none;
+            }
+
+            .fractal-values-range {
+                margin-top: $margin-very-small;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                //gap: $space-base;
+
+                &::-webkit-slider-runnable-track {
+                    width: 100%;
+                    height: $margin-small;
+                    background: $medium-bg;
+                    border-radius: $radius-base;
+                    border: 1px solid $medium-bg;
+                }
+
+
+                &::-moz-range-track {
+                    width: 100%;
+                    height: $margin-small;
+                    background: $medium-bg;
+                    border-radius: $radius-base;
+                    border: 1px solid $medium-bg;
+                }
+
+                // ⭐ Thumb Webkit
+                &::-webkit-slider-thumb {
+                    -webkit-appearance: none;
+                    appearance: none;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background: $dark-bg;
+                    cursor: pointer;
+                    //border: 2px solid $dark-bg;
+                    margin-top: -6px; // Centre le thumb sur le track
+                    
+                    &:hover {
+                        background: lighten($light-bg, 5%);
+                    }
+                }
+
+                // ⭐ Thumb Firefox (séparé du webkit)
+                &::-moz-range-thumb {
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background: $dark-bg;
+                    cursor: pointer;
+                    //border: 2px solid $dark-bg;
+                    
+                    &:hover {
+                        background: lighten($light-bg, 5%);
+                    }
+                }
+            }
+        }
+
+        .react-colors-management-container {
+            display: flex;
+            padding: $padding-small;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 0px;
+            background-color: $light-bg;
+            border-radius: $radius-base;
+            width: 100%;
+            margin-bottom: $margin-small;
+
+            #canvasStart, #canvasEnd {
+                width: 100%; 
+                height: $margin-small;
+                display: block;
+                border-radius: $radius-base
+            }
+
+            .gradient-sliders-container {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                //gap: $space-base;
+
+                .gradient-canvas-container {
+                    position: relative;
+                    margin-bottom: $margin-very-small; 
+                }
+
+                .gradient-range {
+                    background-color: $light-bg;
+                    //color: $dark-bg
+
+                    // Track (la barre de fond)
+                    &::-webkit-slider-runnable-track {
+                        width: 100%;
+                        height: $margin-small;
+                        background: $medium-bg;
+                        border-radius: $radius-base;
+                        border: 1px solid $medium-bg;
+                    }
+
+
+                    &::-moz-range-track {
+                        width: 100%;
+                        height: $margin-small;
+                        background: $medium-bg;
+                        border-radius: $radius-base;
+                        border: 1px solid $medium-bg;
+                    }
+
+                    // ⭐ Thumb Webkit
+                    &::-webkit-slider-thumb {
+                        -webkit-appearance: none;
+                        appearance: none;
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        background: $dark-bg;
+                        cursor: pointer;
+                        //border: 2px solid $dark-bg;
+                        margin-top: -6px; // Centre le thumb sur le track
+                        
+                        &:hover {
+                            background: lighten($light-bg, 5%);
+                        }
+                    }
+
+                    // ⭐ Thumb Firefox (séparé du webkit)
+                    &::-moz-range-thumb {
+                        width: 20px;
+                        height: 20px;
+                        border-radius: 50%;
+                        background: $dark-bg;
+                        cursor: pointer;
+                        //border: 2px solid $dark-bg;
+                        
+                        &:hover {
+                            background: lighten($light-bg, 5%);
+                        }
+                    }
+                    
+                }
+            }
+
+            .preview-gradient-container {
+                border: $border-big solid $medium-bg;
+                border-radius: $radius-base;
+                padding: $padding-small;
+                background-color: $medium-bg;
+                display: flex;
+                justify-content: center; // ⭐ Centrer le canvas
+
+                .preview-gradient-canvas {
+                    width: 100%; // ⭐ Largeur fixe
+                    height: 20px;
+                    display: block;
+                    border-radius: $radius-small;
+                }
+            } 
+        }
     }
+
+
 
     .react-fractal-list {
         margin-top: $margin-base;
@@ -85,4 +269,7 @@
             }
         }
     }
+
+
 }
+

@@ -27,7 +27,7 @@ const Draw = () : React.ReactElement => {
 
     const setCurrentJuliaFractal = (juliaFractal: JuliaFractal) => {
         //console.log("set current julia fractal: " + juliaFractal);
-        setSelectedJuliaFractal(juliaFractal);
+        setSelectedJuliaFractal(juliaFractal.clone());
         //canvasService.setJuliaFractal(juliaFractal);
     }
 

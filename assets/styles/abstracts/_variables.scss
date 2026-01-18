@@ -27,6 +27,7 @@ $info-color: hsl(180, 78%, 57%);
 $info-color-dark: hsl(180, 70%, 26%);
 $info-color-light: hsl(180, 54%, 66%);
 
+$very-light-bg: hsl(265, 61%, 79%);
 $light-bg: hsl(265, 66%, 72%);
 $medium-bg: hsl(265, 27%, 54%);
 $dark-bg: hsl(263, 31%, 37%);
@@ -42,6 +43,7 @@ $font-stack: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 $text-size-small: 0.8rem;
 $text-size-medium: 1rem;
 $text-size-big: 1.2rem;
+
 // Espacements
 $padding-base: 20px;
 $padding-big: 40px;
@@ -50,12 +52,19 @@ $padding-small: 10px;
 $margin-base: 20px;
 $margin-big: 40px;
 $margin-small: 10px;
+$margin-very-small: 5px;
 
 $space-base: 10px;
 $space-big: 20px;
 $space-small: 5px;
 
 $radius-base: 4px;
+$radius-big: 8px;
+$radius-small: 2px;
+
+$border-base: 1px;
+$border-big: 2px;
+$border-small: 0.5px;
 
 // Breakpoints
 $breakpoint-sm: 576px;
