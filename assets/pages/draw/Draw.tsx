@@ -6,6 +6,7 @@ import { JuliaFractal } from '../../model/JuliaFractal';
 import { Nullable, UserInfo } from '../../types/indexType';
 import SecurityService from '../../services/SecurityService';
 import JuliaFractalUserList from './JuilaFractalUserList';
+import ToastFacade from '../../facade/ToastFacade';
 
 const Draw = () : React.ReactElement => {
     const [isLoadingPublicJuliaFractals, setIsLoadingPublicJuliaFractals] = React.useState<boolean>(false);
@@ -62,7 +63,7 @@ const Draw = () : React.ReactElement => {
         init();
     }, [juliaFractalService]);
 
-    const reloadUserJuliaFractals = async () => {
+    const reloadAllJuliaFractals = async () => {
         setIsLoadingUserJuliaFractals(true);
         await juliaFractalService.initService();
         setUserJuliaFractals(juliaFractalService.getUserJuliaFractals());
@@ -73,6 +74,43 @@ const Draw = () : React.ReactElement => {
         //console.log("set current julia fractal: " + juliaFractal);
         setSelectedJuliaFractal(juliaFractal.clone());
         //canvasService.setJuliaFractal(juliaFractal);
+    }
+
+    const handleDeleteJuliaFractal = async (juliaFractal: JuliaFractal) => {
+        if(!juliaFractal) {
+            return;
+        }
+        const confirm = window.confirm('Voulez-vous vraiment supprimer définitivement cette fractale ?');
+        if(!confirm) {
+            return;
+        }
+
+        const response = await juliaFractalService.deleteUserJuliaFractal(juliaFractal);
+        if(!response) {
+            return;
+        }
+        try {
+            const data = await response.json();
+            if (data.status === 200) {
+                ToastFacade.success('Suppression réussie : ' + data.message + ' !');
+                await reloadAllJuliaFractals();
+            }
+            else if (data.status === 400) {
+                ToastFacade.error('Erreur 400 : ' + data.message + ' !');
+            }
+            else if (data.status === 403) {
+                ToastFacade.error('Erreur 403 : ' + data.message + ' !');
+            }
+            else if (data.status === 404) {
+                ToastFacade.error('Erreur 404 : ' + data.message + ' !');
+            }
+            else {
+                ToastFacade.error('Erreur : ' + data.message + ' !');
+            }
+        }
+        catch (error) {
+            ToastFacade.error('Erreur : Erreur lors de la suppression de la fractale ! : ' + error);
+        }
     }
 
     const handleToggleIsJuliaFractalListPanelOpen = () => {
@@ -98,7 +136,7 @@ const Draw = () : React.ReactElement => {
                 isJuliaFractalListPanelOpen={isJuliaFractalListPanelOpen}
                 handleToggleIsJuliaFractalListPanelOpen={handleToggleIsJuliaFractalListPanelOpen}
                 isAuthenticated={isAuthenticated}
-                reloadUserJuliaFractals={reloadUserJuliaFractals}
+                reloadUserJuliaFractals={reloadAllJuliaFractals}
                 />
             )}
             { !isLoadingUserJuliaFractals && userJuliaFractals.length > 0 && (
@@ -108,6 +146,7 @@ const Draw = () : React.ReactElement => {
                 isJuliaFractalUserListPanelOpen={isJuliaFractalUserListPanelOpen}
                 handleToggleIsJuliaFractalUserListPanelOpen={handleToggleIsJuliaFractalUserListPanelOpen}
                 isAuthenticated={isAuthenticated}
+                handleDeleteJuliaFractal={handleDeleteJuliaFractal}
                 />
             )}
             

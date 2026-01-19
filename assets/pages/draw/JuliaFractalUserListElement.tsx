@@ -6,6 +6,7 @@ import DateUtil from '../../utils/DateUtil';
 interface JuliaFractalUserListElementProps {
     juliaFractal: JuliaFractal;
     setCurrentJuliaFractal: (fractal: JuliaFractal) => void;
+    handleDeleteJuliaFractal: (fractal: JuliaFractal) => void
     //isAuthenticated: boolean
 }
 
@@ -13,6 +14,7 @@ interface JuliaFractalUserListElementProps {
 const JuliaFractalUserListElement: React.FC<JuliaFractalUserListElementProps> = ({ 
     juliaFractal, 
     setCurrentJuliaFractal,
+    handleDeleteJuliaFractal
     //isAuthenticated
  }) => {
 
@@ -22,7 +24,21 @@ const JuliaFractalUserListElement: React.FC<JuliaFractalUserListElementProps> = 
             <p className='text-small-black'>Création : {DateUtil.formatDate(juliaFractal.getCreatedAt())}</p>
             <p className='text-small-black'>Modification : {DateUtil.formatDate(juliaFractal.getUpdatedAt())}</p>
             <div className='d-flex align-items-center gap-2'> 
-                <Button variant="primary" className='btn btn-primary-small' title='Dessiner la fractale' onClick={() => setCurrentJuliaFractal(juliaFractal)}>↵</Button>
+                <Button 
+                variant="primary" 
+                className='btn btn-primary-small' 
+                title='Supprimer la fractale'
+                onClick={() => handleDeleteJuliaFractal(juliaFractal)}
+                >❌
+                </Button>
+
+                <Button 
+                variant="primary" 
+                className='btn btn-primary-small' 
+                title='Dessiner la fractale' 
+                onClick={() => setCurrentJuliaFractal(juliaFractal)}
+                >↵
+                </Button>
             </div>
         </div>
     );

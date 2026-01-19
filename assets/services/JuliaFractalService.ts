@@ -2,12 +2,14 @@ import UrlConfig from "../config/UrlConfig";
 import { ComplexNb } from "../model/ComplexNb";
 import { JuliaFractal } from "../model/JuliaFractal";
 import { Nullable } from "../types/indexType";
+import SecurityService from "./SecurityService";
 
 
 class JuliaFractalService {
 
     private publicJuliaFractals: JuliaFractal[] = [];
     private userJuliaFractals: JuliaFractal[] = [];
+    private securityService = SecurityService.getInstance();
 
     private static instance: JuliaFractalService;
     public static getInstance(): JuliaFractalService {
@@ -54,6 +56,10 @@ class JuliaFractalService {
             console.error('Pas de response');
         }
 
+        if(!this.securityService.isAuthenticated()) {
+            this.userJuliaFractals = [];
+            return;
+        }
         const response2 = await this.getUserFractals();
         if (response2) {
             this.userJuliaFractals = [];
@@ -105,6 +111,27 @@ class JuliaFractalService {
             return new Response("Erreur du serveur", { status: 500 });
         }
         
+    }
+
+    public deleteUserJuliaFractal = async (juliaFractal: JuliaFractal): Promise<Response> => {
+        const data = {
+            "juliaFractalId": juliaFractal.getId()
+        }
+        //console.log(data);
+        try {
+                const response = await fetch(UrlConfig.JULIA_FRACTAL_DELETE_FROM_USER_URL, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(data)
+            });
+            return response;
+        }
+        catch (err) {
+            console.error(err);
+            return new Response("Erreur du serveur", { status: 500 });
+        }
     }
 
     public getPublicFractals = async (): Promise<Response> => {

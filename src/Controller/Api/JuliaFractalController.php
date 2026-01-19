@@ -158,4 +158,79 @@ class JuliaFractalController extends AbstractController
             ]
         ], 200);
     }
+
+    // /delete-from-user
+
+    #[Route('/delete-from-user', name: 'delete_from_user', methods: ['DELETE'])]
+    public function deleteJuliaFractalFromUser(
+        EntityManagerInterface $em,
+        Request $request
+        ): Response {
+
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        $user = $this->getUser();
+        $userFromDb = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
+
+        if (!$userFromDb) {
+            return $this->json([
+                'message' => "Utilisateur non rencontré",
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+
+        $juliaFractal = $em->getRepository(JuliaFractal::class)->findOneBy(['id' => $data['juliaFractalId']]);
+
+        if (!$juliaFractal) {
+            return $this->json([
+                'message' => "Fractale de julia non trouvée",
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+        if(!$juliaFractal->getUser()) {
+            return $this->json([
+                'message' => "Fractale sans posseseur",
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+        if($juliaFractal->getUser()->getId() !== $userFromDb->getId()) {
+            return $this->json([
+                'message' => "Fractale de julia possédée par un autre utilisateur",
+                'status' => 403,
+                'data' => []
+            ], 403);
+        }
+        $userFromDb->removeJuliaFractal($juliaFractal);
+        $em->remove($juliaFractal);
+        $em->persist($userFromDb);
+        $em->flush();
+
+        return $this->json([
+            'message' => "Utilisateur modifié",
+            'status' => 200,
+            'data' => [
+                'user' => [
+                    'id' => $userFromDb->getId(),
+                'email' => $userFromDb->getEmail(),
+                'pseudo' => $userFromDb->getPseudo(),
+                'firstName' => $userFromDb->getFirstName(),
+                'lastName' => $userFromDb->getLastName(),
+                'createdAt' => $userFromDb->getCreatedAt()?->format('Y-m-d H:i:s'), 
+                'updatedAt' => $userFromDb->getUpdatedAt()?->format('Y-m-d H:i:s'),
+                ]
+            ]
+        ], 200);
+    }
 }
