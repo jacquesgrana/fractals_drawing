@@ -12,7 +12,7 @@ import * as Comlink from "comlink";
 import { JuliaFractalWorkerType } from "../workers/JuliaFractalWorker.worker";
 
 const COLOR_FILL_SELECT: string = 'rgba(235, 125, 52, 0.38)';
-const COLOR_STROKE_SELECT: string = 'rgba(235, 125, 52, 0.0)';
+const COLOR_STROKE_SELECT: string = 'rgba(235, 125, 52, 0.8)';
 const COLOR_STROKE_ANGLE_INDICATOR: string = 'rgba(255,255,255,0.38)';
 const COLOR_FILL_ANGLE_INDICATOR_DOT: string = 'rgba(245, 34, 45, 1.0)';
 const COLOR_FILL_ANGLE_INDICATOR: string = 'rgba(252, 141, 30, 0.62)';
@@ -250,6 +250,35 @@ class CanvasService {
         });
     }
 
+    public async computeBufferWithWorker(juliaFractalToDraw: JuliaFractal, canvasWidth: number, canvasHeight: number): Promise<ImageData> {
+        const sceneToDraw = new Scene(
+            -1.5, 
+            -1.5, 
+            3.0, 
+            3.0,
+            new Point(0, 0), 
+            0, 
+            1.0
+        );
+
+        if (!this.workerApi) {
+            console.error("Worker non initialisé");
+            return new ImageData(0, 0);
+        }
+        const rawPixels: Uint8ClampedArray = await this.workerApi.computeJulia(
+            canvasWidth, 
+            canvasHeight, 
+            sceneToDraw.toJSON(), 
+            juliaFractalToDraw.toJSON(),
+            1,
+            5,
+            COLOR_BACKGROUND
+        );
+        const buffer: ImageData = this.context.createImageData(canvasWidth, canvasHeight);
+        buffer.data.set(rawPixels);
+        return buffer;
+    }
+
     /**
      * Appelle le worker pour calculer la fractale
      */
@@ -309,7 +338,7 @@ class CanvasService {
 
         // Style du rectangle
         this.context.fillStyle = COLOR_FILL_SELECT; // 'rgba(235, 125, 52, 0.38)'
-        this.context.strokeStyle = 'rgba(235, 125, 52, 0.8)'; // Bordure plus visible
+        this.context.strokeStyle = COLOR_STROKE_SELECT; // Bordure plus visible
         this.context.lineWidth = 2;
 
         // Dessin du rectangle

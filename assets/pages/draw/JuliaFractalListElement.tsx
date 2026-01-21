@@ -10,6 +10,7 @@ interface JuliaFractalListElementProps {
     setCurrentJuliaFractal: (fractal: JuliaFractal) => void;
     isAuthenticated: boolean;
     reloadUserJuliaFractals: () => Promise<void>;
+    handleViewJuliaFractal: (juliaFractal: JuliaFractal) => void;
 }
 
 
@@ -17,7 +18,8 @@ const JuliaFractalListElement: React.FC<JuliaFractalListElementProps> = ({
     juliaFractal, 
     setCurrentJuliaFractal,
     isAuthenticated,
-    reloadUserJuliaFractals
+    reloadUserJuliaFractals,
+    handleViewJuliaFractal
  }) => {
 
     const juliaFractalService = JuliaFractalService.getInstance();
@@ -49,21 +51,40 @@ const JuliaFractalListElement: React.FC<JuliaFractalListElementProps> = ({
         }
     }
 
+    //console.log('jusliaFractal', juliaFractal);
     return (
         <div className='react-fractal-list-element'>
-            <p className='text-large-primary'>{juliaFractal.getName()}</p>
-            <p className='text-small-black'>Création : {DateUtil.formatDate(juliaFractal.getCreatedAt())}</p>
-            <p className='text-small-black'>Modification : {DateUtil.formatDate(juliaFractal.getUpdatedAt())}</p>
-            <div className='d-flex align-items-center gap-2'>
+            <p className='text-small-black'><strong>{juliaFractal.getName()}</strong></p>
+            <p className='text-small-black'>Création : <br/>{DateUtil.formatDate(juliaFractal.getCreatedAt())}</p>
+            <p className='text-small-black'>Modification : <br/>{DateUtil.formatDate(juliaFractal.getUpdatedAt())}</p>
+            <div className='d-flex gap-1'>
                 { isAuthenticated && (
-                    <Button 
-                    onClick={handleAddFractalToUserList} 
-                    variant="primary" 
-                    className='btn btn-primary-small' 
-                    title="Ajouter dans les fractales de l'utilisateur">➕</Button>
+                    <>
+                        <Button 
+                        variant="primary" 
+                        className='btn btn-primary-small' 
+                        title='Voir la fractale'
+                        onClick={() => handleViewJuliaFractal(juliaFractal)}
+                        >🔍
+                        </Button>
+                        <Button 
+                        onClick={handleAddFractalToUserList} 
+                        variant="primary" 
+                        className='btn btn-primary-small' 
+                        title="Ajouter dans les fractales de l'utilisateur"
+                        >+
+                        </Button>
+                    </>
                 ) }
 
-                <Button variant="primary" className='btn btn-primary-small' title='Dessiner la fractale' onClick={() => setCurrentJuliaFractal(juliaFractal)}>↵</Button>
+                <Button 
+                onClick={() => setCurrentJuliaFractal(juliaFractal)}
+                variant="primary" 
+                className='btn btn-primary-small' 
+                title='Dessiner la fractale' 
+                disabled={!isAuthenticated}
+                >↵
+                </Button>
             </div>
         </div>
     );

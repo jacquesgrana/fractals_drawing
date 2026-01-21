@@ -45,6 +45,7 @@ class JuliaFractalService {
                         juliaFractalFromDb.createdAt,
                         juliaFractalFromDb.updatedAt
                     );
+                    if(juliaFractalFromDb.user) juliaFractal.setUser(juliaFractalFromDb.user);
                     this.publicJuliaFractals?.push(juliaFractal);
                 })
             } 
@@ -56,35 +57,43 @@ class JuliaFractalService {
             console.error('Pas de response');
         }
 
+        //console.log('authenticated : ', this.securityService.isAuthenticated());
+        /*
         if(!this.securityService.isAuthenticated()) {
             this.userJuliaFractals = [];
             return;
-        }
+        }*/
         const response2 = await this.getUserFractals();
         if (response2) {
             this.userJuliaFractals = [];
-            try {
-                const datas = await response2.json();
-                const juliaFractalsFromDb = datas.data.juliaFractals;
 
-                juliaFractalsFromDb.forEach((juliaFractalFromDb: any) => {
-                    const juliaFractal = new JuliaFractal(
-                        juliaFractalFromDb.id,
-                        juliaFractalFromDb.name,
-                        juliaFractalFromDb.comment,
-                        new ComplexNb(true, juliaFractalFromDb.seedReal, juliaFractalFromDb.seedImag),
-                        juliaFractalFromDb.escapeLimit,
-                        juliaFractalFromDb.maxIterations,
-                        juliaFractalFromDb.isPublic,
-                        juliaFractalFromDb.createdAt,
-                        juliaFractalFromDb.updatedAt
-                    );
-                    this.userJuliaFractals?.push(juliaFractal);
-                })
-            } 
-            catch (err) {
-                console.error(err);
+            if(response2.status === 200) {
+               try {
+                    const datas = await response2.json();
+                    const juliaFractalsFromDb = datas.data.juliaFractals;
+
+                    juliaFractalsFromDb.forEach((juliaFractalFromDb: any) => {
+                        const juliaFractal = new JuliaFractal(
+                            juliaFractalFromDb.id,
+                            juliaFractalFromDb.name,
+                            juliaFractalFromDb.comment,
+                            new ComplexNb(true, juliaFractalFromDb.seedReal, juliaFractalFromDb.seedImag),
+                            juliaFractalFromDb.escapeLimit,
+                            juliaFractalFromDb.maxIterations,
+                            juliaFractalFromDb.isPublic,
+                            juliaFractalFromDb.createdAt,
+                            juliaFractalFromDb.updatedAt
+                        );
+                        juliaFractal.setUser(juliaFractalFromDb.user);
+                        //console.log(juliaFractal);
+                        this.userJuliaFractals?.push(juliaFractal);
+                    })
+                } 
+                catch (err) {
+                    console.error(err);
+                } 
             }
+            
         } 
         else {
             console.error('Pas de response');

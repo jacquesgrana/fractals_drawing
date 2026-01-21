@@ -7,28 +7,39 @@ import { Nullable, UserInfo } from '../../types/indexType';
 import SecurityService from '../../services/SecurityService';
 import JuliaFractalUserList from './JuilaFractalUserList';
 import ToastFacade from '../../facade/ToastFacade';
+import ViewJuliaFractalModal from './ViewJuliaFractalModal';
 
-const Draw = () : React.ReactElement => {
+type DrawProps = {
+    isCheckingAuth: boolean;
+}
+
+const Draw = ({
+        isCheckingAuth
+    }: DrawProps) : React.ReactElement => {
+
     const [isLoadingPublicJuliaFractals, setIsLoadingPublicJuliaFractals] = React.useState<boolean>(false);
     const [isLoadingUserJuliaFractals, setIsLoadingUserJuliaFractals] = React.useState<boolean>(false);
     const [publicJuliaFractals, setPublicJuliaFractals] = React.useState<JuliaFractal[]>([]);
     const [userJuliaFractals, setUserJuliaFractals] = React.useState<JuliaFractal[]>([]);
-    // 1. Nouvel état pour stocker celle qu'on a cliqué
     const [selectedJuliaFractal, setSelectedJuliaFractal] = React.useState<Nullable<JuliaFractal>>(null);
+    const [viewedJuliaFractal, setViewedJuliaFractal] = React.useState<Nullable<JuliaFractal>>(null);
     const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
     const [user, setUser] = React.useState<Nullable<UserInfo>>(null);
     const [isJuliaFractalListPanelOpen, setIsJuliaFractalListPanelOpen] = React.useState<boolean>(false);
     const [isJuliaFractalUserListPanelOpen, setIsJuliaFractalUserListPanelOpen] = React.useState<boolean>(false);
+    const [isModalViewJuliaFractalOpen, setIsModalViewJuliaFractalOpen] = React.useState(false);
+    
+   
     const unsubscribeRef = React.useRef<Nullable<() => void>>(null);
     
     const juliaFractalService = JuliaFractalService.getInstance();
     //const canvasService = CanvasService.getInstance();
     const securityService = SecurityService.getInstance();
 
-    const updateAuthState = React.useCallback(() => {
-        setIsAuthenticated(securityService.isAuthenticated());
-        setUser(securityService.getUser());
-    }, [securityService]);
+    const updateAuthState =  React.useCallback(() => {
+        setIsAuthenticated(() => securityService.isAuthenticated());
+        setUser(() => securityService.getUser());
+    }, [isCheckingAuth]);
     
     useEffect(() => {
         // Abonnement aux changements d'authentification
@@ -50,6 +61,12 @@ const Draw = () : React.ReactElement => {
     }, [securityService, updateAuthState]);
 
     useEffect(() => {
+        if(!isCheckingAuth) {
+            updateAuthState();
+        }
+    }, [isCheckingAuth]);
+
+    useEffect(() => {
         const init = async () => {
             setIsLoadingPublicJuliaFractals(true);
             setIsLoadingUserJuliaFractals(true);
@@ -62,6 +79,14 @@ const Draw = () : React.ReactElement => {
         }
         init();
     }, [juliaFractalService]);
+
+    const handleOpenViewJuliaFractalModal = () => {
+        setIsModalViewJuliaFractalOpen(true);
+    }
+
+    const handleCloseViewJuliaFractalModal = () => {
+        setIsModalViewJuliaFractalOpen(false);
+    }
 
     const reloadAllJuliaFractals = async () => {
         setIsLoadingUserJuliaFractals(true);
@@ -113,6 +138,12 @@ const Draw = () : React.ReactElement => {
         }
     }
 
+    const handleViewJuliaFractal = (juliaFractal: JuliaFractal) => {
+        //console.log("view julia fractal: " + juliaFractal.getUser().pseudo);
+        setViewedJuliaFractal(juliaFractal);
+        setIsModalViewJuliaFractalOpen(true);
+    }
+
     const handleToggleIsJuliaFractalListPanelOpen = () => {
         setIsJuliaFractalListPanelOpen(!isJuliaFractalListPanelOpen);
     }
@@ -122,6 +153,7 @@ const Draw = () : React.ReactElement => {
     }
 
     return (
+        <>
         <div className="react-card draw-page">
             <h2>Page de dessin</h2>
             <p>Bienvenue !</p>
@@ -137,6 +169,7 @@ const Draw = () : React.ReactElement => {
                 handleToggleIsJuliaFractalListPanelOpen={handleToggleIsJuliaFractalListPanelOpen}
                 isAuthenticated={isAuthenticated}
                 reloadUserJuliaFractals={reloadAllJuliaFractals}
+                handleViewJuliaFractal={handleViewJuliaFractal}
                 />
             )}
             { !isLoadingUserJuliaFractals && userJuliaFractals.length > 0 && (
@@ -147,10 +180,19 @@ const Draw = () : React.ReactElement => {
                 handleToggleIsJuliaFractalUserListPanelOpen={handleToggleIsJuliaFractalUserListPanelOpen}
                 isAuthenticated={isAuthenticated}
                 handleDeleteJuliaFractal={handleDeleteJuliaFractal}
+                handleViewJuliaFractal={handleViewJuliaFractal}
                 />
             )}
             
         </div>
+        { isModalViewJuliaFractalOpen && (
+            <ViewJuliaFractalModal
+            isModalViewJuliaFractalOpen={isModalViewJuliaFractalOpen}
+            handleCloseViewJuliaFractalModal={handleCloseViewJuliaFractalModal}
+            juliaFractal={viewedJuliaFractal}
+            />
+        )}
+        </>
     );
 };
 export default Draw;

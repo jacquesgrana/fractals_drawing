@@ -29,7 +29,13 @@ Encore
     })
 
      // OBLIGATOIRE pour le SASS
-    .enableSassLoader()
+    .enableSassLoader(function(options) {
+        options.sassOptions = {
+            quietDeps: true,  // Ignore les warnings des node_modules
+            silenceDeprecations: ['import', 'global-builtin', 'color-functions', 'legacy-js-api']
+        };
+    })
+
 ;
 
 module.exports = Encore.getWebpackConfig();

@@ -17,6 +17,9 @@
         justify-content: start;
         align-items: center;
         gap: $space-base;
+        width: 100%;
+        margin-left: $margin-base;
+        margin-right: $margin-base;
 
         .react-julia-fractal-management-container {
             display: flex;
@@ -277,6 +280,18 @@
         }
     }
 
-
+    
 }
 
+#juliaFractalCanvas {
+    width: 400px;
+    height: 400px;
+    background-color: $black-color;
+    border: $border-very-big solid $dark-bg;
+    border-radius: $radius-base;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: $margin-small;
+    margin-top: $margin-small;
+    display: block;
+}

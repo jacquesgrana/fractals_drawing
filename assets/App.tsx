@@ -20,11 +20,12 @@ import ForgotPassword from './pages/forgot-password/ForgotPassword';
 const ReactBody = () => {
 
     const securityService = SecurityService.getInstance();
-
+    const [isCheckingAuth, setIsCheckingAuth] = React.useState(false);
     
     useEffect(() => {
         const checkAuth = async () => {
             try {
+                setIsCheckingAuth(true);
                 const response = await securityService.me();
 
                 /*
@@ -43,7 +44,7 @@ const ReactBody = () => {
             } catch (error) {
                 console.error('Erreur API', error);
             } finally {
-                //setIsLoading(false);
+                setIsCheckingAuth(false);
             }
         };
 
@@ -53,11 +54,11 @@ const ReactBody = () => {
     return (
             <BrowserRouter>
                 <Toaster position="top-right" />
-                <Header />
+                <Header isCheckingAuth={isCheckingAuth} />
                 <div id="react-router-container">
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/draw" element={<Draw />} />
+                        <Route path="/draw" element={<Draw isCheckingAuth={isCheckingAuth} />} />
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/verify" element={<VerifyEmail />} />

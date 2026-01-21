@@ -1,6 +1,6 @@
 /* assets/styles/components/_buttons.scss */
 .btn {
-    display: inline-block;
+    display: block;
     padding: 10px 20px;
     border-radius: 4px;
     text-decoration: none;
@@ -19,14 +19,16 @@
 .btn-primary {
     background-color: $primary-color !important;
     color: white;
-    height: 40px;;
+    height: 40px;
     
 }
 
 .btn-small-primary {
     background-color: $primary-color !important;
     color: white;
-    height: 50px;
-    width: 80px;
+    //height: 40px;
+    max-width: 60px !important;
+    min-width: 60px !important;
+    width: 60px !important;
     //font-size: small;
 }

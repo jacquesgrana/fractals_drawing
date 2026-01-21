@@ -13,6 +13,31 @@
     .modal-dark-body {
         background-color: $medium-bg;
         color: $light-text;
+
+        .modal-dark-input-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            //gap: $space-base;
+            
+            p {
+                background-color: $very-light-bg;
+                border-radius: $radius-base;
+                padding: $padding-base;
+                margin-top: $margin-small;
+                margin-bottom: $margin-small;
+                
+                width: 100%;
+                
+                box-sizing: border-box;
+                
+                padding-left: $margin-base;
+                padding-right: $margin-base;
+            }
+        }
+
+        
     }
 
     .modal-dark-footer {

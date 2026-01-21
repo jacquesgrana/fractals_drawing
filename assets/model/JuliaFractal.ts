@@ -1,4 +1,5 @@
 import { GraphicLibrary } from "../libraries/GraphicLibrary";
+import { Nullable } from "../types/commonTypes";
 import { Color } from "./Color";
 import { ComplexNb } from "./ComplexNb";
 
@@ -15,6 +16,9 @@ export class JuliaFractal {
   private isPublic: boolean;
   private createdAt: string;
   private updatedAt: string;
+
+  // TODO typer !!!
+  private user: Nullable<any> = null;
 
   // Optimisation : on stocke la limite au carré pour éviter les sqrt() dans la boucle
   private limitSq: number; 
@@ -48,6 +52,7 @@ export class JuliaFractal {
   getIsPublic(): boolean { return this.isPublic; }
   getCreatedAt(): string { return this.createdAt; }
   getUpdatedAt(): string { return this.updatedAt; }
+  getUser(): Nullable<any> { return this.user; }
   
   // ==========================
   // Mutateurs
@@ -65,6 +70,7 @@ export class JuliaFractal {
   setIsPublic(isPublic: boolean): void { this.isPublic = isPublic; }
   setCreatedAt(createdAt: string): void { this.createdAt = createdAt; }
   setUpdatedAt(updatedAt: string): void { this.updatedAt = updatedAt; }
+  setUser(user: Nullable<any>): void { this.user = user; }
 
   /**
    * Calcule la couleur d'un point z donné selon les paramètres de la fractale.

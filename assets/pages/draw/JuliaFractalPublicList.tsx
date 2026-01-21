@@ -10,6 +10,7 @@ interface JuliaFractalPublicListProps {
     handleToggleIsJuliaFractalListPanelOpen: () => void;
     isAuthenticated: boolean;
     reloadUserJuliaFractals: () => Promise<void>;
+    handleViewJuliaFractal: (juliaFractal: JuliaFractal) => void;
 }
 
 const JuliaFractalPublicList = ({ 
@@ -18,7 +19,8 @@ const JuliaFractalPublicList = ({
     isJuliaFractalListPanelOpen,
     handleToggleIsJuliaFractalListPanelOpen,
     isAuthenticated,
-    reloadUserJuliaFractals
+    reloadUserJuliaFractals,
+    handleViewJuliaFractal
 } : JuliaFractalPublicListProps ) : React.ReactElement => {
 
     return (
@@ -36,6 +38,7 @@ const JuliaFractalPublicList = ({
                     setCurrentJuliaFractal={setCurrentJuliaFractal}
                     isAuthenticated={isAuthenticated}
                     reloadUserJuliaFractals={reloadUserJuliaFractals}
+                    handleViewJuliaFractal={handleViewJuliaFractal}
                     />
                 ))}
                 </div>

@@ -8,7 +8,8 @@ interface JuliaFractalUserListProps {
     isJuliaFractalUserListPanelOpen: boolean;
     handleToggleIsJuliaFractalUserListPanelOpen: () => void;
     isAuthenticated: boolean;
-    handleDeleteJuliaFractal: (fractal: JuliaFractal) => void
+    handleDeleteJuliaFractal: (fractal: JuliaFractal) => void;
+    handleViewJuliaFractal: (juliaFractal: JuliaFractal) => void;
 }
 
 const JuliaFractalUserList = ({
@@ -17,9 +18,10 @@ const JuliaFractalUserList = ({
     isJuliaFractalUserListPanelOpen,
     handleToggleIsJuliaFractalUserListPanelOpen,
     isAuthenticated,
-    handleDeleteJuliaFractal
+    handleDeleteJuliaFractal,
+    handleViewJuliaFractal
 } : JuliaFractalUserListProps) : React.ReactElement => {
-
+    ///console.log("juliaFractals", juliaFractals);
 
     return (
         <>
@@ -38,6 +40,7 @@ const JuliaFractalUserList = ({
                             setCurrentJuliaFractal={setCurrentJuliaFractal}
                             //isAuthenticated={isAuthenticated}
                             handleDeleteJuliaFractal={handleDeleteJuliaFractal}
+                            handleViewJuliaFractal={handleViewJuliaFractal}
                             />
                         ))}
                     </div>

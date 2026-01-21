@@ -185,7 +185,7 @@ class JuliaFractal
 
     public function normalize(): array
     {
-        $user = $this->getUser() ? ['pseudo' => $this->getUser()->getPseudo()] : [];
+        $user = $this->getUser() ? ['pseudo' => $this->getUser()->getPseudo()] : null;
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),

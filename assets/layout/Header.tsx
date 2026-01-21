@@ -4,7 +4,12 @@ import { Nullable, UserInfo } from '../types/indexType';
 import SecurityService from '../services/SecurityService';
 import ToastFacade from '../facade/ToastFacade';
 
-const Header = () : React.ReactElement => {
+type HeaderProps = {
+    isCheckingAuth: boolean;
+}
+const Header = (
+    {isCheckingAuth}: HeaderProps
+) : React.ReactElement => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [user, setUser] = useState<Nullable<UserInfo>>(null);
     const securityService = SecurityService.getInstance();
@@ -42,6 +47,12 @@ const Header = () : React.ReactElement => {
             }
         };
     }, [securityService, updateAuthState]);
+
+    useEffect(() => {
+        if(!isCheckingAuth) {
+            updateAuthState();
+        }
+    }, [isCheckingAuth]);
 
     const handleLogout = async (e: React.MouseEvent) => {
         e.preventDefault();

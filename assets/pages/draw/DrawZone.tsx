@@ -513,7 +513,7 @@ const DrawZone = (
     }
 
     return (
-    <div className="draw-zone-container d-flex flex-column align-items-center justify-content-center gap-2">
+    <div className="draw-zone-container">
 
         {/* Le canvas est TOUJOURS là, jamais de condition !isWaiting devant */}
         <canvas 
