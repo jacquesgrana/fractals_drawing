@@ -40,7 +40,7 @@ const ViewJuliaFractalModal = (
         const ctx = canvasRef.current.getContext("2d");
         if (!ctx) return;
         if (!juliaFractal) return;
-        let buffer: ImageData = await canvasService.computeBufferWithWorker(juliaFractal, canvasRef.current.width, canvasRef.current.height);
+        const buffer: ImageData = await canvasService.computeBufferWithWorker(juliaFractal, canvasRef.current.width, canvasRef.current.height);
         ctx.putImageData(buffer, 0, 0);
 
     }
@@ -71,6 +71,7 @@ const ViewJuliaFractalModal = (
                     )}
                     <p className="text-medium-black"><strong>Seed :</strong> {juliaFractal?.getSeed().getReal()} + {juliaFractal?.getSeed().getImag()}i</p><p className="text-medium-black"><strong>Max Itérations :</strong> {juliaFractal?.getMaxIt()}</p>
                     <p className="text-medium-black"><strong>Limit :</strong> {juliaFractal?.getLimit()}</p>
+                    <p className="text-medium-black"><strong>Max iter. :</strong> {juliaFractal?.getMaxIt()}</p>
                     <p className="text-small-black"><strong>Création :</strong> {juliaFractal ? DateUtil.formatDate(juliaFractal.getCreatedAt()) : ''}</p>
                     <p className="text-small-black"><strong>Modification :</strong> {juliaFractal ? DateUtil.formatDate(juliaFractal.getUpdatedAt()) : ''}</p>
                 </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Col, Form, Row } from 'react-bootstrap';
+import { Button, Col, Form, Row } from 'react-bootstrap';
 
 interface JuliaFractalManagementSlidersProps {
     fractalSeedReal: number;
@@ -12,6 +12,7 @@ interface JuliaFractalManagementSlidersProps {
     handleChangeJuliaFractalLimit: (fractalLimit: number) => void;
     isJuliaFractalManagementPanelOpen: boolean;
     HandleToggleIsJuliaFractalManagementPanelOpen: () => void;
+    handleCreateNewJuliaFractal: () => void;
 }
 const JuliaFractalManagementSliders = (
     { 
@@ -24,7 +25,8 @@ const JuliaFractalManagementSliders = (
         handleChangeJuliaFractalMaxIter,
         handleChangeJuliaFractalLimit,
         isJuliaFractalManagementPanelOpen,
-        HandleToggleIsJuliaFractalManagementPanelOpen
+        HandleToggleIsJuliaFractalManagementPanelOpen,
+        handleCreateNewJuliaFractal,
      }: JuliaFractalManagementSlidersProps
 ) : React.ReactElement => {
     return (
@@ -102,6 +104,14 @@ const JuliaFractalManagementSliders = (
                     value={fractalLimit} 
                     onChange={(e) => handleChangeJuliaFractalLimit(Number(e.target.value))} />
                 </Col>
+            </Row>
+            <Row className="mb-0">
+                <Button 
+                variant="primary" 
+                className='btn btn-primary-small' 
+                title='Voir la fractale'
+                onClick={() => handleCreateNewJuliaFractal()}
+                >Créer</Button>
             </Row>
         </>)}
     </div>

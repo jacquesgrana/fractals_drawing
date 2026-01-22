@@ -3,11 +3,12 @@ import DrawZone from './DrawZone';
 import JuliaFractalPublicList from './JuliaFractalPublicList';
 import JuliaFractalService from '../../services/JuliaFractalService';
 import { JuliaFractal } from '../../model/JuliaFractal';
-import { Nullable, UserInfo } from '../../types/indexType';
+import { JuliaFractalParams, Nullable, UserInfo } from '../../types/indexType';
 import SecurityService from '../../services/SecurityService';
 import JuliaFractalUserList from './JuilaFractalUserList';
 import ToastFacade from '../../facade/ToastFacade';
 import ViewJuliaFractalModal from './ViewJuliaFractalModal';
+import NewJuliaFractalModal from './NewJuliaFractalModal';
 
 type DrawProps = {
     isCheckingAuth: boolean;
@@ -28,8 +29,9 @@ const Draw = ({
     const [isJuliaFractalListPanelOpen, setIsJuliaFractalListPanelOpen] = React.useState<boolean>(false);
     const [isJuliaFractalUserListPanelOpen, setIsJuliaFractalUserListPanelOpen] = React.useState<boolean>(false);
     const [isModalViewJuliaFractalOpen, setIsModalViewJuliaFractalOpen] = React.useState(false);
+    const [isModalNewJuliaFractalOpen, setIsModalNewJuliaFractalOpen] = React.useState(false);
     
-   
+    const newJuliaFractalParamsRef = React.useRef<Nullable<JuliaFractalParams>>(null);
     const unsubscribeRef = React.useRef<Nullable<() => void>>(null);
     
     const juliaFractalService = JuliaFractalService.getInstance();
@@ -39,7 +41,7 @@ const Draw = ({
     const updateAuthState =  React.useCallback(() => {
         setIsAuthenticated(() => securityService.isAuthenticated());
         setUser(() => securityService.getUser());
-    }, [isCheckingAuth]);
+    }, []);
     
     useEffect(() => {
         // Abonnement aux changements d'authentification
@@ -88,10 +90,15 @@ const Draw = ({
         setIsModalViewJuliaFractalOpen(false);
     }
 
+    const handleCloseNewJuliaFractalModal = () => {
+        setIsModalNewJuliaFractalOpen(false);
+    }
+
     const reloadAllJuliaFractals = async () => {
         setIsLoadingUserJuliaFractals(true);
         await juliaFractalService.initService();
         setUserJuliaFractals(juliaFractalService.getUserJuliaFractals());
+        setPublicJuliaFractals(juliaFractalService.getPublicJuliaFractals());
         setIsLoadingUserJuliaFractals(false);
     }
 
@@ -144,6 +151,14 @@ const Draw = ({
         setIsModalViewJuliaFractalOpen(true);
     }
 
+    const handleNewJuliaFractal = (juliaFractalParams : JuliaFractalParams) => {
+        //setIsModalNewJuliaFractalOpen(true);
+        console.log("new julia fractal: " + juliaFractalParams);
+        newJuliaFractalParamsRef.current = juliaFractalParams;
+        // ouvrir modale
+        setIsModalNewJuliaFractalOpen(true);
+    }
+
     const handleToggleIsJuliaFractalListPanelOpen = () => {
         setIsJuliaFractalListPanelOpen(!isJuliaFractalListPanelOpen);
     }
@@ -157,7 +172,10 @@ const Draw = ({
         <div className="react-card draw-page">
             <h2>Page de dessin</h2>
             <p>Bienvenue !</p>
-            <DrawZone selectedJuliaFractal={selectedJuliaFractal} />
+            <DrawZone 
+            selectedJuliaFractal={selectedJuliaFractal} 
+            handleNewJuliaFractal={handleNewJuliaFractal}
+            />
             { isLoadingPublicJuliaFractals && (
                 <p>Chargement des fractales...</p>
             )}
@@ -190,6 +208,14 @@ const Draw = ({
             isModalViewJuliaFractalOpen={isModalViewJuliaFractalOpen}
             handleCloseViewJuliaFractalModal={handleCloseViewJuliaFractalModal}
             juliaFractal={viewedJuliaFractal}
+            />
+        )}
+        { isModalNewJuliaFractalOpen && (
+            <NewJuliaFractalModal
+            isModalNewJuliaFractalOpen={isModalNewJuliaFractalOpen}
+            handleCloseNewJuliaFractalModal={handleCloseNewJuliaFractalModal}
+            newJuliaFractalParams={newJuliaFractalParamsRef?.current ? newJuliaFractalParamsRef.current : {seedReal: 0, seedImag: 0, maxIter: 0, limit: 0}}
+            reloadAllJuliaFractals={reloadAllJuliaFractals}
             />
         )}
         </>

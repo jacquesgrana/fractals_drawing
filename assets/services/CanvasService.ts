@@ -162,6 +162,7 @@ class CanvasService {
    * Méthode qui calcule et renvoie le tableau des couleurs calculées selon la fractale
    * @returns promise tableau contenant les couleurs calculées des pixels du canvas
    */
+  /*
   public async getTabToDraw(): Promise<Color[][]> {
     //this.cd.detectChanges();
     return new Promise<Color[][]>((resolve) => {
@@ -197,19 +198,17 @@ class CanvasService {
         //endTime = new Date(Date.now());
         //this.calcTimeObs$.next(endTime.getTime() - startTime.getTime());
 
-        /*
-        setTimeout(() => {
-            this.calcFractalProgressObs$.next(0);
-        }, 400);
-        */
+
         resolve(tabToDraw);
     });
 
   }
+*/
 
   /**
      * Calcule la fractale et remplit directement le buffer (sans Color[][])
      */
+    /*
     public async computeFractalToBuffer(): Promise<void> {
         return new Promise((resolve) => {
             const pix = new Pixel(0, 0);
@@ -249,6 +248,7 @@ class CanvasService {
             resolve();
         });
     }
+        */
 
     public async computeBufferWithWorker(juliaFractalToDraw: JuliaFractal, canvasWidth: number, canvasHeight: number): Promise<ImageData> {
         const sceneToDraw = new Scene(

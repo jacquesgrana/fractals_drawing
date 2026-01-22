@@ -11,13 +11,16 @@ import { JuliaFractal } from "../../model/JuliaFractal";
 import DrawFractalInfos from "./DrawFractalInfos";
 import ColorManagementSliders from "./ColorManagementSliders";
 import JuliaFractalManagementSliders from "./JuliaFractalManagementSliders";
+import { ComplexNb } from "../../model/ComplexNb";
+import { JuliaFractalParams } from "../../types/indexType";
 
 interface DrawZoneProps {
     selectedJuliaFractal: Nullable<JuliaFractal>;
+    handleNewJuliaFractal: (juliaFractalParams : JuliaFractalParams) => void
 }
 
 const DrawZone = (
-    { selectedJuliaFractal }: DrawZoneProps 
+    { selectedJuliaFractal, handleNewJuliaFractal }: DrawZoneProps 
 ) : React.ReactElement => {
     const [isDrawing, setIsDrawing] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
@@ -45,14 +48,9 @@ const DrawZone = (
     
     // REFS : Stockage mutable persistant sans re-render
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    //const contextRef = useRef<Nullable<CanvasRenderingContext2D>>(null);
-    //const bufferRef = useRef<Nullable<ImageData>>(null);
-    //const maxIRef = useRef(0);
-    //const maxJRef = useRef(0);
-
-    const canvasService = CanvasService.getInstance();
-
+    //const newJuliaFractalParamsRef = useRef<Nullable<JuliaFractalParams>>(null);
     
+    const canvasService = CanvasService.getInstance();
 
     // Initialisation unique
     useEffect(() => {
@@ -512,10 +510,22 @@ const DrawZone = (
         await drawCanvas();
     }
 
+    const handleCreateNewJuliaFractal = () => {
+        //canvasService.createNewJuliaFractal();
+        //await drawCanvas();
+        const juliaFractalParams: JuliaFractalParams = {
+            seedReal: fractalSeedReal,
+            seedImag: fractalSeedImag,
+            maxIter: fractalMaxIter,
+            limit: fractalLimit
+        }
+        //newJuliaFractalParamsRef.current = juliaFractalParams;
+        handleNewJuliaFractal(juliaFractalParams);
+    }
+
     return (
     <div className="draw-zone-container">
 
-        {/* Le canvas est TOUJOURS là, jamais de condition !isWaiting devant */}
         <canvas 
             ref={canvasRef} 
             className="draw-zone"
@@ -554,7 +564,8 @@ const DrawZone = (
             handleChangeJuliaFractalMaxIter={handleChangeJuliaFractalMaxIter}
             handleChangeJuliaFractalLimit={handleChangeJuliaFractalLimit}
             isJuliaFractalManagementPanelOpen={isJuliaFractalManagementPanelOpen}
-            HandleToggleIsJuliaFractalManagementPanelOpen={HandleToggleIsJuliaFractalManagementPanelOpen}   
+            HandleToggleIsJuliaFractalManagementPanelOpen={HandleToggleIsJuliaFractalManagementPanelOpen}
+            handleCreateNewJuliaFractal={handleCreateNewJuliaFractal}   
         />
 
         <ColorManagementSliders 

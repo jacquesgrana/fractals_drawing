@@ -233,4 +233,69 @@ class JuliaFractalController extends AbstractController
             ]
         ], 200);
     }
+
+    // /create-to-user
+
+    #[Route('/create-to-user', name: 'create_to_user', methods: ['POST'])]
+    public function createJuliaFractalToUser(
+        EntityManagerInterface $em, 
+        Request $request): Response
+    {
+        try {
+            $data = $request->toArray();
+
+            $user = $this->getUser();
+            $userFromDb = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
+            if (!$userFromDb) {
+                return $this->json([
+                    'message' => "Utilisateur non rencontré",
+                    'status' => 404,
+                    'data' => []
+                ], 404);
+            }
+
+            if($data['isPublic'] === null) {
+                $data['isPublic'] = false;
+            }
+
+            if($data['comment'] === null) {
+                $data['comment'] = "";
+            }
+
+            if($data['name'] === null || $data['name'] === "") {
+                return $this->json([
+                    'message' => "Nom de la fractale de julia vide",
+                    'status' => 400,
+                    'data' => []
+                ], 400);
+            }
+
+            $juliaFractal = new JuliaFractal();
+            $juliaFractal->setSeedReal($data['seedReal']);
+            $juliaFractal->setSeedImag($data['seedImag']);
+            $juliaFractal->setEscapeLimit($data['escapeLimit']);
+            $juliaFractal->setMaxIterations($data['maxIterations']);
+            $juliaFractal->setIsPublic($data['isPublic']);
+            $juliaFractal->setComment($data['comment']);
+            $juliaFractal->setName($data['name']);
+            $userFromDb->addJuliaFractal($juliaFractal);
+            $em->persist($juliaFractal);
+            $em->persist($userFromDb);
+            $em->flush();
+            return $this->json([
+                'message' => "Fractale de julia créée",
+                'status' => 200,
+                'data' => [
+                    'juliaFractal' => $juliaFractal->normalize()
+                ]
+            ], 200);
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+    }
 }

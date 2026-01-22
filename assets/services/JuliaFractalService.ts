@@ -122,6 +122,32 @@ class JuliaFractalService {
         
     }
 
+    public createJuliaFractal = async (juliaFractal: JuliaFractal): Promise<Response> => {
+        try {
+            const datas = {
+                "name": juliaFractal.getName(),
+                "comment": juliaFractal.getComment(),
+                "seedReal": juliaFractal.getSeed().getReal(),
+                "seedImag": juliaFractal.getSeed().getImag(),
+                "escapeLimit": juliaFractal.getLimit(),
+                "maxIterations": juliaFractal.getMaxIt(),
+                "isPublic": juliaFractal.getIsPublic()
+            }
+            const response = await fetch(UrlConfig.JULIA_FRACTAL_CREATE_TO_USER_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(datas)
+            });
+            return response;
+        }
+        catch (err) {
+            console.error(err);
+            return new Response("Erreur du serveur", { status: 500 });
+        }
+    }
+
     public deleteUserJuliaFractal = async (juliaFractal: JuliaFractal): Promise<Response> => {
         const data = {
             "juliaFractalId": juliaFractal.getId()
