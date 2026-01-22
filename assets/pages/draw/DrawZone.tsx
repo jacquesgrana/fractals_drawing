@@ -16,11 +16,16 @@ import { JuliaFractalParams } from "../../types/indexType";
 
 interface DrawZoneProps {
     selectedJuliaFractal: Nullable<JuliaFractal>;
-    handleNewJuliaFractal: (juliaFractalParams : JuliaFractalParams) => void
+    handleNewJuliaFractal: (juliaFractalParams : JuliaFractalParams) => void;
+    isAuthenticated: boolean;
 }
 
 const DrawZone = (
-    { selectedJuliaFractal, handleNewJuliaFractal }: DrawZoneProps 
+    { 
+        selectedJuliaFractal, 
+        handleNewJuliaFractal,
+        isAuthenticated 
+    }: DrawZoneProps 
 ) : React.ReactElement => {
     const [isDrawing, setIsDrawing] = useState(false);
     const [copySuccess, setCopySuccess] = useState(false);
@@ -170,7 +175,7 @@ const DrawZone = (
         requestAnimationFrame(async () => {
             try {
                 // 1. Calcul dans le thread séparé (Worker)
-                await canvasService.computeFractal();
+                await canvasService.computeFractalWithWorkers();
                 
                 // 2. Une fois fini, on peint le résultat
                 canvasService.drawBufferToCanvas();
@@ -565,7 +570,8 @@ const DrawZone = (
             handleChangeJuliaFractalLimit={handleChangeJuliaFractalLimit}
             isJuliaFractalManagementPanelOpen={isJuliaFractalManagementPanelOpen}
             HandleToggleIsJuliaFractalManagementPanelOpen={HandleToggleIsJuliaFractalManagementPanelOpen}
-            handleCreateNewJuliaFractal={handleCreateNewJuliaFractal}   
+            handleCreateNewJuliaFractal={handleCreateNewJuliaFractal} 
+            isAuthenticated={isAuthenticated}  
         />
 
         <ColorManagementSliders 

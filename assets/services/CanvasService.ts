@@ -10,6 +10,7 @@ import { Scene } from "../model/Scene";
 import { Nullable } from "../types/indexType";
 import * as Comlink from "comlink";
 import { JuliaFractalWorkerType } from "../workers/JuliaFractalWorker.worker";
+import { JuliaFractalMultiWorkerType } from "../workers/JuliaFractalMultiWorker.worker";
 
 const COLOR_FILL_SELECT: string = 'rgba(235, 125, 52, 0.38)';
 const COLOR_STROKE_SELECT: string = 'rgba(235, 125, 52, 0.8)';
@@ -26,6 +27,8 @@ const STEP_ZOOM_PERCENT_VALUE: number = 5.96;
 const DEFAULT_GRADIENT_START: number = 0;
 const DEFAULT_GRADIANT_END: number = 6;
 
+const NB_THREADS = 4;
+
 /**
  * Classe du service qui gère le canvas
  */
@@ -34,7 +37,7 @@ class CanvasService {
 
     //private worker: Nullable<Worker> = null;
     private workerApi: Comlink.Remote<JuliaFractalWorkerType> | null = null;
-
+    private workersApi: Comlink.Remote<JuliaFractalMultiWorkerType>[] = [];
     private juliaFractal!: JuliaFractal;
 
     //private mandelbrotFractal! : MandelbrotFractal;
@@ -51,13 +54,6 @@ class CanvasService {
     private context!: CanvasRenderingContext2D;
 
     private buffer!: ImageData;
-
-    /*
-    private real: number = 0;
-    private imag: number = 0;
-    private limit: number = 2;
-    private iterNb: number = 100;
-    */
 
     // TODO : passer en private avec getters et setters
 
@@ -79,8 +75,8 @@ class CanvasService {
     }
 
     private constructor() {
-        //const worker = new Worker(new URL('../workers/JuliaFractalWorker.worker.ts', import.meta.url));
-        //this.workerApi = Comlink.wrap<JuliaFractalWorkerType>(worker);
+
+        this.initWorkers();
 
         const worker = new Worker(
             new URL('../workers/JuliaFractalWorker.worker.ts', import.meta.url), 
@@ -91,11 +87,19 @@ class CanvasService {
 
         this.juliaFractal = new JuliaFractal(0, "Classique", "", new ComplexNb(true, -0.4, -0.59), 2, 150, true, "2026-01-13T15:53:59+00:00", "2026-01-13T15:55:01+00:00");
         //this.mandelbrotFractal = new MandelbrotFractal(1, "Mandelbrot", 2, 300);
+    }
 
-        //this.real = this.juliaFractal.getSeed().getReal();
-        //this.imag = this.juliaFractal.getSeed().getImag();
-        //this.limit = this.juliaFractal.getLimit();
-        //this.iterNb = this.juliaFractal.getMaxIt();
+    /**
+     * Initialise le pool de workers
+     */
+    private initWorkers() {
+        for (let i = 0; i < NB_THREADS; i++) {
+            const worker = new Worker(
+                new URL('../workers/JuliaFractalMultiWorker.worker.ts', import.meta.url), 
+                { type: 'module' }
+            );
+            this.workersApi.push(Comlink.wrap<JuliaFractalMultiWorkerType>(worker));
+        }
     }
 
     /**
@@ -250,6 +254,69 @@ class CanvasService {
     }
         */
 
+    /**
+     * Appelle les workers pour calculer la fractale en parallèle
+     */
+    public async computeFractalWithWorkers(): Promise<void> {
+        if (this.workersApi.length === 0) {
+            console.error("Workers non initialisés");
+            return;
+        }
+
+        try {
+            this.canvasCalculationTime = 0;
+            const startTime = performance.now();
+
+            // 1. Découpage du travail
+            const segmentHeight = Math.floor(this.canvasHeight / NB_THREADS);
+            
+            // Préparation des promesses
+            const promises: Promise<Uint8ClampedArray>[] = [];
+
+            // Sérialisation unique pour éviter de le refaire 4 fois
+            const sceneJson = this.currentScene.toJSON();
+            const juliaJson = this.juliaFractal.toJSON();
+
+            for (let k = 0; k < NB_THREADS; k++) {
+                const startY = k * segmentHeight;
+                // Le dernier worker prend le reste (si hauteur pas divisible par 4)
+                const endY = (k === NB_THREADS - 1) ? this.canvasHeight : startY + segmentHeight;
+
+                // On lance le calcul sur le worker k
+                promises.push(
+                    this.workersApi[k].computeJulia(
+                        this.canvasWidth,
+                        this.canvasHeight, // Hauteur Totale
+                        sceneJson,
+                        juliaJson,
+                        this.gradientStart,
+                        this.gradientEnd,
+                        COLOR_BACKGROUND,
+                        startY, // Début bande
+                        endY    // Fin bande
+                    )
+                );
+            }
+
+            // 2. Attente de tous les workers (Parallélisme réel ici)
+            const segments = await Promise.all(promises);
+
+            // 3. Reconstitution de l'image finale
+            // La méthode .set() est extrêmement rapide
+            let offset = 0;
+            for (const segment of segments) {
+                this.buffer.data.set(segment, offset);
+                offset += segment.length;
+            }
+
+            const endTime = performance.now();
+            this.canvasCalculationTime = endTime - startTime;
+            
+        } catch (error) {
+            console.error("Erreur lors du calcul multi-thread:", error);
+        }
+    }
+
     public async computeBufferWithWorker(juliaFractalToDraw: JuliaFractal, canvasWidth: number, canvasHeight: number): Promise<ImageData> {
         const sceneToDraw = new Scene(
             -1.5, 
@@ -282,7 +349,7 @@ class CanvasService {
     /**
      * Appelle le worker pour calculer la fractale
      */
-    public async computeFractal(): Promise<void> {
+    public async computeFractalWithWorker(): Promise<void> {
         if (!this.workerApi) {
             console.error("Worker non initialisé");
             return;

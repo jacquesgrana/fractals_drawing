@@ -175,6 +175,7 @@ const Draw = ({
             <DrawZone 
             selectedJuliaFractal={selectedJuliaFractal} 
             handleNewJuliaFractal={handleNewJuliaFractal}
+            isAuthenticated={isAuthenticated}
             />
             { isLoadingPublicJuliaFractals && (
                 <p>Chargement des fractales...</p>

@@ -13,6 +13,7 @@ interface JuliaFractalManagementSlidersProps {
     isJuliaFractalManagementPanelOpen: boolean;
     HandleToggleIsJuliaFractalManagementPanelOpen: () => void;
     handleCreateNewJuliaFractal: () => void;
+    isAuthenticated: boolean
 }
 const JuliaFractalManagementSliders = (
     { 
@@ -27,6 +28,7 @@ const JuliaFractalManagementSliders = (
         isJuliaFractalManagementPanelOpen,
         HandleToggleIsJuliaFractalManagementPanelOpen,
         handleCreateNewJuliaFractal,
+        isAuthenticated
      }: JuliaFractalManagementSlidersProps
 ) : React.ReactElement => {
     return (
@@ -105,14 +107,17 @@ const JuliaFractalManagementSliders = (
                     onChange={(e) => handleChangeJuliaFractalLimit(Number(e.target.value))} />
                 </Col>
             </Row>
-            <Row className="mb-0">
+            { isAuthenticated && (
+                <Row className="mb-0">
                 <Button 
                 variant="primary" 
                 className='btn btn-primary-small' 
                 title='Voir la fractale'
                 onClick={() => handleCreateNewJuliaFractal()}
                 >Créer</Button>
-            </Row>
+                </Row>
+            )}
+            
         </>)}
     </div>
     );

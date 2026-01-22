@@ -58,15 +58,15 @@ const JuliaFractalListElement: React.FC<JuliaFractalListElementProps> = ({
             <p className='text-small-black'>Création : <br/>{DateUtil.formatDate(juliaFractal.getCreatedAt())}</p>
             <p className='text-small-black'>Modification : <br/>{DateUtil.formatDate(juliaFractal.getUpdatedAt())}</p>
             <div className='d-flex gap-1'>
+                <Button 
+                variant="primary" 
+                className='btn btn-primary-small' 
+                title='Voir la fractale'
+                onClick={() => handleViewJuliaFractal(juliaFractal)}
+                >🔍
+                </Button>
                 { isAuthenticated && (
                     <>
-                        <Button 
-                        variant="primary" 
-                        className='btn btn-primary-small' 
-                        title='Voir la fractale'
-                        onClick={() => handleViewJuliaFractal(juliaFractal)}
-                        >🔍
-                        </Button>
                         <Button 
                         onClick={handleAddFractalToUserList} 
                         variant="primary" 
@@ -82,7 +82,6 @@ const JuliaFractalListElement: React.FC<JuliaFractalListElementProps> = ({
                 variant="primary" 
                 className='btn btn-primary-small' 
                 title='Dessiner la fractale' 
-                disabled={!isAuthenticated}
                 >↵
                 </Button>
             </div>
