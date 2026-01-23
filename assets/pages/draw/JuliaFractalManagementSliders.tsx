@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
+import JuliaFractalConfig from '../../config/JuliaFractalConfig';
 
 interface JuliaFractalManagementSlidersProps {
     fractalSeedReal: number;
@@ -15,6 +16,21 @@ interface JuliaFractalManagementSlidersProps {
     handleCreateNewJuliaFractal: () => void;
     isAuthenticated: boolean
 }
+
+/*
+const JULIA_FRACTAL_SEED_PARAMS_STEP: number = 0.001;
+const JULIA_FRACTAL_ITER_PARAMS_STEP: number = 1;
+
+const JULIA_FRACTAL_SEED_PARAMS_MIN: number = -2;
+const JULIA_FRACTAL_SEED_PARAMS_MAX: number = 2;
+
+const JULIA_FRACTAL_LIMIT_PARAMS_MIN: number = 0;
+const JULIA_FRACTAL_LIMIT_PARAMS_MAX: number = 6;
+
+const JULIA_FRACTAL_ITER_PARAMS_MIN: number = 10;
+const JULIA_FRACTAL_ITER_PARAMS_MAX: number = 1000;
+*/
+
 const JuliaFractalManagementSliders = (
     { 
         fractalSeedReal,
@@ -45,14 +61,14 @@ const JuliaFractalManagementSliders = (
                     <Form.Control 
                     className="fractal-values-input" 
                     type="number" 
-                    step={0.001} 
+                    step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                     value={fractalSeedReal} 
                     onChange={(e) => handleChangeJuliaFractalSeedReal(Number(e.target.value))} />
                     <Form.Range 
                     className="fractal-values-range" 
-                    min={-10} 
-                    max={10} 
-                    step={0.001} 
+                    min={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_MIN} 
+                    max={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_MAX} 
+                    step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                     value={fractalSeedReal} 
                     onChange={(e) => handleChangeJuliaFractalSeedReal(Number(e.target.value))} />
                 </Col>
@@ -61,14 +77,14 @@ const JuliaFractalManagementSliders = (
                     <Form.Control 
                     className="fractal-values-input" 
                     type="number" 
-                    step={0.001} 
+                    step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                     value={fractalSeedImag} 
                     onChange={(e) => handleChangeJuliaFractalSeedImag(Number(e.target.value))} />
                     <Form.Range 
                     className="fractal-values-range" 
-                    min={-10} 
-                    max={10} 
-                    step={0.001} 
+                    min={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_MIN} 
+                    max={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_MAX} 
+                    step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                     value={fractalSeedImag} 
                     onChange={(e) => handleChangeJuliaFractalSeedImag(Number(e.target.value))} />
                 </Col>
@@ -79,14 +95,14 @@ const JuliaFractalManagementSliders = (
                     <Form.Control 
                     className="fractal-values-input" 
                     type="number" 
-                    step={1} 
+                    step={JuliaFractalConfig.JULIA_FRACTAL_ITER_PARAMS_STEP} 
                     value={fractalMaxIter} 
                     onChange={(e) => handleChangeJuliaFractalMaxIter(Number(e.target.value))} />
                     <Form.Range 
                     className="fractal-values-range" 
-                    min={0} 
-                    max={1000} 
-                    step={1} 
+                    min={JuliaFractalConfig.JULIA_FRACTAL_ITER_PARAMS_MIN} 
+                    max={JuliaFractalConfig.JULIA_FRACTAL_ITER_PARAMS_MAX} 
+                    step={JuliaFractalConfig.JULIA_FRACTAL_ITER_PARAMS_STEP} 
                     value={fractalMaxIter} 
                     onChange={(e) => handleChangeJuliaFractalMaxIter(Number(e.target.value))} />
                 </Col>
@@ -95,14 +111,14 @@ const JuliaFractalManagementSliders = (
                     <Form.Control 
                     className="fractal-values-input" 
                     type="number" 
-                    step={0.001} 
+                    step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                     value={fractalLimit} 
                     onChange={(e) => handleChangeJuliaFractalLimit(Number(e.target.value))} />
                     <Form.Range 
                     className="fractal-values-range" 
-                    min={0} 
-                    max={10} 
-                    step={0.001} 
+                    min={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_MIN} 
+                    max={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_MAX} 
+                    step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                     value={fractalLimit} 
                     onChange={(e) => handleChangeJuliaFractalLimit(Number(e.target.value))} />
                 </Col>

@@ -238,7 +238,7 @@ const Draw = ({
             <EditJuliaFractalModal
             isModalEditJuliaFractalOpen={isModalEditJuliaFractalOpen}
             handleCloseEditJuliaFractalModal={handleCloseEditJuliaFractalModal}
-            juliaFractal={juliaFractalToEditRef.current}
+            juliaFractal={juliaFractalToEditRef.current?.clone() ? juliaFractalToEditRef.current.clone() : null}
             reloadAllJuliaFractals={reloadAllJuliaFractals}
             />
         )}

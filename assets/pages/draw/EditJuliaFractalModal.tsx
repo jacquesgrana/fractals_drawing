@@ -6,6 +6,7 @@ import CanvasService from "../../services/CanvasService";
 import JuliaFractalService from "../../services/JuliaFractalService";
 import DateUtil from "../../utils/DateUtil";
 import ToastFacade from "../../facade/ToastFacade";
+import JuliaFractalConfig from "../../config/JuliaFractalConfig";
 
 type EditJuliaFractalModalProps = {
     isModalEditJuliaFractalOpen: boolean;
@@ -13,6 +14,24 @@ type EditJuliaFractalModalProps = {
     juliaFractal: Nullable<JuliaFractal>;
     reloadAllJuliaFractals: () => Promise<void>;
 }
+
+const INPUT_CHANGE_DELAY_MS: number = 40;
+
+const CANVAS_WIDTH: number = 400;
+const CANVAS_HEIGHT: number = 400;
+
+/*
+const JULIA_FRACTAL_SEED_PARAMS_MIN: number = -2;
+const JULIA_FRACTAL_SEED_PARAMS_MAX: number = 2;
+const JULIA_FRACTAL_SEED_PARAMS_STEP: number = 0.001;
+
+const JULIA_FRACTAL_LIMIT_PARAMS_MIN: number = 0;
+const JULIA_FRACTAL_LIMIT_PARAMS_MAX: number = 6;
+
+const JULIA_FRACTAL_ITER_PARAMS_MIN: number = 10;
+const JULIA_FRACTAL_ITER_PARAMS_MAX: number = 1000;
+const JULIA_FRACTAL_ITER_PARAMS_STEP: number = 1;
+*/
 
 const EditJuliaFractalModal = (
     {
@@ -48,16 +67,35 @@ const EditJuliaFractalModal = (
         }
     }, [fractalName, fractalComment]);
 
-        React.useEffect(() => {
-            if (canvasRef.current !== null && juliaFractal) {
-                const fct = async () => {
-                    setIsDrawing(true);
-                    await drawCanvas();
-                    setIsDrawing(false);
-                }
-                fct();
-            }
-        }, [juliaFractal]);
+    React.useEffect(() => {
+        if (!juliaFractal || !canvasRef.current) return;
+
+        // A. On crée un timer pour ne pas dessiner à chaque micro-mouvement de souris
+        const timerId = setTimeout(async () => {
+            
+            // B. On met à jour l'objet REFERENT avec les valeurs du STATE
+            // C'est ici que la synchronisation se fait juste avant le dessin
+            juliaFractal.getSeed().setReal(fractalSeedReal);
+            juliaFractal.getSeed().setImag(fractalSeedImag);
+            juliaFractal.setLimit(fractalLimit);
+            juliaFractal.setMaxIt(fractalMaxIt);
+            
+            // C. On dessine
+            await drawCanvas();
+
+        }, INPUT_CHANGE_DELAY_MS); // 100ms de délai (ajuste selon la puissance de tes workers)
+
+        // D. Cleanup : Si l'utilisateur rebouge la souris avant les 100ms, on annule le dessin précédent
+        return () => clearTimeout(timerId);
+
+    }, [
+        // Liste exhaustive des dépendances qui doivent déclencher un redessin
+        fractalSeedReal, 
+        fractalSeedImag, 
+        fractalLimit, 
+        fractalMaxIt,
+        juliaFractal // Au cas où l'objet parent change complètement
+    ]);
 
 
     const drawCanvas = async () =>  {
@@ -110,30 +148,6 @@ const EditJuliaFractalModal = (
         }
     }
 
-    const handleChangeJuliaFractalSeedReal = async (value: number) => {
-        setFractalSeedReal(value);
-        juliaFractal!.getSeed().setReal(value);
-        await drawCanvas();
-    }
-
-    const handleChangeJuliaFractalSeedImag = async (value: number) => {
-        setFractalSeedImag(value);
-        juliaFractal!.getSeed().setImag(value);
-        await drawCanvas();
-    }
-
-    const handleChangeJuliaFractalLimit = async (value: number) => {
-        setFractalLimit(value);
-        juliaFractal!.setLimit(value);
-        await drawCanvas();
-    }
-
-    const handleChangeJuliaFractalMaxIter = async (value: number) => {
-        setFractalMaxIt(value);
-        juliaFractal!.setMaxIt(value);
-        await drawCanvas();
-    }
-
     return (
     <Modal
         size="lg"
@@ -150,8 +164,8 @@ const EditJuliaFractalModal = (
                     <canvas 
                     id="juliaFractalCanvas" 
                     ref={canvasRef}
-                    width={400} 
-                    height={400}
+                    width={CANVAS_WIDTH} 
+                    height={CANVAS_HEIGHT}
                     ></canvas>
                     <Form className="react-form w-100 d-flex flex-column align-items-start" onSubmit={handleSubmit}>
                         <Form.Group className="w-100 mb-3" controlId="formFractalName">
@@ -192,64 +206,64 @@ const EditJuliaFractalModal = (
                             <Form.Control 
                             className="fractal-values-input-dark" 
                             type="number" 
-                            step={0.001} 
+                            step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                             value={fractalSeedReal} 
-                            onChange={(e) => handleChangeJuliaFractalSeedReal(Number(e.target.value))} />
+                            onChange={(e) => setFractalSeedReal(Number(e.target.value))} />
                             <Form.Range 
                             className="fractal-values-range-dark" 
-                            min={-10} 
-                            max={10} 
-                            step={0.001} 
+                            min={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_MIN} 
+                            max={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_MAX} 
+                            step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                             value={fractalSeedReal} 
-                            onChange={(e) => handleChangeJuliaFractalSeedReal(Number(e.target.value))} />
+                            onChange={(e) => setFractalSeedReal(Number(e.target.value))} />
                         </Form.Group>
                         <Form.Group className="w-100 mb-3" controlId="formFractalSeedImag">
                             <Form.Label className="text-small-black">Seed Imag</Form.Label>
                             <Form.Control 
                             className="fractal-values-input-dark" 
                             type="number" 
-                            step={0.001} 
+                            step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                             value={fractalSeedImag} 
-                            onChange={(e) => handleChangeJuliaFractalSeedImag(Number(e.target.value))} />
+                            onChange={(e) => setFractalSeedImag(Number(e.target.value))} />
                             <Form.Range 
                             className="fractal-values-range-dark" 
-                            min={-10} 
-                            max={10} 
-                            step={0.001} 
+                            min={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_MIN} 
+                            max={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_MAX} 
+                            step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                             value={fractalSeedImag} 
-                            onChange={(e) => handleChangeJuliaFractalSeedImag(Number(e.target.value))} />
+                            onChange={(e) => setFractalSeedImag(Number(e.target.value))} />
                         </Form.Group>
                         <Form.Group className="w-100 mb-3" controlId="formFractalMaxIter">
                             <Form.Label className="text-small-black">Max Iter</Form.Label>
                             <Form.Control 
                             className="fractal-values-input-dark" 
                             type="number" 
-                            step={1} 
+                            step={JuliaFractalConfig.JULIA_FRACTAL_ITER_PARAMS_STEP} 
                             value={fractalMaxIt} 
-                            onChange={(e) => handleChangeJuliaFractalMaxIter(Number(e.target.value))} />
+                            onChange={(e) => setFractalMaxIt(Number(e.target.value))} />
                             <Form.Range 
                             className="fractal-values-range-dark" 
-                            min={1} 
-                            max={1000} 
-                            step={1} 
+                            min={JuliaFractalConfig.JULIA_FRACTAL_ITER_PARAMS_MIN} 
+                            max={JuliaFractalConfig.JULIA_FRACTAL_ITER_PARAMS_MAX} 
+                            step={JuliaFractalConfig.JULIA_FRACTAL_ITER_PARAMS_STEP} 
                             value={fractalMaxIt} 
-                            onChange={(e) => handleChangeJuliaFractalMaxIter(Number(e.target.value))} />
+                            onChange={(e) => setFractalMaxIt(Number(e.target.value))} />
                         </Form.Group>
                         <Form.Group className="w-100 mb-3" controlId="formFractalLimit">
                             <Form.Label className="text-small-black">Limit</Form.Label>
                             <Form.Control 
                             className="fractal-values-input-dark" 
                             type="number" 
-                            step={0.001} 
+                            step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                             value={fractalLimit} 
-                            onChange={(e) => handleChangeJuliaFractalLimit(Number(e.target.value))} />
+                            onChange={(e) => setFractalLimit(Number(e.target.value))} />
                             <Form.Range 
                             className="fractal-values-range-dark" 
-                            min={0} 
-                            max={10} 
-                            step={0.001} 
+                            min={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_MIN} 
+                            max={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_MAX} 
+                            step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
                             value={fractalLimit} 
-                            onChange={(e) => handleChangeJuliaFractalLimit(Number(e.target.value))} />
+                            onChange={(e) => setFractalLimit(Number(e.target.value))} />
                         </Form.Group>
                         <p className="text-small-black"><strong>Création :</strong> {juliaFractal ? DateUtil.formatDate(juliaFractal.getCreatedAt()) : ''}</p>
                         <p className="text-small-black"><strong>Modification :</strong> {juliaFractal ? DateUtil.formatDate(juliaFractal.getUpdatedAt()) : ''}</p>
