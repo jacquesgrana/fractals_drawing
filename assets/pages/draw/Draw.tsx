@@ -9,6 +9,8 @@ import JuliaFractalUserList from './JuilaFractalUserList';
 import ToastFacade from '../../facade/ToastFacade';
 import ViewJuliaFractalModal from './ViewJuliaFractalModal';
 import NewJuliaFractalModal from './NewJuliaFractalModal';
+import EditJuliaFractalModal from './EditJuliaFractalModal';
+import { ComplexNb } from '../../model/ComplexNb';
 
 type DrawProps = {
     isCheckingAuth: boolean;
@@ -30,10 +32,12 @@ const Draw = ({
     const [isJuliaFractalUserListPanelOpen, setIsJuliaFractalUserListPanelOpen] = React.useState<boolean>(false);
     const [isModalViewJuliaFractalOpen, setIsModalViewJuliaFractalOpen] = React.useState(false);
     const [isModalNewJuliaFractalOpen, setIsModalNewJuliaFractalOpen] = React.useState(false);
+    const [isModalEditJuliaFractalOpen, setIsModalEditJuliaFractalOpen] = React.useState(false);
     
     const newJuliaFractalParamsRef = React.useRef<Nullable<JuliaFractalParams>>(null);
     const unsubscribeRef = React.useRef<Nullable<() => void>>(null);
-    
+    const juliaFractalToEditRef = React.useRef<Nullable<JuliaFractal>>(null);
+
     const juliaFractalService = JuliaFractalService.getInstance();
     //const canvasService = CanvasService.getInstance();
     const securityService = SecurityService.getInstance();
@@ -92,6 +96,10 @@ const Draw = ({
 
     const handleCloseNewJuliaFractalModal = () => {
         setIsModalNewJuliaFractalOpen(false);
+    }
+
+    const handleCloseEditJuliaFractalModal = () => {
+        setIsModalEditJuliaFractalOpen(false);
     }
 
     const reloadAllJuliaFractals = async () => {
@@ -159,6 +167,12 @@ const Draw = ({
         setIsModalNewJuliaFractalOpen(true);
     }
 
+    const handleEditJuliaFractal = (juliaFractal: JuliaFractal) => {
+        //console.log("edit julia fractal named: " + juliaFractal.getName());
+        juliaFractalToEditRef.current = juliaFractal;
+        setIsModalEditJuliaFractalOpen(true);
+    }
+
     const handleToggleIsJuliaFractalListPanelOpen = () => {
         setIsJuliaFractalListPanelOpen(!isJuliaFractalListPanelOpen);
     }
@@ -200,6 +214,7 @@ const Draw = ({
                 isAuthenticated={isAuthenticated}
                 handleDeleteJuliaFractal={handleDeleteJuliaFractal}
                 handleViewJuliaFractal={handleViewJuliaFractal}
+                handleEditJuliaFractal={handleEditJuliaFractal}
                 />
             )}
             
@@ -216,6 +231,14 @@ const Draw = ({
             isModalNewJuliaFractalOpen={isModalNewJuliaFractalOpen}
             handleCloseNewJuliaFractalModal={handleCloseNewJuliaFractalModal}
             newJuliaFractalParams={newJuliaFractalParamsRef?.current ? newJuliaFractalParamsRef.current : {seedReal: 0, seedImag: 0, maxIter: 0, limit: 0}}
+            reloadAllJuliaFractals={reloadAllJuliaFractals}
+            />
+        )}
+        { isModalEditJuliaFractalOpen && (
+            <EditJuliaFractalModal
+            isModalEditJuliaFractalOpen={isModalEditJuliaFractalOpen}
+            handleCloseEditJuliaFractalModal={handleCloseEditJuliaFractalModal}
+            juliaFractal={juliaFractalToEditRef.current}
             reloadAllJuliaFractals={reloadAllJuliaFractals}
             />
         )}

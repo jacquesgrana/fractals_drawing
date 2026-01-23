@@ -159,7 +159,79 @@ class JuliaFractalController extends AbstractController
         ], 200);
     }
 
-    // /delete-from-user
+    // /api/julia-fractal/update-to-user
+
+    #[Route('/update-to-user', name: 'update_to_user', methods: ['PUT'])]
+    public function updateJuliaFractalToUser(
+        EntityManagerInterface $em,
+        Request $request
+    ) {
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        $user = $this->getUser();
+        $userFromDb = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
+        if (!$userFromDb) {
+            return $this->json([
+                'message' => "Utilisateur non rencontré",
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+        $juliaFractal = $em->getRepository(JuliaFractal::class)->findOneBy(['id' => $data['juliaFractalId']]);
+        if (!$juliaFractal) {
+            return $this->json([
+                'message' => "Fractale de julia non rencontrée",
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+
+        if (!$userFromDb->getJuliaFractals()->contains($juliaFractal)) {
+            return $this->json([
+                'message' => "Fractale de julia non rencontrée",
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+
+        $juliaFractal->setName($data['name']);
+        $juliaFractal->setSeedReal($data['seedReal']);
+        $juliaFractal->setSeedImag($data['seedImag']);
+        $juliaFractal->setEscapeLimit($data['escapeLimit']);
+        $juliaFractal->setMaxIterations($data['maxIterations']);
+        $juliaFractal->setIsPublic($data['isPublic']);
+        $juliaFractal->setComment($data['comment']);
+
+        $em->persist($juliaFractal);
+        //$em->persist($userFromDb);
+        $em->flush();
+
+        return $this->json([
+            'message' => "Fractale modifiée",
+            'status' => 200,
+            'data' => [
+                'juliaFractal' => [
+                    'id' => $juliaFractal->getId(),
+                    'name' => $juliaFractal->getName(),
+                    'seedReal' => $juliaFractal->getSeedReal(),
+                    'seedImag' => $juliaFractal->getSeedImag(),
+                    'escapeLimit' => $juliaFractal->getEscapeLimit(),
+                    'maxIterations' => $juliaFractal->getMaxIterations(),
+                    'isPublic' => $juliaFractal->isPublic(),
+                    'comment' => $juliaFractal->getComment(),
+                ]
+            ]
+        ], 200);    
+    }
 
     #[Route('/delete-from-user', name: 'delete_from_user', methods: ['DELETE'])]
     public function deleteJuliaFractalFromUser(

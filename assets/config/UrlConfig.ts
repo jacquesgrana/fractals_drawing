@@ -23,6 +23,7 @@ class UrlConfig {
     public static JULIA_FRACTAL_ADD_TO_USER_URL = '/api/julia-fractal/add-to-user';
     public static JULIA_FRACTAL_DELETE_FROM_USER_URL = '/api/julia-fractal/delete-from-user';
     public static JULIA_FRACTAL_CREATE_TO_USER_URL = '/api/julia-fractal/create-to-user';
-}   
+    public static JULIA_FRACTAL_UPDATE_TO_USER_URL = '/api/julia-fractal/update-to-user';
+}
 
 export default UrlConfig;

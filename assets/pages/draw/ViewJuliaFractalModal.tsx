@@ -69,9 +69,9 @@ const ViewJuliaFractalModal = (
                     {juliaFractal?.getUser() && (
                         <p className="text-medium-black"><strong>Pseudo :</strong> {juliaFractal?.getUser()?.pseudo}</p>
                     )}
-                    <p className="text-medium-black"><strong>Seed :</strong> {juliaFractal?.getSeed().getReal()} + {juliaFractal?.getSeed().getImag()}i</p><p className="text-medium-black"><strong>Max Itérations :</strong> {juliaFractal?.getMaxIt()}</p>
+                    <p className="text-medium-black"><strong>Seed :</strong> {juliaFractal?.getSeed().getReal()} + {juliaFractal?.getSeed().getImag()}i</p>
+                    <p className="text-medium-black"><strong>Max Itérations :</strong> {juliaFractal?.getMaxIt()}</p>
                     <p className="text-medium-black"><strong>Limit :</strong> {juliaFractal?.getLimit()}</p>
-                    <p className="text-medium-black"><strong>Max iter. :</strong> {juliaFractal?.getMaxIt()}</p>
                     <p className="text-small-black"><strong>Création :</strong> {juliaFractal ? DateUtil.formatDate(juliaFractal.getCreatedAt()) : ''}</p>
                     <p className="text-small-black"><strong>Modification :</strong> {juliaFractal ? DateUtil.formatDate(juliaFractal.getUpdatedAt()) : ''}</p>
                 </div>

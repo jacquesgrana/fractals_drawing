@@ -50,68 +50,9 @@
             gap: $space-base;
             //height: 60px;
 
-            .fractal-values-input {
-                background-color: $very-light-bg;
-                color: $dark-text;
-                border: none;
-            }
+            
 
-            .fractal-values-range {
-                margin-top: $margin-very-small;
-                display: flex;
-                flex-direction: row;
-                justify-content: center;
-                align-items: center;
-                //gap: $space-base;
-
-                &::-webkit-slider-runnable-track {
-                    width: 100%;
-                    height: $margin-small;
-                    background: $medium-bg;
-                    border-radius: $radius-base;
-                    border: 1px solid $medium-bg;
-                }
-
-
-                &::-moz-range-track {
-                    width: 100%;
-                    height: $margin-small;
-                    background: $medium-bg;
-                    border-radius: $radius-base;
-                    border: 1px solid $medium-bg;
-                }
-
-                // ⭐ Thumb Webkit
-                &::-webkit-slider-thumb {
-                    -webkit-appearance: none;
-                    appearance: none;
-                    width: 20px;
-                    height: 20px;
-                    border-radius: 50%;
-                    background: $dark-bg;
-                    cursor: pointer;
-                    //border: 2px solid $dark-bg;
-                    margin-top: -6px; // Centre le thumb sur le track
-                    
-                    &:hover {
-                        background: lighten($light-bg, 5%);
-                    }
-                }
-
-                // ⭐ Thumb Firefox (séparé du webkit)
-                &::-moz-range-thumb {
-                    width: 20px;
-                    height: 20px;
-                    border-radius: 50%;
-                    background: $dark-bg;
-                    cursor: pointer;
-                    //border: 2px solid $dark-bg;
-                    
-                    &:hover {
-                        background: lighten($light-bg, 5%);
-                    }
-                }
-            }
+            
         }
 
         .react-colors-management-container {
@@ -281,6 +222,132 @@
     }
 
     
+}
+
+.fractal-values-input {
+    background-color: $very-light-bg;
+    color: $dark-text;
+    border: none;
+}
+
+.fractal-values-input-dark {
+    background-color: $light-bg;
+    color: $dark-text;
+    border: 1px solid $dark-bg;
+}
+
+.fractal-values-range {
+    margin-top: $margin-very-small;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    //gap: $space-base;
+
+    &::-webkit-slider-runnable-track {
+        width: 100%;
+        height: $margin-small;
+        background: $medium-bg;
+        border-radius: $radius-base;
+        border: 1px solid $medium-bg;
+    }
+
+
+    &::-moz-range-track {
+        width: 100%;
+        height: $margin-small;
+        background: $medium-bg;
+        border-radius: $radius-base;
+        border: 1px solid $medium-bg;
+    }
+
+    // ⭐ Thumb Webkit
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: $dark-bg;
+        cursor: pointer;
+        //border: 2px solid $dark-bg;
+        margin-top: -6px; // Centre le thumb sur le track
+        
+        &:hover {
+            background: lighten($light-bg, 5%);
+        }
+    }
+
+    // ⭐ Thumb Firefox (séparé du webkit)
+    &::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: $dark-bg;
+        cursor: pointer;
+        //border: 2px solid $dark-bg;
+        
+        &:hover {
+            background: lighten($light-bg, 5%);
+        }
+    }
+}
+
+.fractal-values-range-dark {
+    margin-top: $margin-very-small;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    //gap: $space-base;
+
+    &::-webkit-slider-runnable-track {
+        width: 100%;
+        height: $margin-small;
+        background: $dark-bg;
+        border-radius: $radius-base;
+        border: 1px solid $medium-bg;
+    }
+
+
+    &::-moz-range-track {
+        width: 100%;
+        height: $margin-small;
+        background: $dark-bg;
+        border-radius: $radius-base;
+        border: 1px solid $medium-bg;
+    }
+
+    // ⭐ Thumb Webkit
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: $very-dark-bg;
+        cursor: pointer;
+        //border: 2px solid $dark-bg;
+        margin-top: -6px; // Centre le thumb sur le track
+        
+        &:hover {
+            background: lighten($light-bg, 5%);
+        }
+    }
+
+    // ⭐ Thumb Firefox (séparé du webkit)
+    &::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: $very-dark-bg;
+        cursor: pointer;
+        //border: 2px solid $dark-bg;
+        
+        &:hover {
+            background: lighten($very-dark-bg, 10%);
+        }
+    }
 }
 
 #juliaFractalCanvas {

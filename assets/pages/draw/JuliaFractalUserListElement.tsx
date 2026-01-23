@@ -7,7 +7,8 @@ interface JuliaFractalUserListElementProps {
     juliaFractal: JuliaFractal;
     setCurrentJuliaFractal: (fractal: JuliaFractal) => void;
     handleDeleteJuliaFractal: (fractal: JuliaFractal) => void;
-    handleViewJuliaFractal: (juliaFractal: JuliaFractal) => void
+    handleViewJuliaFractal: (juliaFractal: JuliaFractal) => void;
+    handleEditJuliaFractal: (juliaFractal: JuliaFractal) => void;
     //isAuthenticated: boolean
 }
 
@@ -16,7 +17,8 @@ const JuliaFractalUserListElement: React.FC<JuliaFractalUserListElementProps> = 
     juliaFractal, 
     setCurrentJuliaFractal,
     handleDeleteJuliaFractal,
-    handleViewJuliaFractal
+    handleViewJuliaFractal,
+    handleEditJuliaFractal
     //isAuthenticated
  }) => {
     //console.log("juliaFractal", juliaFractal);
@@ -32,6 +34,13 @@ const JuliaFractalUserListElement: React.FC<JuliaFractalUserListElementProps> = 
                 title='Voir la fractale'
                 onClick={() => handleViewJuliaFractal(juliaFractal)}
                 >🔍
+                </Button>
+                <Button 
+                variant="primary" 
+                className='btn btn-primary-small' 
+                title='Modifier la fractale'
+                onClick={() => handleEditJuliaFractal(juliaFractal)}
+                >✎
                 </Button>
                 <Button 
                 variant="primary" 

@@ -64,7 +64,7 @@ security:
         - { path: /api/julia-fractal/add-to-user, roles: ROLE_USER }
         - { path: /api/julia-fractal/delete-from-user, roles: ROLE_USER }
         - { path: /api/julia-fractal/create-to-user, roles: ROLE_USER }
-
+        - { path: /api/julia-fractal/update-to-user, roles: ROLE_USER }
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
 

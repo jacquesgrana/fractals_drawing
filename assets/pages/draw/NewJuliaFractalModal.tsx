@@ -42,29 +42,28 @@ const NewJuliaFractalModal = ({
     }, [fractalName, fractalComment]);
 
     React.useEffect(() => {
-            if (canvasRef.current !== null && newJuliaFractalParams) {
-                const fct = async () => {
-                    if (canvasRef.current === null) return;
-                    setIsDrawing(true);
-                    newJuliaFractalRef.current = new JuliaFractal(-1,
-                        "Nouvelle Fractale", "Commentaire à écrire", new ComplexNb(true, newJuliaFractalParams.seedReal, newJuliaFractalParams.seedImag), newJuliaFractalParams.limit, newJuliaFractalParams.maxIter, false,
-                        "", ""
-                    );
-                    await draw();
-                    setIsDrawing(false);
-                }
-                fct();
+        if (canvasRef.current !== null && newJuliaFractalParams) {
+            const fct = async () => {
+                if (canvasRef.current === null) return;
+                setIsDrawing(true);
+                newJuliaFractalRef.current = new JuliaFractal(-1,
+                    "Nouvelle Fractale", "Commentaire à écrire", new ComplexNb(true, newJuliaFractalParams.seedReal, newJuliaFractalParams.seedImag), newJuliaFractalParams.limit, newJuliaFractalParams.maxIter, false,
+                    "", ""
+                );
+                await draw();
+                setIsDrawing(false);
             }
-        }, [newJuliaFractalParams]);
+            fct();
+        }
+    }, [newJuliaFractalParams]);
 
-        const draw = async () =>  {
+    const draw = async () =>  {
         if(canvasRef.current === null) return;
         const ctx = canvasRef.current.getContext("2d");
         if (!ctx) return;
         if (!newJuliaFractalRef.current) return;
         let buffer: ImageData = await canvasService.computeBufferWithWorker(newJuliaFractalRef.current, canvasRef.current.width, canvasRef.current.height);
         ctx.putImageData(buffer, 0, 0);
-
     }
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {

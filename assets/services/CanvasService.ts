@@ -27,7 +27,7 @@ const STEP_ZOOM_PERCENT_VALUE: number = 5.96;
 const DEFAULT_GRADIENT_START: number = 0;
 const DEFAULT_GRADIANT_END: number = 6;
 
-const NB_THREADS = 4;
+const NB_THREADS = 8;
 
 /**
  * Classe du service qui gère le canvas

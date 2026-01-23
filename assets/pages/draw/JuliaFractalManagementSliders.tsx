@@ -112,7 +112,7 @@ const JuliaFractalManagementSliders = (
                 <Button 
                 variant="primary" 
                 className='btn btn-primary-small' 
-                title='Voir la fractale'
+                title='Créer une nouvelle fractale'
                 onClick={() => handleCreateNewJuliaFractal()}
                 >Créer</Button>
                 </Row>
