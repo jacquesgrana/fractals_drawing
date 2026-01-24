@@ -18,14 +18,20 @@
 
 .btn-primary {
     background-color: $primary-color !important;
-    color: white;
+    color: $white-color;
     height: 40px;
     
 }
 
+.btn-danger {
+    background-color: $danger-color !important;
+    color: $white-color;
+    height: 40px;
+}
+
 .btn-small-primary {
     background-color: $primary-color !important;
-    color: white;
+    color: $white-color;
     //height: 40px;
     max-width: 60px !important;
     min-width: 60px !important;

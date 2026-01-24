@@ -15,6 +15,7 @@ class UrlConfig {
     public static VERIFY_EMAIL_CODE_URL = '/api/user/verify-email-code';
     public static VERIFY_EMAIL_CODE_FOR_PASSWORD_URL = '/api/user/verify-code-for-password';
     public static UPDATE_USER_FORGOT_PASSWORD_URL = '/api/user/patch-forgot-password';
+    public static DELETE_USER_ACCOUNT_URL = '/api/user/delete-account';
 
     public static JULIA_FRACTAL_GET_ALL_URL = '/api/julia-fractal/get-all';
     public static JULIA_FRACTAL_GET_WITHOUT_USER_URL = '/api/julia-fractal/get-without-user';

@@ -10,6 +10,7 @@ import { Button } from 'react-bootstrap';
 import EditUserParamsModal from './EditUserParamsModal';
 import EditUserEmailModal from './EditUserEmailModal';
 import EditUserPasswordModal from './EditUserPasswordModal';
+import DeleteAccountModal from './DeleteAccountModal';
 
 
 const Account = (): React.ReactElement => {
@@ -17,6 +18,7 @@ const Account = (): React.ReactElement => {
     const [isModalEditParamsOpen, setIsModalEditParamsOpen] = useState(false);
     const [isModalEditEmailOpen, setIsModalEditEmailOpen] = useState(false);
     const [isModalEditPasswordOpen, setIsModalEditPasswordOpen] = useState(false);
+    const [isModalDeleteAccountOpen, setIsModalDeleteAccountOpen] = useState(false);
 
     const securityService = SecurityService.getInstance();
     const navigate = useNavigate();  
@@ -49,23 +51,22 @@ const Account = (): React.ReactElement => {
 
     const handleEditParams = (e: React.MouseEvent) => {
         e.preventDefault();
-        //navigate('/account/edit');
-        //console.log('Edit infos');
         setIsModalEditParamsOpen(true);
     };
 
     const handleEditEmail = (e: React.MouseEvent) => {
         e.preventDefault();
-        //navigate('/account/edit-email');
-        //console.log('Edit email');
         setIsModalEditEmailOpen(true);
     };
 
     const handleEditPassword = (e: React.MouseEvent) => {
         e.preventDefault();
-        //navigate('/account/edit-password');
-        //console.log('Edit password');
         setIsModalEditPasswordOpen(true);
+    };
+
+    const handleDeleteAccount = (e: React.MouseEvent) => {
+        e.preventDefault();
+        setIsModalDeleteAccountOpen(true);
     };
 
     const handleCloseEditParamsModal = useCallback(() => {
@@ -78,6 +79,10 @@ const Account = (): React.ReactElement => {
 
     const handleCloseEditPasswordModal = useCallback(() => {
         setIsModalEditPasswordOpen(false);
+    }, []);
+
+    const handleCloseDeleteAccountModal = useCallback(() => {
+        setIsModalDeleteAccountOpen(false);
     }, []);
 
     return (
@@ -104,6 +109,7 @@ const Account = (): React.ReactElement => {
                 <Button type="button" onClick={handleEditParams} className="btn btn-primary w-100">Modifier les infos</Button>
                 <Button type="button" onClick={handleEditEmail} className="btn btn-primary w-100">Modifier l'email</Button>
                 <Button type="button" onClick={handleEditPassword} className="btn btn-primary w-100">Modifier le mot de passe</Button>
+                <Button type="button" onClick={handleDeleteAccount} className="btn btn-danger w-100">Supprimer le compte</Button>
             </div>
         </div>
         {user && isModalEditParamsOpen && (
@@ -128,6 +134,14 @@ const Account = (): React.ReactElement => {
                 handleCloseEditUserPasswordModal={handleCloseEditPasswordModal}
                 //user={user}
                 loadUser={loadUser}
+            />
+        )}
+        { user && isModalDeleteAccountOpen && (
+            <DeleteAccountModal 
+                isModalDeleteAccountOpen={isModalDeleteAccountOpen}
+                handleCloseDeleteAccountModal={handleCloseDeleteAccountModal}
+                user={user}
+                //loadUser={loadUser}
             />
         )}
         </>

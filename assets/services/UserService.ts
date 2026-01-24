@@ -202,6 +202,23 @@ class UserService {
             return null;
         }
     }
+
+    public deleteAccount = async (userData: any): Promise<Nullable<Response>> => {
+        try {
+            const response = await fetch(UrlConfig.DELETE_USER_ACCOUNT_URL, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            });
+            return response;
+        } 
+        catch (err) {
+            console.error(err);
+            return null;
+        }
+    } 
 }
 
 export default UserService;

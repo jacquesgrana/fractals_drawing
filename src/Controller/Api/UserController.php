@@ -4,6 +4,7 @@ namespace App\Controller\Api;
 
 use App\Entity\User;
 use App\Entity\EmailVerificationCode;
+use App\Entity\JuliaFractal;
 use App\Repository\UserRepository;
 use App\Repository\VerificationTokenRepository;
 use App\Service\AccountService;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 #[Route('/api/user', name: 'api_user_')]
 class UserController extends AbstractController
@@ -451,6 +453,83 @@ class UserController extends AbstractController
                 'createdAt' => $userFromBd->getCreatedAt()->format('Y-m-d H:i:s'), 
                 'updatedAt' => $userFromBd->getUpdatedAt()->format('Y-m-d H:i:s'),
             ]
+        ], 201);
+    }
+
+    #[Route('/delete-account', name: 'delete_account', methods: ['DELETE'])]
+    public function deleteUserAccount(
+        EntityManagerInterface $em, 
+        Request $request,
+        UserPasswordHasherInterface $passwordHasher,
+        TokenStorageInterface $tokenStorage
+    ) {
+        /** @var User $user */
+        $user = $this->getUser();
+        if (!$user) {
+        return $this->json([
+            'message' => 'Non autorisé',
+            'status' => 404,
+            'data' => []
+            ], 401);
+        }
+
+        $userFromBd = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
+        if(!$userFromBd) {
+            $request->getSession()->invalidate();
+            $tokenStorage->setToken(null);
+            return $this->json([
+                'message' => 'Utilisateur non rencontré',
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+
+        try {
+            $data = $request->toArray();
+        } 
+        catch (\Exception $e) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        if(empty($data['password'])) {
+            return $this->json([
+                'message' => 'Données manquantes',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
+        if(!password_verify($data['password'], $userFromBd->getPassword())) {
+            return $this->json([
+                'message' => 'Mot de passe incorrect',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+        // supprimer les fractales de l'utilisateur
+        $fractals = $em->getRepository(JuliaFractal::class)->findBy(['user' => $userFromBd]);
+        foreach($fractals as $fractal) {
+            $userFromBd->removeJuliaFractal($fractal);
+            $em->remove($fractal);
+        }
+        $em->remove($userFromBd);
+        $em->flush();
+
+        // logout ???
+        // On vide le token de sécurité actuel pour le reste de la requête
+        $tokenStorage->setToken(null);
+        
+        // On invalide la session PHP (détruit le fichier de session côté serveur)
+        $request->getSession()->invalidate();
+
+        return $this->json([
+            'message' => "Compte supprimé",
+            'status' => 201,
+            'data' => []
         ], 201);
     }
 
