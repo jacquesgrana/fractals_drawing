@@ -1,7 +1,7 @@
 /* assets/styles/components/_buttons.scss */
 .btn {
     display: block;
-    padding: 10px 20px;
+    padding: 10px 10px;
     border-radius: 4px;
     text-decoration: none;
     cursor: pointer;
@@ -30,11 +30,11 @@
 }
 
 .btn-small-primary {
-    background-color: $primary-color !important;
+    background-color: $primary-color;
     color: $white-color;
     //height: 40px;
-    max-width: 60px !important;
-    min-width: 60px !important;
-    width: 60px !important;
+    width: 65px !important;
+    min-width: 65px !important;
+    max-width: 65px !important;
     //font-size: small;
 }

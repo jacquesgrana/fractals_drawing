@@ -4,6 +4,7 @@ import { Button } from 'react-bootstrap';
 import DateUtil from '../../utils/DateUtil';
 import JuliaFractalService from '../../services/JuliaFractalService';
 import ToastFacade from '../../facade/ToastFacade';
+import CanvasService from '../../services/CanvasService';
 
 interface JuliaFractalListElementProps {
     juliaFractal: JuliaFractal;
@@ -23,7 +24,23 @@ const JuliaFractalListElement: React.FC<JuliaFractalListElementProps> = ({
  }) => {
 
     const juliaFractalService = JuliaFractalService.getInstance();
+    const canvasService = CanvasService.getInstance();
+    const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
+    React.useEffect(() => {
+        if (canvasRef.current !== null && juliaFractal) {
+            drawCanvas();
+        }
+    }, [juliaFractal]);
+
+    const drawCanvas = async () =>  {
+        if(canvasRef.current === null) return;
+        const ctx = canvasRef.current.getContext("2d");
+        if (!ctx) return;
+        if (!juliaFractal) return;
+        let buffer: ImageData = await canvasService.computeBufferWithWorker(juliaFractal, canvasRef.current.width, canvasRef.current.height);
+        ctx.putImageData(buffer, 0, 0);
+    }
     const handleAddFractalToUserList = async () => {
         //console.log('Ajouter la fractale ' + juliaFractal.getName() + ' dans la liste des fractales de l\'utilisateur');
         const response = await juliaFractalService.addJuliaFractalToUserList(juliaFractal);
@@ -54,22 +71,22 @@ const JuliaFractalListElement: React.FC<JuliaFractalListElementProps> = ({
     //console.log('jusliaFractal', juliaFractal);
     return (
         <div className='react-fractal-list-element'>
+            <canvas ref={canvasRef} width={160} height={160}></canvas>
             <p className='text-small-black'><strong>{juliaFractal.getName()}</strong></p>
-            <p className='text-small-black'>Création : <br/>{DateUtil.formatDate(juliaFractal.getCreatedAt())}</p>
-            <p className='text-small-black'>Modification : <br/>{DateUtil.formatDate(juliaFractal.getUpdatedAt())}</p>
-            <div className='d-flex gap-1'>
+            
+            <div className='d-flex gap-1 w-auto'>
                 <Button 
-                variant="primary" 
+                type='button'
                 className='btn btn-primary-small' 
                 title='Voir la fractale'
                 onClick={() => handleViewJuliaFractal(juliaFractal)}
-                >🔍
+                >👁
                 </Button>
                 { isAuthenticated && (
                     <>
                         <Button 
+                        type='button'
                         onClick={handleAddFractalToUserList} 
-                        variant="primary" 
                         className='btn btn-primary-small' 
                         title="Ajouter dans les fractales de l'utilisateur"
                         >+
@@ -78,8 +95,8 @@ const JuliaFractalListElement: React.FC<JuliaFractalListElementProps> = ({
                 ) }
 
                 <Button 
+                type='button'
                 onClick={() => setCurrentJuliaFractal(juliaFractal)}
-                variant="primary" 
                 className='btn btn-primary-small' 
                 title='Dessiner la fractale' 
                 >↵

@@ -2,6 +2,7 @@ import React from 'react';
 import { JuliaFractal } from '../../model/JuliaFractal';
 import { Button } from 'react-bootstrap';
 import DateUtil from '../../utils/DateUtil';
+import CanvasService from '../../services/CanvasService';
 
 interface JuliaFractalUserListElementProps {
     juliaFractal: JuliaFractal;
@@ -22,36 +23,52 @@ const JuliaFractalUserListElement: React.FC<JuliaFractalUserListElementProps> = 
     //isAuthenticated
  }) => {
     //console.log("juliaFractal", juliaFractal);
+    const canvasService = CanvasService.getInstance();
+    const canvasRef = React.useRef<HTMLCanvasElement>(null);
+
+    React.useEffect(() => {
+            if (canvasRef.current !== null && juliaFractal) {
+                drawCanvas();
+            }
+        }, [juliaFractal]);
+    
+        const drawCanvas = async () =>  {
+            if(canvasRef.current === null) return;
+            const ctx = canvasRef.current.getContext("2d");
+            if (!ctx) return;
+            if (!juliaFractal) return;
+            let buffer: ImageData = await canvasService.computeBufferWithWorker(juliaFractal, canvasRef.current.width, canvasRef.current.height);
+            ctx.putImageData(buffer, 0, 0);
+        }
+
     return (
         <div className='react-fractal-list-element'>
+            <canvas ref={canvasRef} width={160} height={160}></canvas>
             <p className='text-small-black'><strong>{juliaFractal.getName()}</strong></p>
-            <p className='text-small-black'>Création : <br/>{DateUtil.formatDate(juliaFractal.getCreatedAt())}</p>
-            <p className='text-small-black'>Modification : <br/>{DateUtil.formatDate(juliaFractal.getUpdatedAt())}</p>
-            <div className='d-flex gap-1 w-auto'> 
+            <div className='d-flex gap-1 w-auto justify-content-center flex-wrap'> 
                 <Button 
-                variant="primary" 
+                type='button'
                 className='btn btn-primary-small' 
                 title='Voir la fractale'
                 onClick={() => handleViewJuliaFractal(juliaFractal)}
-                >🔍
+                >👁
                 </Button>
                 <Button 
-                variant="primary" 
+                type='button'
                 className='btn btn-primary-small' 
                 title='Modifier la fractale'
                 onClick={() => handleEditJuliaFractal(juliaFractal)}
                 >✎
                 </Button>
                 <Button 
-                variant="primary" 
+                type='button'
                 className='btn btn-primary-small' 
                 title='Supprimer la fractale'
                 onClick={() => handleDeleteJuliaFractal(juliaFractal)}
                 >X
                 </Button>
-
                 <Button 
-                variant="primary" 
+                type='button'
                 className='btn btn-primary-small' 
                 title='Dessiner la fractale' 
                 onClick={() => setCurrentJuliaFractal(juliaFractal)}
