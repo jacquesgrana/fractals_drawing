@@ -27,7 +27,7 @@ const STEP_ZOOM_PERCENT_VALUE: number = 5.96;
 const DEFAULT_GRADIENT_START: number = 0;
 const DEFAULT_GRADIANT_END: number = 6;
 
-const NB_THREADS = 8;
+const DEFAULT_NB_THREADS = 4;
 
 /**
  * Classe du service qui gère le canvas
@@ -67,6 +67,8 @@ class CanvasService {
     public gradientStart: number = DEFAULT_GRADIENT_START;
     public gradientEnd: number = DEFAULT_GRADIANT_END;
 
+    public nbThreads: number = DEFAULT_NB_THREADS;
+
     public static getInstance(): CanvasService {
         if (!CanvasService.instance) {
             CanvasService.instance = new CanvasService();
@@ -93,7 +95,9 @@ class CanvasService {
      * Initialise le pool de workers
      */
     private initWorkers() {
-        for (let i = 0; i < NB_THREADS; i++) {
+        this.nbThreads = this.getOptimalWorkerCount();
+        //console.log("Nb threads: " + this.nbThreads);
+        for (let i = 0; i < this.nbThreads; i++) {
             const worker = new Worker(
                 new URL('../workers/JuliaFractalMultiWorker.worker.ts', import.meta.url), 
                 { type: 'module' }
@@ -120,7 +124,9 @@ class CanvasService {
 
         //this.buffer = this.context.createImageData(this.canvasWidth, this.canvasHeight);
         this.initImageData();
-    } 
+    }
+    
+    
 
     /**
      * Méthode d'initialisation du tableau qui sera affiché dans le canvas
@@ -262,13 +268,13 @@ class CanvasService {
             console.error("Workers non initialisés");
             return;
         }
-
+        //console.log("Nb threads: " + this.nbThreads);
         try {
             this.canvasCalculationTime = 0;
             const startTime = performance.now();
 
             // 1. Découpage du travail
-            const segmentHeight = Math.floor(this.canvasHeight / NB_THREADS);
+            const segmentHeight = Math.floor(this.canvasHeight / this.nbThreads);
             
             // Préparation des promesses
             const promises: Promise<Uint8ClampedArray>[] = [];
@@ -277,10 +283,10 @@ class CanvasService {
             const sceneJson = this.currentScene.toJSON();
             const juliaJson = this.juliaFractal.toJSON();
 
-            for (let k = 0; k < NB_THREADS; k++) {
+            for (let k = 0; k < this.nbThreads; k++) {
                 const startY = k * segmentHeight;
                 // Le dernier worker prend le reste (si hauteur pas divisible par 4)
-                const endY = (k === NB_THREADS - 1) ? this.canvasHeight : startY + segmentHeight;
+                const endY = (k === this.nbThreads - 1) ? this.canvasHeight : startY + segmentHeight;
 
                 // On lance le calcul sur le worker k
                 promises.push(
@@ -422,6 +428,19 @@ class CanvasService {
     public drawBufferToCanvas(): void {
         this.context.putImageData(this.buffer, 0, 0);
     }
+
+    private getOptimalWorkerCount = () => {
+        // Si l'API n'est pas dispo (vieux navigateurs), on met 4 par défaut
+        let logicalProcessors = navigator.hardwareConcurrency || DEFAULT_NB_THREADS;
+        
+        // Bonne pratique : On garde toujours au moins 1 thread libre pour l'UI (Main Thread)
+        // Sauf si le CPU n'a qu'un ou deux cœurs, on essaye de maximiser.
+        if (logicalProcessors > 4) {
+            logicalProcessors = logicalProcessors - 1; 
+        }
+        console.log("logicalProcessors :", logicalProcessors);
+    return logicalProcessors;
+};
 
     /**
      * Efface le canvas
