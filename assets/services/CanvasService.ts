@@ -430,7 +430,6 @@ class CanvasService {
     }
 
     private getOptimalWorkerCount = () => {
-        // Si l'API n'est pas dispo (vieux navigateurs), on met 4 par défaut
         let logicalProcessors = navigator.hardwareConcurrency || DEFAULT_NB_THREADS;
         
         // Bonne pratique : On garde toujours au moins 1 thread libre pour l'UI (Main Thread)
@@ -439,8 +438,8 @@ class CanvasService {
             logicalProcessors = logicalProcessors - 1; 
         }
         console.log("logicalProcessors :", logicalProcessors);
-    return logicalProcessors;
-};
+        return logicalProcessors;
+    };
 
     /**
      * Efface le canvas

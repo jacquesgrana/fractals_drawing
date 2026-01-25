@@ -16,15 +16,56 @@
     }
 }
 
+.btn-sm {
+    padding: $padding-very-small;
+    font-size: $text-size-small;
+    //height: 45px !important;
+}
+
 .btn-primary {
     background-color: $primary-color !important;
     color: $white-color;
+    height: 40px; 
+}
+
+.btn-secondary {
+    background-color: $secondary-color !important;
+    color: $white-color;
     height: 40px;
-    
+}
+
+.btn-accent {
+    background-color: $accent-color !important;
+    color: $white-color;
+    height: 40px;
+}
+
+.btn-info {
+    background-color: $info-color !important;
+    color: $white-color;
+    height: 40px;
+}
+
+.btn-success {
+    background-color: $success-color !important;
+    color: $white-color;
+    height: 40px;
+}
+
+.btn-warning {
+    background-color: $warning-color !important;
+    color: $white-color;
+    height: 40px;
 }
 
 .btn-danger {
     background-color: $danger-color !important;
+    color: $white-color;
+    height: 40px;
+}
+
+.btn-primary-selected {
+    background-color: $primary-color-light !important;
     color: $white-color;
     height: 40px;
 }

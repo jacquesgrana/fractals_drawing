@@ -1,7 +1,7 @@
 import UrlConfig from "../config/UrlConfig";
 import { ComplexNb } from "../model/ComplexNb";
 import { JuliaFractal } from "../model/JuliaFractal";
-import { Nullable } from "../types/indexType";
+import { Nullable, SortOption } from "../types/indexType";
 import SecurityService from "./SecurityService";
 
 
@@ -9,7 +9,7 @@ class JuliaFractalService {
 
     private publicJuliaFractals: JuliaFractal[] = [];
     private userJuliaFractals: JuliaFractal[] = [];
-    private securityService = SecurityService.getInstance();
+    //private securityService = SecurityService.getInstance();
 
     private static instance: JuliaFractalService;
     public static getInstance(): JuliaFractalService {
@@ -242,6 +242,31 @@ class JuliaFractalService {
 
     getUserJuliaFractals(): JuliaFractal[] {
         return this.userJuliaFractals;
+    }
+
+    public static sortListByOption(juliaFractals: JuliaFractal[], option: SortOption): void {
+        switch (option) {
+            case 'NAME_ASC':
+                juliaFractals.sort((a, b) => a.getName().localeCompare(b.getName()));
+                break;
+            case 'NAME_DESC':
+                juliaFractals.sort((a, b) => b.getName().localeCompare(a.getName()));
+                break;
+            case 'CREATION_RECENT':
+                juliaFractals.sort((a, b) => new Date(b.getCreatedAt()).getTime() - new Date(a.getCreatedAt()).getTime());
+                break;
+            case 'CREATION_OLD':
+                juliaFractals.sort((a, b) => new Date(a.getCreatedAt()).getTime() - new Date(b.getCreatedAt()).getTime());
+                break;
+            case 'UPDATE_RECENT':
+                juliaFractals.sort((a, b) => new Date(b.getUpdatedAt()).getTime() - new Date(a.getUpdatedAt()).getTime());
+                break;
+            case 'UPDATE_OLD':
+                juliaFractals.sort((a, b) => new Date(a.getUpdatedAt()).getTime() - new Date(b.getUpdatedAt()).getTime());
+                break;
+            default:
+                break;
+        }
     }
 }
 

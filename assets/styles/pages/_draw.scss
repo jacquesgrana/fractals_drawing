@@ -175,6 +175,19 @@
         align-items: center;
         gap: $space-base;
 
+        .react-fractal-list-panel {
+            width: 100%;
+            min-height: 60px;
+            background-color: $medium-bg;
+            border-radius: $radius-base;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: $space-base;
+            padding: $padding-base;
+        }
+
         .react-fractal-list-container {
             display: flex;
             flex-direction: row;
