@@ -1,6 +1,6 @@
 import React from 'react';
 import { JuliaFractal } from '../../model/JuliaFractal';
-import { Button } from 'react-bootstrap';
+import { Badge, Button } from 'react-bootstrap';
 import DateUtil from '../../utils/DateUtil';
 import CanvasService from '../../services/CanvasService';
 
@@ -45,6 +45,16 @@ const JuliaFractalUserListElement: React.FC<JuliaFractalUserListElementProps> = 
         <div className='react-fractal-list-element'>
             <canvas ref={canvasRef} width={160} height={160}></canvas>
             <p className='text-small-black'><strong>{juliaFractal.getName()}</strong></p>
+            {/* Affichage conditionnel du badge */}
+                {juliaFractal.getIsPublic() ? (
+                    <Badge className="badge bg-success" title="Visible par tout le monde">
+                        Public
+                    </Badge>
+                ) : (
+                    <Badge className="badge bg-info" title="Visible seulement par vous">
+                        Privé
+                    </Badge>
+                )}
             <div className='d-flex gap-1 w-auto justify-content-center flex-wrap'> 
                 <Button 
                 type='button'

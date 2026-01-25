@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { JuliaFractal } from '../../model/JuliaFractal';
 import JuliaFractalListElement from './JuliaFractalListElement';
 import { SortOption } from '../../types/indexType';
@@ -25,49 +24,53 @@ const JuliaFractalPublicList = ({
     reloadUserJuliaFractals,
     handleViewJuliaFractal
 } : JuliaFractalPublicListProps ) : React.ReactElement => {
-    const [activeSort, setActiveSort] = React.useState<SortOption>('NAME_ASC');
+    
+    const [activeSort, setActiveSort] = useState<SortOption>('NAME_ASC');
 
-    React.useEffect(() => {
-        handleSortClick(activeSort);
-    }, []);
+    const sortedFractals = useMemo(() => {
+        const listCopy = [...juliaFractals];
+        JuliaFractalService.sortListByOption(listCopy, activeSort);
+        return listCopy;
+    }, [juliaFractals, activeSort]); 
+
 
     const handleSortClick = (option: SortOption) => {
         setActiveSort(option);
-        //console.log("Option choisie :", option);
-        JuliaFractalService.sortListByOption(juliaFractals, option);
     };
 
     return (
         <div className="react-fractal-list mb-2">
             <p 
-            onClick={handleToggleIsJuliaFractalListPanelOpen}
-            className="text-small-black react-text-link-dark"
-            >Liste des fractales de Julia publiques :</p>
+                onClick={handleToggleIsJuliaFractalListPanelOpen}
+                className="text-small-black react-text-link-dark"
+                style={{ cursor: 'pointer' }}
+            >
+                Liste des fractales de Julia publiques :
+            </p>
             { isJuliaFractalListPanelOpen && (
                 <>  
                     <JuliaFractalPublicSortButtons 
-                    handleSortClick={handleSortClick}
-                    activeSort={activeSort}
+                        handleSortClick={handleSortClick}
+                        activeSort={activeSort}
                     />
                     <div className="react-fractal-list-container">
-                    {juliaFractals.length > 0 && juliaFractals.map((juliaFractal) => (
-                        <JuliaFractalListElement 
-                        key={juliaFractal.getId()} 
-                        juliaFractal={juliaFractal} 
-                        setCurrentJuliaFractal={setCurrentJuliaFractal}
-                        isAuthenticated={isAuthenticated}
-                        reloadUserJuliaFractals={reloadUserJuliaFractals}
-                        handleViewJuliaFractal={handleViewJuliaFractal}
-                        />
-                    ))}
+                        {/* On utilise sortedFractals ici au lieu de juliaFractals */}
+                        {sortedFractals.length > 0 && sortedFractals.map((juliaFractal) => (
+                            <JuliaFractalListElement 
+                                key={juliaFractal.getId()} 
+                                juliaFractal={juliaFractal} 
+                                setCurrentJuliaFractal={setCurrentJuliaFractal}
+                                isAuthenticated={isAuthenticated}
+                                reloadUserJuliaFractals={reloadUserJuliaFractals}
+                                handleViewJuliaFractal={handleViewJuliaFractal}
+                            />
+                        ))}
                     </div>
                 </>
             ) }
-            
+
         </div>
     );
 };
 
 export default JuliaFractalPublicList;
-
-
