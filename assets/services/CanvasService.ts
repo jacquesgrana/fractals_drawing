@@ -14,12 +14,12 @@ import { JuliaFractalMultiWorkerType } from "../workers/JuliaFractalMultiWorker.
 
 const COLOR_FILL_SELECT: string = 'rgba(235, 125, 52, 0.38)';
 const COLOR_STROKE_SELECT: string = 'rgba(235, 125, 52, 0.8)';
-const COLOR_STROKE_ANGLE_INDICATOR: string = 'rgba(255,255,255,0.38)';
-const COLOR_FILL_ANGLE_INDICATOR_DOT: string = 'rgba(245, 34, 45, 1.0)';
-const COLOR_FILL_ANGLE_INDICATOR: string = 'rgba(252, 141, 30, 0.62)';
+//const COLOR_STROKE_ANGLE_INDICATOR: string = 'rgba(255,255,255,0.38)';
+//const COLOR_FILL_ANGLE_INDICATOR_DOT: string = 'rgba(245, 34, 45, 1.0)';
+//const COLOR_FILL_ANGLE_INDICATOR: string = 'rgba(252, 141, 30, 0.62)';
 const COLOR_BACKGROUND: string = 'rgba(0,0,0,1.0)';
-const COLOR_STROKE_AXES: string = 'rgba(255,255,255,0.38)';
-const COLOR_FILL_AXES: string = 'rgba(255,255,255,0.62)';
+//const COLOR_STROKE_AXES: string = 'rgba(255,255,255,0.38)';
+//const COLOR_FILL_AXES: string = 'rgba(255,255,255,0.62)';
 
 const DEFAULT_ZOOM_PERCENT_VALUE: number = 11.76;
 const STEP_ZOOM_PERCENT_VALUE: number = 5.96;

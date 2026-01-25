@@ -11,6 +11,7 @@ import ViewJuliaFractalModal from './ViewJuliaFractalModal';
 import NewJuliaFractalModal from './NewJuliaFractalModal';
 import EditJuliaFractalModal from './EditJuliaFractalModal';
 import { ComplexNb } from '../../model/ComplexNb';
+import { useNavigate } from 'react-router-dom';
 
 type DrawProps = {
     isCheckingAuth: boolean;
@@ -37,10 +38,13 @@ const Draw = ({
     const newJuliaFractalParamsRef = React.useRef<Nullable<JuliaFractalParams>>(null);
     const unsubscribeRef = React.useRef<Nullable<() => void>>(null);
     const juliaFractalToEditRef = React.useRef<Nullable<JuliaFractal>>(null);
+    const topAnchorRef = React.useRef<HTMLDivElement>(null);
 
     const juliaFractalService = JuliaFractalService.getInstance();
     //const canvasService = CanvasService.getInstance();
     const securityService = SecurityService.getInstance();
+
+    const navigate = useNavigate();
 
     const updateAuthState =  React.useCallback(() => {
         setIsAuthenticated(() => securityService.isAuthenticated());
@@ -113,7 +117,16 @@ const Draw = ({
     const setCurrentJuliaFractal = (juliaFractal: JuliaFractal) => {
         //console.log("set current julia fractal: " + juliaFractal);
         setSelectedJuliaFractal(juliaFractal.clone());
-        //canvasService.setJuliaFractal(juliaFractal);
+        // Revenir au haut de la page
+        //window.scrollTo(0, 200);
+        
+        if (topAnchorRef.current) {
+            // scrollIntoView gère le calcul des pixels pour toi
+            topAnchorRef.current.scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start' // ou 'start' pour le coller en haut
+            });
+        }
     }
 
     const handleDeleteJuliaFractal = async (juliaFractal: JuliaFractal) => {
@@ -185,8 +198,8 @@ const Draw = ({
         <>
         <div className="react-card draw-page">
             <h2>Page de dessin</h2>
-            <p>Bienvenue !</p>
-            <DrawZone 
+            <p  ref={topAnchorRef}>Bienvenue !</p>
+            <DrawZone
             selectedJuliaFractal={selectedJuliaFractal} 
             handleNewJuliaFractal={handleNewJuliaFractal}
             isAuthenticated={isAuthenticated}
