@@ -2,6 +2,10 @@ import { Matrix } from "../model/Matrix";
 import { MathLibrary } from "./MathLibrary";
 
 import { Point } from "../model/Point";
+import { CanvasConfig } from "../config/CanvasConfig";
+import ToastFacade from "../facade/ToastFacade";
+
+//const MATRIX_DETERMINANT_MIN = 0.0000000000000000001;
 
 export class MatrixLibrary {
 
@@ -129,10 +133,13 @@ export class MatrixLibrary {
 
     const det = MatrixLibrary.determinant(matrix);
 
+    /*
     // Attention aux erreurs d'arrondi des flottants, on compare avec un epsilon très petit
-    if (Math.abs(det) < 0.00000000000000001) {
-      throw new Error("Matrix is singular (determinant is 0), cannot be inverted.");
+    if (Math.abs(det) < CanvasConfig.MATRIX_DETERMINANT_LIMIT_MIN) {
+      //throw new Error("Matrix is singular (determinant is 0), cannot be inverted.");
+      ToastFacade.error("La matrice est singulière (determinant est très proche de 0)");
     }
+    */
 
     const cofactorParams = MatrixLibrary.cofactor(matrix);
     const transposedCofactor = MatrixLibrary.transpose(cofactorParams);

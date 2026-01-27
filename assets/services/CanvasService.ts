@@ -11,23 +11,25 @@ import { Nullable } from "../types/indexType";
 import * as Comlink from "comlink";
 import { JuliaFractalWorkerType } from "../workers/JuliaFractalWorker.worker";
 import { JuliaFractalMultiWorkerType } from "../workers/JuliaFractalMultiWorker.worker";
+import { CanvasConfig } from "../config/CanvasConfig";
 
-const COLOR_FILL_SELECT: string = 'rgba(235, 125, 52, 0.38)';
-const COLOR_STROKE_SELECT: string = 'rgba(235, 125, 52, 0.8)';
 //const COLOR_STROKE_ANGLE_INDICATOR: string = 'rgba(255,255,255,0.38)';
 //const COLOR_FILL_ANGLE_INDICATOR_DOT: string = 'rgba(245, 34, 45, 1.0)';
 //const COLOR_FILL_ANGLE_INDICATOR: string = 'rgba(252, 141, 30, 0.62)';
-const COLOR_BACKGROUND: string = 'rgba(0,0,0,1.0)';
 //const COLOR_STROKE_AXES: string = 'rgba(255,255,255,0.38)';
 //const COLOR_FILL_AXES: string = 'rgba(255,255,255,0.62)';
 
-const DEFAULT_ZOOM_PERCENT_VALUE: number = 11.76;
-const STEP_ZOOM_PERCENT_VALUE: number = 5.96;
+//const ZOOM_MAX = 1000000000000000;
+/*
+const CANVAS_BACKGROUND_COLOR: string = 'rgba(0,0,0,1.0)';
+const CANVAS_FILL_SELECT_COLOR: string = 'rgba(235, 125, 52, 0.38)';
+const CANVAS_STROKE_SELECT_COLOR: string = 'rgba(235, 125, 52, 0.8)';
 
 const DEFAULT_GRADIENT_START: number = 0;
 const DEFAULT_GRADIANT_END: number = 6;
 
-const DEFAULT_NB_THREADS = 4;
+const DEFAULT_THREADS_NUMBER = 4;
+*/
 
 /**
  * Classe du service qui gère le canvas
@@ -60,14 +62,14 @@ class CanvasService {
     public currentScene!: Scene;
     public trans: Point = new Point(0, 0);;
     public angle!: number;
-    public zoom!: number;
+    private zoom!: number;
 
     public canvasCalculationTime: number = 0;
 
-    public gradientStart: number = DEFAULT_GRADIENT_START;
-    public gradientEnd: number = DEFAULT_GRADIANT_END;
+    public gradientStart: number = CanvasConfig.DEFAULT_GRADIENT_START;
+    public gradientEnd: number = CanvasConfig.DEFAULT_GRADIANT_END;
 
-    public nbThreads: number = DEFAULT_NB_THREADS;
+    public nbThreads: number = CanvasConfig.DEFAULT_THREADS_NUMBER;
 
     public static getInstance(): CanvasService {
         if (!CanvasService.instance) {
@@ -297,7 +299,7 @@ class CanvasService {
                         juliaJson,
                         this.gradientStart,
                         this.gradientEnd,
-                        COLOR_BACKGROUND,
+                        CanvasConfig.CANVAS_BACKGROUND_COLOR,
                         startY, // Début bande
                         endY    // Fin bande
                     )
@@ -345,7 +347,7 @@ class CanvasService {
             juliaFractalToDraw.toJSON(),
             1,
             5,
-            COLOR_BACKGROUND
+            CanvasConfig.CANVAS_BACKGROUND_COLOR
         );
         const buffer: ImageData = this.context.createImageData(canvasWidth, canvasHeight);
         buffer.data.set(rawPixels);
@@ -373,7 +375,7 @@ class CanvasService {
                 this.juliaFractal.toJSON(),   // Sérialisation
                 this.gradientStart,
                 this.gradientEnd,
-                COLOR_BACKGROUND
+                CanvasConfig.CANVAS_BACKGROUND_COLOR
             );
 
             // Mise à jour du buffer local avec les données reçues
@@ -410,8 +412,8 @@ class CanvasService {
         const height = Math.abs(endPixel.getJ() - startPixel.getJ());
 
         // Style du rectangle
-        this.context.fillStyle = COLOR_FILL_SELECT; // 'rgba(235, 125, 52, 0.38)'
-        this.context.strokeStyle = COLOR_STROKE_SELECT; // Bordure plus visible
+        this.context.fillStyle = CanvasConfig.CANVAS_FILL_SELECT_COLOR; // 'rgba(235, 125, 52, 0.38)'
+        this.context.strokeStyle = CanvasConfig.CANVAS_STROKE_SELECT_COLOR; // Bordure plus visible
         this.context.lineWidth = 2;
 
         // Dessin du rectangle
@@ -430,14 +432,14 @@ class CanvasService {
     }
 
     private getOptimalWorkerCount = () => {
-        let logicalProcessors = navigator.hardwareConcurrency || DEFAULT_NB_THREADS;
+        let logicalProcessors = navigator.hardwareConcurrency || CanvasConfig.DEFAULT_THREADS_NUMBER;
         
         // Bonne pratique : On garde toujours au moins 1 thread libre pour l'UI (Main Thread)
         // Sauf si le CPU n'a qu'un ou deux cœurs, on essaye de maximiser.
-        if (logicalProcessors > 4) {
+        if (logicalProcessors > CanvasConfig.DEFAULT_THREADS_NUMBER) {
             logicalProcessors = logicalProcessors - 1; 
         }
-        console.log("logicalProcessors :", logicalProcessors);
+        console.log("logicalProcessors number used with workers :", logicalProcessors);
         return logicalProcessors;
     };
 
@@ -449,45 +451,45 @@ class CanvasService {
     }
 
 
-  setCanvasWidth(width: number): void {
-    this.canvasWidth = width;
-  }
+    setCanvasWidth(width: number): void {
+        this.canvasWidth = width;
+    }
 
-  setCanvasHeight(height: number): void {
-    this.canvasHeight = height;
-  }
+    setCanvasHeight(height: number): void {
+        this.canvasHeight = height;
+    }
 
-  setCanvasContext(context: CanvasRenderingContext2D): void {
-    this.context = context;
-  }
+    setCanvasContext(context: CanvasRenderingContext2D): void {
+        this.context = context;
+    }
 
-  setCanvas(canvas: HTMLCanvasElement): void {
-    this.canvas = canvas;
-  }
+    setCanvas(canvas: HTMLCanvasElement): void {
+        this.canvas = canvas;
+    }
 
-  setBuffer(buffer: ImageData): void {
-    this.buffer = buffer;
-  }
+    setBuffer(buffer: ImageData): void {
+        this.buffer = buffer;
+    }
 
-  setJuliaFractal(juliaFractal: JuliaFractal): void {
-    this.juliaFractal = juliaFractal;
-  }
+    setJuliaFractal(juliaFractal: JuliaFractal): void {
+        this.juliaFractal = juliaFractal;
+    }
 
-  getCanvas(): HTMLCanvasElement {
-    return this.canvas;
-  }
+    getCanvas(): HTMLCanvasElement {
+        return this.canvas;
+    }
 
-  getCanvasContext(): CanvasRenderingContext2D {
-    return this.context;
-  }
+    getCanvasContext(): CanvasRenderingContext2D {
+        return this.context;
+    }
 
-  getBuffer(): ImageData {
-    return this.buffer;
-  }
+    getBuffer(): ImageData {
+        return this.buffer;
+    }
 
-  getJuliaFractal(): JuliaFractal {
-    return this.juliaFractal;
-  }
+    getJuliaFractal(): JuliaFractal {
+        return this.juliaFractal;
+    }
 }
 
 export default CanvasService;

@@ -254,14 +254,14 @@ const EditJuliaFractalModal = (
                             <Form.Control 
                             className="fractal-values-input-dark" 
                             type="number" 
-                            step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
+                            step={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_STEP} 
                             value={fractalLimit} 
                             onChange={(e) => setFractalLimit(Number(e.target.value))} />
                             <Form.Range 
                             className="fractal-values-range-dark" 
                             min={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_MIN} 
                             max={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_MAX} 
-                            step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
+                            step={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_STEP} 
                             value={fractalLimit} 
                             onChange={(e) => setFractalLimit(Number(e.target.value))} />
                         </Form.Group>

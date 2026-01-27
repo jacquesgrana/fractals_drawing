@@ -33,24 +33,18 @@ const JuliaFractalPublicList = ({
         return listCopy;
     }, [juliaFractals, activeSort]); 
 
-
-    const handleSortClick = (option: SortOption) => {
-        setActiveSort(option);
-    };
-
     return (
         <div className="react-fractal-list mb-2">
             <p 
                 onClick={handleToggleIsJuliaFractalListPanelOpen}
                 className="text-small-black react-text-link-dark"
-                style={{ cursor: 'pointer' }}
             >
                 Liste des fractales de Julia publiques :
             </p>
             { isJuliaFractalListPanelOpen && (
                 <>  
                     <JuliaFractalPublicSortButtons 
-                        handleSortClick={handleSortClick}
+                        handleSortClick={setActiveSort}
                         activeSort={activeSort}
                     />
                     <div className="react-fractal-list-container">

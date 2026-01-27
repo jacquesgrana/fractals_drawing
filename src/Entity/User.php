@@ -82,12 +82,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: JuliaFractal::class, mappedBy: 'user')]
     private Collection $juliaFractals;
 
+    /**
+     * @var Collection<int, Favorite>
+     */
+    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'user', orphanRemoval: true)]
+    private Collection $favorites;
+
     public function __construct()
     {
         $this->verificationTokens = new ArrayCollection();
         $this->emailVerificationCodes = new ArrayCollection();
         $this->passwordVerificationCodes = new ArrayCollection();
         $this->juliaFractals = new ArrayCollection();
+        $this->favorites = new ArrayCollection();
     }
 
     /**
@@ -417,6 +424,50 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             // set the owning side to null (unless already changed)
             if ($juliaFractal->getUser() === $this) {
                 $juliaFractal->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function normalizeShallow(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'pseudo' => $this->getPseudo(),
+            'email' => $this->getEmail(),
+            'firstName' => $this->getFirstName(),
+            'lastName' => $this->getLastName(),
+            //'roles' => $this->getRoles(),
+            'createdAt' => $this->getCreatedAt(),
+            'updatedAt' => $this->getUpdatedAt(),
+        ];
+    }
+
+    /**
+     * @return Collection<int, Favorite>
+     */
+    public function getFavorites(): Collection
+    {
+        return $this->favorites;
+    }
+
+    public function addFavorite(Favorite $favorite): static
+    {
+        if (!$this->favorites->contains($favorite)) {
+            $this->favorites->add($favorite);
+            $favorite->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite(Favorite $favorite): static
+    {
+        if ($this->favorites->removeElement($favorite)) {
+            // set the owning side to null (unless already changed)
+            if ($favorite->getUser() === $this) {
+                $favorite->setUser(null);
             }
         }
 

@@ -1,7 +1,10 @@
+import { CanvasConfig } from "../config/CanvasConfig";
 import { MathLibrary } from "../libraries/MathLibrary";
 import { MatrixLibrary } from "../libraries/MatrixLibrary";
 import { Matrix } from "./Matrix";
 import { Point } from "./Point";
+
+//const ZOOM_MAX = 100000000000000;
 
 /*
  * Classe représentant les paramètres d'une scene
@@ -84,7 +87,7 @@ export class Scene {
    * Modifie le zoom et recalcule immédiatement les matrices
    */
   setZoom(zoom: number): void {
-    this.zoom = zoom;
+    this.zoom = zoom > CanvasConfig.ZOOM_MAX ? CanvasConfig.ZOOM_MAX : zoom;
     this.updateMatrix();
   }
 

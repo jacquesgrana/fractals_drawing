@@ -111,14 +111,14 @@ const JuliaFractalManagementSliders = (
                     <Form.Control 
                     className="fractal-values-input" 
                     type="number" 
-                    step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
+                    step={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_STEP} 
                     value={fractalLimit} 
                     onChange={(e) => handleChangeJuliaFractalLimit(Number(e.target.value))} />
                     <Form.Range 
                     className="fractal-values-range" 
                     min={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_MIN} 
                     max={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_MAX} 
-                    step={JuliaFractalConfig.JULIA_FRACTAL_SEED_PARAMS_STEP} 
+                    step={JuliaFractalConfig.JULIA_FRACTAL_LIMIT_PARAMS_STEP} 
                     value={fractalLimit} 
                     onChange={(e) => handleChangeJuliaFractalLimit(Number(e.target.value))} />
                 </Col>

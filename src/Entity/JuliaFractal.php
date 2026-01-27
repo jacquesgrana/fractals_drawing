@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\JuliaFractalRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: JuliaFractalRepository::class)]
@@ -43,6 +45,17 @@ class JuliaFractal
 
     #[ORM\Column]
     private ?\DateTime $updatedAt = null;
+
+    /**
+     * @var Collection<int, Favorite>
+     */
+    #[ORM\OneToMany(targetEntity: Favorite::class, mappedBy: 'juliaFractal', orphanRemoval: true)]
+    private Collection $favorites;
+
+    public function __construct()
+    {
+        $this->favorites = new ArrayCollection();
+    }
 
     #[ORM\PrePersist]
     public function setInitialValues(): void
@@ -183,6 +196,36 @@ class JuliaFractal
         return $this;
     }
 
+    /**
+     * @return Collection<int, Favorite>
+     */
+    public function getFavorites(): Collection
+    {
+        return $this->favorites;
+    }
+
+    public function addFavorite(Favorite $favorite): static
+    {
+        if (!$this->favorites->contains($favorite)) {
+            $this->favorites->add($favorite);
+            $favorite->setJuliaFractal($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavorite(Favorite $favorite): static
+    {
+        if ($this->favorites->removeElement($favorite)) {
+            // set the owning side to null (unless already changed)
+            if ($favorite->getJuliaFractal() === $this) {
+                $favorite->setJuliaFractal(null);
+            }
+        }
+
+        return $this;
+    }
+
     public function normalize(): array
     {
         $user = $this->getUser() ? ['pseudo' => $this->getUser()->getPseudo()] : null;
@@ -200,4 +243,40 @@ class JuliaFractal
             'updatedAt' => $this->getUpdatedAt(),
         ];
     }
+
+    public function normalizeShallow(): array
+    {
+        //$user = $this->getUser() ? ['pseudo' => $this->getUser()->getPseudo()] : null;
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'seedReal' => $this->getSeedReal(),
+            'seedImag' => $this->getSeedImag(),
+            'escapeLimit' => $this->getEscapeLimit(),
+            'maxIterations' => $this->getMaxIterations(),
+            'isPublic' => $this->isPublic(),
+            'user' => [],
+            'comment' => $this->getComment(),
+            'createdAt' => $this->getCreatedAt(),
+            'updatedAt' => $this->getUpdatedAt(),
+        ];
+    }
+
+    public function normalizeDeep(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'seedReal' => $this->getSeedReal(),
+            'seedImag' => $this->getSeedImag(),
+            'escapeLimit' => $this->getEscapeLimit(),
+            'maxIterations' => $this->getMaxIterations(),
+            'isPublic' => $this->isPublic(),
+            'user' => $this->getUser()->normalizeShallow(),
+            'comment' => $this->getComment(),
+            'createdAt' => $this->getCreatedAt(),
+            'updatedAt' => $this->getUpdatedAt(),
+        ];
+    }
+
 }

@@ -35,10 +35,6 @@ const JuliaFractalUserList = ({
         return listCopy;
     }, [juliaFractals, activeSort]);
 
-    const handleSortClick = (option: SortOption) => {
-        setActiveSort(option);
-    };
-
     return (
         <>
         { isAuthenticated && (
@@ -46,7 +42,6 @@ const JuliaFractalUserList = ({
                 <p 
                     onClick={handleToggleIsJuliaFractalUserListPanelOpen}
                     className="text-small-black react-text-link-dark"
-                    style={{ cursor: 'pointer' }}
                 >
                     Liste des fractales de Julia de l'utilisateur :
                 </p>
@@ -54,7 +49,7 @@ const JuliaFractalUserList = ({
                 { isJuliaFractalUserListPanelOpen && (
                     <>  
                         <JuliaFractalUserSortButtons 
-                            handleSortClick={handleSortClick}
+                            handleSortClick={setActiveSort}
                             activeSort={activeSort}
                         />
                         <div className="react-fractal-list-container">
