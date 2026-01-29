@@ -32,7 +32,6 @@ const JuliaFractalPublicSortButtons = (
                 >
                     Nom ⬆
                 </Button>
-
                 <Button 
                     type="button" 
                     className={getButtonClass('NAME_DESC')}
@@ -40,6 +39,22 @@ const JuliaFractalPublicSortButtons = (
                     title="Trier par nom décroissant"
                 >
                     Nom ⬇
+                </Button>
+                <Button 
+                    type="button" 
+                    className={getButtonClass('LIKES_ASC')}
+                    onClick={() => handleSortClick('LIKES_ASC')}
+                    title="Trier par likes croissant"
+                >
+                    Likes ⬆
+                </Button>
+                <Button 
+                    type="button" 
+                    className={getButtonClass('LIKES_DESC')}
+                    onClick={() => handleSortClick('LIKES_DESC')}
+                    title="Trier par likes décroissant"
+                >
+                    Likes ⬇
                 </Button>
                 <Button 
                     type="button" 

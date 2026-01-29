@@ -5,4 +5,7 @@ export type JuliaFractalParams = {
     limit: number
 }
 
-export type SortOption = 'CREATION_RECENT' | 'CREATION_OLD' | 'UPDATE_RECENT' | 'UPDATE_OLD' | 'NAME_ASC' | 'NAME_DESC';
+export type SortOption = 'CREATION_RECENT' | 'CREATION_OLD' 
+| 'UPDATE_RECENT' | 'UPDATE_OLD' 
+| 'NAME_ASC' | 'NAME_DESC'
+| 'LIKES_ASC' | 'LIKES_DESC';

@@ -60,6 +60,10 @@ const Draw = ({
         // Abonnement aux changements d'authentification
         const unsubscribe = securityService.subscribe(async (currentUser) => {
             updateAuthState();
+            if (!currentUser) {
+                setUserFavorites([]);      // ← IMPORTANT : purge immédiate
+                return;
+            }
             await fct();
             //console.log("userFavorites", userFavorites);
         });
@@ -67,6 +71,8 @@ const Draw = ({
 
         // Mise à jour initiale de l'état
         updateAuthState();
+
+        
 
         const fct = async () => {
             await favoriteService.initService();
