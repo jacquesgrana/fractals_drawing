@@ -68,7 +68,9 @@ security:
         - { path: /api/julia-fractal/update-to-user, roles: ROLE_USER }
 
         - { path: /api/favorite/toggle, roles: ROLE_USER }
-        # - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: /api/favorite/user-favorites, roles: ROLE_USER }
+        
+        # - { path: ^/admin, roles: ROLE_ADMIN } /user-favorites
         # - { path: ^/profile, roles: ROLE_USER }
 
 when@test:

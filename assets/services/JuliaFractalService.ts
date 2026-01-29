@@ -9,7 +9,7 @@ class JuliaFractalService {
 
     private publicJuliaFractals: JuliaFractal[] = [];
     private userJuliaFractals: JuliaFractal[] = [];
-    //private securityService = SecurityService.getInstance();
+    private securityService = SecurityService.getInstance();
 
     private static instance: JuliaFractalService;
     public static getInstance(): JuliaFractalService {
@@ -43,7 +43,8 @@ class JuliaFractalService {
                         juliaFractalFromDb.maxIterations,
                         juliaFractalFromDb.isPublic,
                         juliaFractalFromDb.createdAt,
-                        juliaFractalFromDb.updatedAt
+                        juliaFractalFromDb.updatedAt,
+                        juliaFractalFromDb.favoritesCount  
                     );
                     if(juliaFractalFromDb.user) juliaFractal.setUser(juliaFractalFromDb.user);
                     this.publicJuliaFractals?.push(juliaFractal);
@@ -58,11 +59,11 @@ class JuliaFractalService {
         }
 
         //console.log('authenticated : ', this.securityService.isAuthenticated());
-        /*
+        
         if(!this.securityService.isAuthenticated()) {
             this.userJuliaFractals = [];
             return;
-        }*/
+        }
         const response2 = await this.getUserFractals();
         if (response2) {
             this.userJuliaFractals = [];
@@ -82,7 +83,8 @@ class JuliaFractalService {
                             juliaFractalFromDb.maxIterations,
                             juliaFractalFromDb.isPublic,
                             juliaFractalFromDb.createdAt,
-                            juliaFractalFromDb.updatedAt
+                            juliaFractalFromDb.updatedAt,
+                            juliaFractalFromDb.favoritesCount
                         );
                         juliaFractal.setUser(juliaFractalFromDb.user);
                         //console.log(juliaFractal);

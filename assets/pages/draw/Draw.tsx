@@ -3,7 +3,7 @@ import DrawZone from './DrawZone';
 import JuliaFractalPublicList from './JuliaFractalPublicList';
 import JuliaFractalService from '../../services/JuliaFractalService';
 import { JuliaFractal } from '../../model/JuliaFractal';
-import { JuliaFractalParams, Nullable, UserInfo } from '../../types/indexType';
+import { FavoriteShallow, JuliaFractalParams, Nullable, UserInfo } from '../../types/indexType';
 import SecurityService from '../../services/SecurityService';
 import JuliaFractalUserList from './JuilaFractalUserList';
 import ToastFacade from '../../facade/ToastFacade';
@@ -12,6 +12,7 @@ import NewJuliaFractalModal from './NewJuliaFractalModal';
 import EditJuliaFractalModal from './EditJuliaFractalModal';
 import { ComplexNb } from '../../model/ComplexNb';
 import { useNavigate } from 'react-router-dom';
+import FavoriteService from '../../services/FavoriteService';
 
 type DrawProps = {
     isCheckingAuth: boolean;
@@ -34,7 +35,8 @@ const Draw = ({
     const [isModalViewJuliaFractalOpen, setIsModalViewJuliaFractalOpen] = React.useState(false);
     const [isModalNewJuliaFractalOpen, setIsModalNewJuliaFractalOpen] = React.useState(false);
     const [isModalEditJuliaFractalOpen, setIsModalEditJuliaFractalOpen] = React.useState(false);
-    
+    const [userFavorites, setUserFavorites] = React.useState<FavoriteShallow[]>([]);
+
     const newJuliaFractalParamsRef = React.useRef<Nullable<JuliaFractalParams>>(null);
     const unsubscribeRef = React.useRef<Nullable<() => void>>(null);
     const juliaFractalToEditRef = React.useRef<Nullable<JuliaFractal>>(null);
@@ -43,8 +45,11 @@ const Draw = ({
     const juliaFractalService = JuliaFractalService.getInstance();
     //const canvasService = CanvasService.getInstance();
     const securityService = SecurityService.getInstance();
+    const favoriteService = FavoriteService.getInstance();
 
-    const navigate = useNavigate();
+    //const userFavoritesRef = React.useRef<FavoriteShallow[]>([]);
+
+    //const navigate = useNavigate();
 
     const updateAuthState =  React.useCallback(() => {
         setIsAuthenticated(() => securityService.isAuthenticated());
@@ -53,13 +58,21 @@ const Draw = ({
     
     useEffect(() => {
         // Abonnement aux changements d'authentification
-        const unsubscribe = securityService.subscribe((currentUser) => {
+        const unsubscribe = securityService.subscribe(async (currentUser) => {
             updateAuthState();
+            await fct();
+            //console.log("userFavorites", userFavorites);
         });
         unsubscribeRef.current = unsubscribe;
 
         // Mise à jour initiale de l'état
         updateAuthState();
+
+        const fct = async () => {
+            await favoriteService.initService();
+            setUserFavorites([...favoriteService.getUserFavorites()]);
+        }
+        fct();
 
         // Nettoyage lors du démontage
         return () => {
@@ -70,6 +83,7 @@ const Draw = ({
         };
     }, [securityService, updateAuthState]);
 
+
     useEffect(() => {
         if(!isCheckingAuth) {
             updateAuthState();
@@ -77,18 +91,25 @@ const Draw = ({
     }, [isCheckingAuth]);
 
     useEffect(() => {
-        const init = async () => {
-            setIsLoadingPublicJuliaFractals(true);
-            setIsLoadingUserJuliaFractals(true);
-            await juliaFractalService.initService();
-            setPublicJuliaFractals(juliaFractalService.getPublicJuliaFractals());
-            setUserJuliaFractals(juliaFractalService.getUserJuliaFractals());
+    const init = async () => {
+        await reloadUserFavorites();
+        setIsLoadingPublicJuliaFractals(true);
+        setIsLoadingUserJuliaFractals(true);
+        await juliaFractalService.initService();
+        
+        setPublicJuliaFractals([...juliaFractalService.getPublicJuliaFractals()]);
+        setUserJuliaFractals([...juliaFractalService.getUserJuliaFractals()]);
+        
+        if (juliaFractalService.getPublicJuliaFractals().length > 0) {
             setCurrentJuliaFractal(juliaFractalService.getPublicJuliaFractals()[0]);
-            setIsLoadingPublicJuliaFractals(false);
-            setIsLoadingUserJuliaFractals(false);
+        }
+        
+        setIsLoadingPublicJuliaFractals(false);
+        setIsLoadingUserJuliaFractals(false);
         }
         init();
-    }, [juliaFractalService]);
+    }, []); // Les services sont des singletons, on peut laisser le tableau vide ou mettre [juliaFractalService, favoriteService]
+
 
     const handleOpenViewJuliaFractalModal = () => {
         setIsModalViewJuliaFractalOpen(true);
@@ -106,13 +127,23 @@ const Draw = ({
         setIsModalEditJuliaFractalOpen(false);
     }
 
+    // TODO changer nom !!
     const reloadAllJuliaFractals = async () => {
+        await reloadUserFavorites();
         setIsLoadingUserJuliaFractals(true);
         await juliaFractalService.initService();
         setUserJuliaFractals(juliaFractalService.getUserJuliaFractals());
         setPublicJuliaFractals(juliaFractalService.getPublicJuliaFractals());
         setIsLoadingUserJuliaFractals(false);
+        
     }
+
+    const reloadUserFavorites = async () => {
+        await favoriteService.initService();
+        const freshFavorites = favoriteService.getUserFavorites();
+        setUserFavorites([...freshFavorites]); // Spread operator crucial ici
+    };
+
 
     const setCurrentJuliaFractal = (juliaFractal: JuliaFractal) => {
         //console.log("set current julia fractal: " + juliaFractal);
@@ -216,6 +247,7 @@ const Draw = ({
                 isAuthenticated={isAuthenticated}
                 reloadUserJuliaFractals={reloadAllJuliaFractals}
                 handleViewJuliaFractal={handleViewJuliaFractal}
+                userFavorites={userFavorites}
                 />
             )}
             { !isLoadingUserJuliaFractals && userJuliaFractals.length > 0 && (

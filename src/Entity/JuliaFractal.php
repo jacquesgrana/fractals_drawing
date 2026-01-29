@@ -226,6 +226,11 @@ class JuliaFractal
         return $this;
     }
 
+    public function getFavoritesCount(): int
+    {
+        return $this->favorites->count();
+    }
+
     public function normalize(): array
     {
         $user = $this->getUser() ? ['pseudo' => $this->getUser()->getPseudo()] : null;
@@ -241,6 +246,7 @@ class JuliaFractal
             'comment' => $this->getComment(),
             'createdAt' => $this->getCreatedAt(),
             'updatedAt' => $this->getUpdatedAt(),
+            'favoritesCount' => $this->getFavoritesCount(),
         ];
     }
 
@@ -259,11 +265,17 @@ class JuliaFractal
             'comment' => $this->getComment(),
             'createdAt' => $this->getCreatedAt(),
             'updatedAt' => $this->getUpdatedAt(),
+            'favoritesCount' => $this->getFavoritesCount(),
+            'favorites' => [],
         ];
     }
 
     public function normalizeDeep(): array
     {
+        $favorites = [];
+        foreach ($this->getFavorites() as $favorite) {
+            $favorites[] = $favorite->normalizeShallow();
+        }
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
@@ -276,6 +288,8 @@ class JuliaFractal
             'comment' => $this->getComment(),
             'createdAt' => $this->getCreatedAt(),
             'updatedAt' => $this->getUpdatedAt(),
+            'favoritesCount' => $this->getFavoritesCount(),
+            'favorites' => $favorites
         ];
     }
 

@@ -5,6 +5,7 @@ import DateUtil from '../../utils/DateUtil';
 import JuliaFractalService from '../../services/JuliaFractalService';
 import ToastFacade from '../../facade/ToastFacade';
 import CanvasService from '../../services/CanvasService';
+import FavoriteService from '../../services/FavoriteService';
 
 interface JuliaFractalListElementProps {
     juliaFractal: JuliaFractal;
@@ -12,6 +13,7 @@ interface JuliaFractalListElementProps {
     isAuthenticated: boolean;
     reloadUserJuliaFractals: () => Promise<void>;
     handleViewJuliaFractal: (juliaFractal: JuliaFractal) => void;
+    isFavorite: boolean;
 }
 
 
@@ -20,11 +22,14 @@ const JuliaFractalListElement: React.FC<JuliaFractalListElementProps> = ({
     setCurrentJuliaFractal,
     isAuthenticated,
     reloadUserJuliaFractals,
-    handleViewJuliaFractal
+    handleViewJuliaFractal,
+    isFavorite
+
  }) => {
 
     const juliaFractalService = JuliaFractalService.getInstance();
     const canvasService = CanvasService.getInstance();
+    const favoriteService = FavoriteService.getInstance();
     const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
     React.useEffect(() => {
@@ -68,12 +73,53 @@ const JuliaFractalListElement: React.FC<JuliaFractalListElementProps> = ({
         }
     }
 
+    const handleToggleFavorite = async () => {
+        const response = await favoriteService.toggleFavorite(juliaFractal.getId());
+        if(!response) {
+            ToastFacade.error('Erreur : Erreur lors de la mise à jour !');
+            return;
+        }
+        try {
+            const data = await response.json();
+            if (data.status === 200) {
+                ToastFacade.success('Like supprimé : ' + data.message + ' !');
+                await reloadUserJuliaFractals();
+            }
+            else if (data.status === 201) {
+                ToastFacade.success('Like ajouté : ' + data.message + ' !');
+                await reloadUserJuliaFractals();
+            }
+            else if (data.status === 400) {
+                ToastFacade.error('Erreur 400 : ' + data.message + ' !');
+            }
+            else {
+                ToastFacade.error('Erreur : ' + data.message + ' !');
+            }
+        }
+        catch (error) {
+            ToastFacade.error('Erreur : Erreur lors de la mise à jour !');
+        }
+    }
+
     //console.log('jusliaFractal', juliaFractal);
     return (
         <div className='react-fractal-list-element'>
+            <div className="d-flex align-items-center justify-content-between mb-2">
+                <div 
+                    onClick={isAuthenticated ? handleToggleFavorite : undefined} 
+                    style={{ cursor: isAuthenticated ? 'pointer' : 'default' }}
+                    title={isAuthenticated ? "Cliquer pour changer le favori" : "Connectez-vous pour liker"}
+                >
+                    {isFavorite ? (
+                        <span className="star-icon filled">★</span>
+                    ) : (
+                        <span className="star-icon empty">☆</span>
+                    )}
+                </div>
+                <small className='text-muted'>Likes : {juliaFractal.getFavoritesCount()}</small>
+                </div>
             <canvas ref={canvasRef} width={160} height={160}></canvas>
             <p className='text-small-black'><strong>{juliaFractal.getName()}</strong></p>
-            
             <div className='d-flex gap-1 w-auto'>
                 <Button 
                 type='button'

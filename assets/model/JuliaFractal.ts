@@ -16,6 +16,7 @@ export class JuliaFractal {
   private isPublic: boolean;
   private createdAt: string;
   private updatedAt: string;
+  private favoritesCount: number;
 
   // TODO typer !!!
   private user: Nullable<any> = null;
@@ -26,7 +27,7 @@ export class JuliaFractal {
   /*
    * Constructeur
    */
-  constructor(id: number, name: string, comment: string, seed: ComplexNb, limit: number, maxIt: number, isPublic: boolean, createdAt: string, updatedAt: string) {
+  constructor(id: number, name: string, comment: string, seed: ComplexNb, limit: number, maxIt: number, isPublic: boolean, createdAt: string, updatedAt: string, favoritesCount: number = 0) {
     this.id = id;
     this.name = name;
     this.comment = comment;
@@ -37,6 +38,7 @@ export class JuliaFractal {
     this.isPublic = isPublic;
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
+    this.favoritesCount = favoritesCount;
   }
 
   // ==========================
@@ -53,6 +55,7 @@ export class JuliaFractal {
   getCreatedAt(): string { return this.createdAt; }
   getUpdatedAt(): string { return this.updatedAt; }
   getUser(): Nullable<any> { return this.user; }
+  getFavoritesCount(): number { return this.favoritesCount; }
   
   // ==========================
   // Mutateurs
@@ -71,6 +74,7 @@ export class JuliaFractal {
   setCreatedAt(createdAt: string): void { this.createdAt = createdAt; }
   setUpdatedAt(updatedAt: string): void { this.updatedAt = updatedAt; }
   setUser(user: Nullable<any>): void { this.user = user; }
+  setFavoritesCount(favoritesCount: number): void { this.favoritesCount = favoritesCount; }
 
   /**
    * Calcule la couleur d'un point z donné selon les paramètres de la fractale.
@@ -134,7 +138,8 @@ export class JuliaFractal {
         this.maxIt,
         this.isPublic,
         this.createdAt,
-        this.updatedAt
+        this.updatedAt,
+        this.favoritesCount
     );
   }
 

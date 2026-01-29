@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { JuliaFractal } from '../../model/JuliaFractal';
 import JuliaFractalListElement from './JuliaFractalListElement';
-import { SortOption } from '../../types/indexType';
+import { FavoriteShallow, SortOption } from '../../types/indexType';
 import JuliaFractalPublicSortButtons from './JuliaFractalPublicSortButtons';
 import JuliaFractalService from '../../services/JuliaFractalService';
+import FavoriteService from '../../services/FavoriteService';
 
 interface JuliaFractalPublicListProps {
     juliaFractals: JuliaFractal[];
@@ -13,6 +14,7 @@ interface JuliaFractalPublicListProps {
     isAuthenticated: boolean;
     reloadUserJuliaFractals: () => Promise<void>;
     handleViewJuliaFractal: (juliaFractal: JuliaFractal) => void;
+    userFavorites: FavoriteShallow[]; // <--- AJOUTER CECI
 }
 
 const JuliaFractalPublicList = ({ 
@@ -22,7 +24,8 @@ const JuliaFractalPublicList = ({
     handleToggleIsJuliaFractalListPanelOpen,
     isAuthenticated,
     reloadUserJuliaFractals,
-    handleViewJuliaFractal
+    handleViewJuliaFractal,
+    userFavorites
 } : JuliaFractalPublicListProps ) : React.ReactElement => {
     
     const [activeSort, setActiveSort] = useState<SortOption>('NAME_ASC');
@@ -32,6 +35,8 @@ const JuliaFractalPublicList = ({
         JuliaFractalService.sortListByOption(listCopy, activeSort);
         return listCopy;
     }, [juliaFractals, activeSort]); 
+
+    const favoriteService = FavoriteService.getInstance();
 
     return (
         <div className="react-fractal-list mb-2">
@@ -57,6 +62,10 @@ const JuliaFractalPublicList = ({
                                 isAuthenticated={isAuthenticated}
                                 reloadUserJuliaFractals={reloadUserJuliaFractals}
                                 handleViewJuliaFractal={handleViewJuliaFractal}
+                                isFavorite={
+                                    isAuthenticated &&
+                                    userFavorites.some(fav => String(fav.juliaFractalId) === String(juliaFractal.getId()))
+                                }
                             />
                         ))}
                     </div>
@@ -68,3 +77,9 @@ const JuliaFractalPublicList = ({
 };
 
 export default JuliaFractalPublicList;
+
+/*
+isFavorite={userFavorites.some(fav => String(fav.juliaFractalId) === String(juliaFractal.getId()))}
+
+isFavorite={favoriteService.isInUserFavorites(juliaFractal.getId())}
+*/

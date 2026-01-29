@@ -25,6 +25,9 @@ class UrlConfig {
     public static JULIA_FRACTAL_DELETE_FROM_USER_URL = '/api/julia-fractal/delete-from-user';
     public static JULIA_FRACTAL_CREATE_TO_USER_URL = '/api/julia-fractal/create-to-user';
     public static JULIA_FRACTAL_UPDATE_TO_USER_URL = '/api/julia-fractal/update-to-user';
+
+    public static FAVORITE_TOGGLE_URL = '/api/favorite/toggle';
+    public static FAVORITE_GET_USER_FAVORITES_URL = '/api/favorite/user-favorites';
 }
 
 export default UrlConfig;

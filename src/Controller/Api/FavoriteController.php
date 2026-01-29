@@ -10,7 +10,6 @@ use App\Entity\User;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\JuliaFractal;
 use Doctrine\ORM\EntityManagerInterface;
-use FFI;
 
 #[Route('/api/favorite', name: 'favorite_')]
 class FavoriteController extends AbstractController
@@ -33,10 +32,18 @@ class FavoriteController extends AbstractController
             ], 400);
         }
 
+        if (!isset($data['juliaFractalId'])) {
+            return $this->json([
+                'message' => 'Données JSON invalides',
+                'status' => 400,
+                'data' => []
+            ], 400);
+        }
+
         $julia = $em->getRepository(JuliaFractal::class)->findOneBy(['id' => $data['juliaFractalId']]);
         if (!$julia) {
             return $this->json([
-                'message' => "Fractal de julia non rencontré",
+                'message' => "Fractale de julia non rencontrée",
                 'status' => 404,
                 'data' => []
             ], 404);
@@ -71,6 +78,7 @@ class FavoriteController extends AbstractController
             $em->persist($userFromDb);
             $em->persist($julia);
             $em->flush();
+            
             return $this->json([
                 'message' => "Like supprimé",
                 'status' => 200,
@@ -86,10 +94,12 @@ class FavoriteController extends AbstractController
         $userFromDb->addFavorite($like);
         $julia->addFavorite($like);
 
-        $like->setUser($userFromDb);
-        $like->setJuliaFractal($julia);
+        //$like->setUser($userFromDb);
+        //$like->setJuliaFractal($julia);
 
         $em->persist($like);
+        $em->persist($userFromDb);
+        $em->persist($julia);
         $em->flush();
 
         return $this->json([
@@ -99,6 +109,39 @@ class FavoriteController extends AbstractController
                 'liked' => true
             ]
         ], 201);
+    }
+
+
+    #[Route('/user-favorites', name: 'user_favorites', methods: ['GET'])]
+    public function getUserFavorites(
+        EntityManagerInterface $em
+        ): Response {
+        $user = $this->getUser(); // L'utilisateur connecté
+        if (!$user) {
+            return $this->json([
+                'message' => 'Unauthorized',
+                'status' => 401,
+                'data' => []
+                ], 401);
+        }
+        $userFromDb = $em->getRepository(User::class)->findOneBy(['email' => $user->getUserIdentifier()]);
+        if (!$userFromDb) {
+            return $this->json([
+                'message' => "Utilisateur non rencontré",
+                'status' => 404,
+                'data' => []
+            ], 404);
+        }
+        $favorites = [];
+        foreach ($userFromDb->getFavorites() as $favorite) { 
+            $favorites[] = $favorite->normalizeShallow();
+        }
+        return $this->json([
+            'message' => "Liste des favoris de l'utilisateur",
+            'status' => 200,
+            'data' => [ "favorites" => $favorites ]
+        ], 200);
+            
     }
 
 }

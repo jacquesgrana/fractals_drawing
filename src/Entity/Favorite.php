@@ -78,8 +78,27 @@ class Favorite
         return $this;
     }
 
-    public function getFavoritesCount(): int
+    public function normalizeDeep(): array
     {
-        return count($this->getJuliaFractal()->getFavorites());
+        return [
+            'id' => $this->getId(),
+            'user' => $this->getUser()->normalizeShallow(),
+            'juliaFractal' => $this->getJuliaFractal()->normalizeShallow(),
+            'createdAt' => $this->getCreatedAt(),
+        ];
     }
+
+    public function normalizeShallow(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'user' => [
+                'id' => $this->getUser()->getId(),
+                'pseudo' => $this->getUser()->getPseudo()
+                ],
+            'juliaFractal' => ['id' => $this->getJuliaFractal()->getId()],
+            'createdAt' => $this->getCreatedAt(),
+        ];
+    }
+
 }
