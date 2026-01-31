@@ -266,10 +266,10 @@ class JuliaFractalService {
             case 'UPDATE_OLD':
                 juliaFractals.sort((a, b) => new Date(a.getUpdatedAt()).getTime() - new Date(b.getUpdatedAt()).getTime());
                 break;
-                case 'LIKES_ASC':
+            case 'LIKES_ASC':
                 juliaFractals.sort((a, b) => a.getFavoritesCount() - b.getFavoritesCount());
                 break;
-                case 'LIKES_DESC':
+            case 'LIKES_DESC':
                 juliaFractals.sort((a, b) => b.getFavoritesCount() - a.getFavoritesCount());
                 break;
             default:

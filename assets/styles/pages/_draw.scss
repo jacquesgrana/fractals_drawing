@@ -1,6 +1,18 @@
 .draw-page {
     width: 100%;
 
+    .like-icon-filled {
+        color: $warning-color;
+        font-size: xx-large;
+        //cursor: pointer;
+    }
+
+    .like-icon-empty {
+        color: $secondary-color;
+        font-size: xx-large;
+        //cursor: pointer;
+    }
+
     .draw-zone {
         display: block;
         width: 100%;

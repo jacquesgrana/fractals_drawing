@@ -105,19 +105,23 @@ const JuliaFractalListElement: React.FC<JuliaFractalListElementProps> = ({
     return (
         <div className='react-fractal-list-element'>
             <div className="d-flex align-items-center justify-content-between mb-2">
-                <div 
+                <div className="d-flex flex-column align-items-center">
+                    <div 
                     onClick={isAuthenticated ? handleToggleFavorite : undefined} 
                     style={{ cursor: isAuthenticated ? 'pointer' : 'default' }}
                     title={isAuthenticated ? "Cliquer pour changer le favori" : "Connectez-vous pour liker"}
-                >
+                    >
                     {isFavorite ? (
-                        <span className="star-icon filled">★</span>
+                        <span className="like-icon-filled">★</span>
                     ) : (
-                        <span className="star-icon empty">☆</span>
+                        <span className="like-icon-empty">☆</span>
                     )}
+                    </div>
+                
+                    <p className='text-small-black'>Likes : {juliaFractal.getFavoritesCount()}</p>
+                    <p className='text-small-black'>Utilisateur : <strong>{juliaFractal.getUser() ? juliaFractal.getUser().pseudo : 'aucun'}</strong></p>
                 </div>
-                <small className='text-muted'>Likes : {juliaFractal.getFavoritesCount()}</small>
-                </div>
+            </div>
             <canvas ref={canvasRef} width={160} height={160}></canvas>
             <p className='text-small-black'><strong>{juliaFractal.getName()}</strong></p>
             <div className='d-flex gap-1 w-auto'>

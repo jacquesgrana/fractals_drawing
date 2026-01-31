@@ -14,7 +14,7 @@ interface JuliaFractalPublicListProps {
     isAuthenticated: boolean;
     reloadUserJuliaFractals: () => Promise<void>;
     handleViewJuliaFractal: (juliaFractal: JuliaFractal) => void;
-    userFavorites: FavoriteShallow[]; // <--- AJOUTER CECI
+    //userFavorites: FavoriteShallow[]; // <--- AJOUTER CECI
 }
 
 const JuliaFractalPublicList = ({ 
@@ -25,7 +25,7 @@ const JuliaFractalPublicList = ({
     isAuthenticated,
     reloadUserJuliaFractals,
     handleViewJuliaFractal,
-    userFavorites
+    //userFavorites
 } : JuliaFractalPublicListProps ) : React.ReactElement => {
     
     const [activeSort, setActiveSort] = useState<SortOption>('NAME_ASC');
@@ -64,7 +64,7 @@ const JuliaFractalPublicList = ({
                                 handleViewJuliaFractal={handleViewJuliaFractal}
                                 isFavorite={
                                     isAuthenticated &&
-                                    userFavorites.some(fav => String(fav.juliaFractalId) === String(juliaFractal.getId()))
+                                    favoriteService.isInUserFavorites(juliaFractal.getId())
                                 }
                             />
                         ))}
